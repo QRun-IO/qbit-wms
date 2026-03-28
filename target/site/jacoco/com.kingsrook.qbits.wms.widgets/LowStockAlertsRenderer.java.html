@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LowStockAlertsRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.widgets</a> &gt; <span class="el_source">LowStockAlertsRenderer.java</span></div><h1>LowStockAlertsRenderer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Renderer for the Low Stock Alerts widget.
+ **
+ ** Aggregates wms_inventory by itemId to get total quantity on hand per item,
+ ** then joins with wms_item to compare against the reorder point. Displays a
+ ** table of SKU, item name, on-hand quantity, reorder point, and deficit.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.widgets;
+
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.AbstractWidgetRenderer;
+import com.kingsrook.qqq.backend.core.actions.tables.AggregateAction;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.Aggregate;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateResult;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.GroupBy;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetInput;
+import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetOutput;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.TableData;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.utils.StringUtils;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.utils.collections.MapBuilder;
+import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qbits.wms.core.model.WmsItem;
+
+
+<span class="fc" id="L44">public class LowStockAlertsRenderer extends AbstractWidgetRenderer</span>
+{
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public RenderWidgetOutput render(RenderWidgetInput input) throws QException
+   {
+<span class="nc" id="L53">      String warehouseId = input.getQueryParams().get(&quot;warehouseId&quot;);</span>
+
+      ///////////////////////////////////////////////////////////////
+      // aggregate inventory: SUM(quantityOnHand) GROUP BY itemId  //
+      ///////////////////////////////////////////////////////////////
+<span class="nc" id="L58">      QQueryFilter inventoryFilter = new QQueryFilter();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">      if(StringUtils.hasContent(warehouseId))</span>
+      {
+<span class="nc" id="L61">         inventoryFilter.withCriteria(new QFilterCriteria(&quot;warehouseId&quot;, QCriteriaOperator.EQUALS, ValueUtils.getValueAsInteger(warehouseId)));</span>
+      }
+
+<span class="nc" id="L64">      Aggregate sumOnHand    = new Aggregate(&quot;quantityOnHand&quot;, AggregateOperator.SUM);</span>
+<span class="nc" id="L65">      GroupBy   itemGroup    = new GroupBy(QFieldType.INTEGER, &quot;itemId&quot;);</span>
+
+<span class="nc" id="L67">      AggregateInput aggInput = new AggregateInput(WmsInventory.TABLE_NAME);</span>
+<span class="nc" id="L68">      aggInput.setFilter(inventoryFilter);</span>
+<span class="nc" id="L69">      aggInput.withAggregates(List.of(sumOnHand));</span>
+<span class="nc" id="L70">      aggInput.withGroupBys(List.of(itemGroup));</span>
+
+<span class="nc" id="L72">      AggregateOutput aggOutput = new AggregateAction().execute(aggInput);</span>
+
+      //////////////////////////////////////////////////////////
+      // collect item ids and their on-hand quantities         //
+      //////////////////////////////////////////////////////////
+<span class="nc" id="L77">      Map&lt;Integer, BigDecimal&gt; itemOnHand = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">      if(aggOutput.getResults() != null)</span>
+      {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">         for(AggregateResult result : aggOutput.getResults())</span>
+         {
+<span class="nc" id="L82">            Integer itemId = ValueUtils.getValueAsInteger(result.getGroupByValue(itemGroup));</span>
+<span class="nc" id="L83">            BigDecimal qoh = ValueUtils.getValueAsBigDecimal(result.getAggregateValue(sumOnHand));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            if(itemId != null)</span>
+            {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">               itemOnHand.put(itemId, qoh != null ? qoh : BigDecimal.ZERO);</span>
+            }
+<span class="nc" id="L88">         }</span>
+      }
+
+      ///////////////////////////////////////////////////////////////
+      // query items that have a reorder point to compare against  //
+      ///////////////////////////////////////////////////////////////
+<span class="nc" id="L94">      QQueryFilter itemFilter = new QQueryFilter()</span>
+<span class="nc" id="L95">         .withCriteria(new QFilterCriteria(&quot;reorderPoint&quot;, QCriteriaOperator.IS_NOT_BLANK))</span>
+<span class="nc" id="L96">         .withCriteria(new QFilterCriteria(&quot;isActive&quot;, QCriteriaOperator.EQUALS, true));</span>
+
+<span class="nc" id="L98">      QueryInput itemQueryInput = new QueryInput(WmsItem.TABLE_NAME);</span>
+<span class="nc" id="L99">      itemQueryInput.setFilter(itemFilter);</span>
+<span class="nc" id="L100">      QueryOutput itemOutput = new QueryAction().execute(itemQueryInput);</span>
+
+      ///////////////////////////
+      // build table columns   //
+      ///////////////////////////
+<span class="nc" id="L105">      List&lt;TableData.Column&gt; columns = List.of(</span>
+         new TableData.Column(&quot;html&quot;, &quot;SKU&quot;, &quot;sku&quot;, &quot;1fr&quot;, null),
+         new TableData.Column(&quot;html&quot;, &quot;Item Name&quot;, &quot;itemName&quot;, &quot;2fr&quot;, null),
+         new TableData.Column(&quot;html&quot;, &quot;On Hand&quot;, &quot;onHand&quot;, &quot;1fr&quot;, &quot;right&quot;),
+         new TableData.Column(&quot;html&quot;, &quot;Reorder Point&quot;, &quot;reorderPoint&quot;, &quot;1fr&quot;, &quot;right&quot;),
+         new TableData.Column(&quot;html&quot;, &quot;Deficit&quot;, &quot;deficit&quot;, &quot;1fr&quot;, &quot;right&quot;)
+      );
+
+      //////////////////////////
+      // build table rows     //
+      //////////////////////////
+<span class="nc" id="L116">      List&lt;Map&lt;String, Object&gt;&gt; rows = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">      for(QRecord item : itemOutput.getRecords())</span>
+      {
+<span class="nc" id="L119">         Integer itemId = item.getValueInteger(&quot;id&quot;);</span>
+<span class="nc" id="L120">         Integer reorderPoint = item.getValueInteger(&quot;reorderPoint&quot;);</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">         if(reorderPoint == null || reorderPoint &lt;= 0)</span>
+         {
+<span class="nc" id="L123">            continue;</span>
+         }
+
+<span class="nc" id="L126">         BigDecimal onHand = itemOnHand.getOrDefault(itemId, BigDecimal.ZERO);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">         if(onHand.compareTo(new BigDecimal(reorderPoint)) &lt;= 0)</span>
+         {
+<span class="nc" id="L129">            BigDecimal deficit = new BigDecimal(reorderPoint).subtract(onHand);</span>
+<span class="nc" id="L130">            rows.add(MapBuilder.of(</span>
+<span class="nc" id="L131">               &quot;sku&quot;, item.getValueString(&quot;sku&quot;),</span>
+<span class="nc" id="L132">               &quot;itemName&quot;, item.getValueString(&quot;name&quot;),</span>
+<span class="nc" id="L133">               &quot;onHand&quot;, onHand.toPlainString(),</span>
+<span class="nc" id="L134">               &quot;reorderPoint&quot;, String.valueOf(reorderPoint),</span>
+<span class="nc" id="L135">               &quot;deficit&quot;, deficit.toPlainString()</span>
+            ));
+         }
+<span class="nc" id="L138">      }</span>
+
+<span class="nc" id="L140">      TableData tableData = new TableData(null, columns, rows)</span>
+<span class="nc" id="L141">         .withRowsPerPage(50)</span>
+<span class="nc" id="L142">         .withHidePaginationDropdown(true);</span>
+
+<span class="nc" id="L144">      return (new RenderWidgetOutput(tableData));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

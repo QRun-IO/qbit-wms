@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventorySummaryRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.widgets</a> &gt; <span class="el_source">InventorySummaryRenderer.java</span></div><h1>InventorySummaryRenderer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Renderer for the Inventory Summary widget.
+ **
+ ** Aggregates wms_inventory data to produce Total SKUs, Total Units on Hand,
+ ** Total Locations Used, and a Utilization percentage. Supports warehouse
+ ** filtering via the warehouseId dropdown.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.widgets;
+
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.AbstractWidgetRenderer;
+import com.kingsrook.qqq.backend.core.actions.tables.AggregateAction;
+import com.kingsrook.qqq.backend.core.actions.tables.CountAction;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.Aggregate;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateResult;
+import com.kingsrook.qqq.backend.core.model.actions.tables.count.CountInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.count.CountOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetInput;
+import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetOutput;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.StatisticsData;
+import com.kingsrook.qqq.backend.core.utils.StringUtils;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qbits.wms.core.model.WmsLocation;
+
+
+<span class="fc" id="L38">public class InventorySummaryRenderer extends AbstractWidgetRenderer</span>
+{
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public RenderWidgetOutput render(RenderWidgetInput input) throws QException
+   {
+<span class="nc" id="L47">      String warehouseId = input.getQueryParams().get(&quot;warehouseId&quot;);</span>
+
+      /////////////////////////////////////
+      // base filter for warehouse scope //
+      /////////////////////////////////////
+<span class="nc" id="L52">      QQueryFilter inventoryFilter = new QQueryFilter();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">      if(StringUtils.hasContent(warehouseId))</span>
+      {
+<span class="nc" id="L55">         inventoryFilter.withCriteria(new QFilterCriteria(&quot;warehouseId&quot;, QCriteriaOperator.EQUALS, ValueUtils.getValueAsInteger(warehouseId)));</span>
+      }
+
+      ////////////////////////////////////////////
+      // count distinct SKUs (itemId) on hand   //
+      ////////////////////////////////////////////
+<span class="nc" id="L61">      Aggregate distinctSkus = new Aggregate(&quot;itemId&quot;, AggregateOperator.COUNT_DISTINCT);</span>
+<span class="nc" id="L62">      Aggregate totalOnHand  = new Aggregate(&quot;quantityOnHand&quot;, AggregateOperator.SUM);</span>
+<span class="nc" id="L63">      Aggregate distinctLocs = new Aggregate(&quot;locationId&quot;, AggregateOperator.COUNT_DISTINCT);</span>
+
+<span class="nc" id="L65">      AggregateInput aggInput = new AggregateInput(WmsInventory.TABLE_NAME);</span>
+<span class="nc" id="L66">      aggInput.setFilter(inventoryFilter);</span>
+<span class="nc" id="L67">      aggInput.withAggregates(List.of(distinctSkus, totalOnHand, distinctLocs));</span>
+
+<span class="nc" id="L69">      AggregateOutput aggOutput = new AggregateAction().execute(aggInput);</span>
+
+<span class="nc" id="L71">      Integer skuCount      = 0;</span>
+<span class="nc" id="L72">      BigDecimal unitsOnHand = BigDecimal.ZERO;</span>
+<span class="nc" id="L73">      Integer locationsUsed = 0;</span>
+
+<span class="nc bnc" id="L75" title="All 4 branches missed.">      if(aggOutput.getResults() != null &amp;&amp; !aggOutput.getResults().isEmpty())</span>
+      {
+<span class="nc" id="L77">         AggregateResult row = aggOutput.getResults().get(0);</span>
+<span class="nc" id="L78">         Serializable skuVal = row.getAggregateValue(distinctSkus);</span>
+<span class="nc" id="L79">         Serializable qohVal = row.getAggregateValue(totalOnHand);</span>
+<span class="nc" id="L80">         Serializable locVal = row.getAggregateValue(distinctLocs);</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">         skuCount = skuVal != null ? ValueUtils.getValueAsInteger(skuVal) : 0;</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">         unitsOnHand = qohVal != null ? ValueUtils.getValueAsBigDecimal(qohVal) : BigDecimal.ZERO;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">         locationsUsed = locVal != null ? ValueUtils.getValueAsInteger(locVal) : 0;</span>
+      }
+
+      ///////////////////////////////////////////////////////////////
+      // count total locations for utilization % calculation       //
+      ///////////////////////////////////////////////////////////////
+<span class="nc" id="L90">      QQueryFilter locationFilter = new QQueryFilter();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">      if(StringUtils.hasContent(warehouseId))</span>
+      {
+<span class="nc" id="L93">         locationFilter.withCriteria(new QFilterCriteria(&quot;warehouseId&quot;, QCriteriaOperator.EQUALS, ValueUtils.getValueAsInteger(warehouseId)));</span>
+      }
+
+<span class="nc" id="L96">      CountInput countInput = new CountInput(WmsLocation.TABLE_NAME);</span>
+<span class="nc" id="L97">      countInput.setFilter(locationFilter);</span>
+<span class="nc" id="L98">      CountOutput countOutput = new CountAction().execute(countInput);</span>
+<span class="nc" id="L99">      Integer totalLocations = countOutput.getCount();</span>
+
+<span class="nc" id="L101">      String utilization = &quot;0.0%&quot;;</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">      if(totalLocations != null &amp;&amp; totalLocations &gt; 0)</span>
+      {
+<span class="nc" id="L104">         BigDecimal pct = new BigDecimal(locationsUsed)</span>
+<span class="nc" id="L105">            .multiply(new BigDecimal(100))</span>
+<span class="nc" id="L106">            .divide(new BigDecimal(totalLocations), 1, RoundingMode.HALF_UP);</span>
+<span class="nc" id="L107">         utilization = pct.toPlainString() + &quot;%&quot;;</span>
+      }
+
+      //////////////////////////////////////////////////////////////
+      // build the statistics data with the primary stat + context //
+      //////////////////////////////////////////////////////////////
+<span class="nc" id="L113">      StatisticsData data = new StatisticsData(</span>
+<span class="nc" id="L114">         String.valueOf(skuCount),</span>
+         null,
+         &quot;Total SKUs&quot;
+      );
+<span class="nc" id="L118">      data.withCountContext(</span>
+<span class="nc" id="L119">         &quot;Units on Hand: &quot; + unitsOnHand.toPlainString()</span>
+         + &quot; | Locations Used: &quot; + locationsUsed
+         + &quot; | Utilization: &quot; + utilization
+      );
+
+<span class="nc" id="L124">      return (new RenderWidgetOutput(data));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

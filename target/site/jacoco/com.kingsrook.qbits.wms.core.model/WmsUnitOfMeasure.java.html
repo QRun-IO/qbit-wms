@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsUnitOfMeasure.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.model</a> &gt; <span class="el_source">WmsUnitOfMeasure.java</span></div><h1>WmsUnitOfMeasure.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** QRecord Entity for WmsUnitOfMeasure table.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.model;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+
+
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
+public class WmsUnitOfMeasure extends QRecordEntity
+{
+   public static final String TABLE_NAME = &quot;wmsUnitOfMeasure&quot;;
+
+   @QField(isEditable = false, isPrimaryKey = true)
+   private Integer id;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsItem.TABLE_NAME)
+   private Integer itemId;
+
+   @QField(maxLength = 20)
+   private String uomType;
+
+   @QField(maxLength = 50)
+   private String label;
+
+   @QField()
+   private Integer quantityOfBase;
+
+   @QField(maxLength = 50)
+   private String barcode;
+
+   @QField()
+   private BigDecimal weightLbs;
+
+   @QField()
+   private BigDecimal lengthIn;
+
+   @QField()
+   private BigDecimal widthIn;
+
+   @QField()
+   private BigDecimal heightIn;
+
+   @QField(isEditable = false)
+   private Instant createDate;
+
+   @QField(isEditable = false)
+   private Instant modifyDate;
+
+
+
+   /*******************************************************************************
+    ** Default constructor
+    *******************************************************************************/
+   public WmsUnitOfMeasure()
+<span class="fc" id="L62">   {</span>
+<span class="fc" id="L63">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Constructor that takes a QRecord
+    *******************************************************************************/
+   public WmsUnitOfMeasure(QRecord record)
+<span class="fc" id="L71">   {</span>
+<span class="fc" id="L72">      populateFromQRecord(record);</span>
+<span class="fc" id="L73">   }</span>
+
+
+
+<span class="fc" id="L77">   public Integer getId() { return (this.id); }</span>
+<span class="fc" id="L78">   public void setId(Integer id) { this.id = id; }</span>
+<span class="fc" id="L79">   public WmsUnitOfMeasure withId(Integer id) { this.id = id; return (this); }</span>
+
+<span class="fc" id="L81">   public Integer getItemId() { return (this.itemId); }</span>
+<span class="fc" id="L82">   public void setItemId(Integer itemId) { this.itemId = itemId; }</span>
+<span class="fc" id="L83">   public WmsUnitOfMeasure withItemId(Integer itemId) { this.itemId = itemId; return (this); }</span>
+
+<span class="fc" id="L85">   public String getUomType() { return (this.uomType); }</span>
+<span class="fc" id="L86">   public void setUomType(String uomType) { this.uomType = uomType; }</span>
+<span class="fc" id="L87">   public WmsUnitOfMeasure withUomType(String uomType) { this.uomType = uomType; return (this); }</span>
+
+<span class="fc" id="L89">   public String getLabel() { return (this.label); }</span>
+<span class="fc" id="L90">   public void setLabel(String label) { this.label = label; }</span>
+<span class="fc" id="L91">   public WmsUnitOfMeasure withLabel(String label) { this.label = label; return (this); }</span>
+
+<span class="fc" id="L93">   public Integer getQuantityOfBase() { return (this.quantityOfBase); }</span>
+<span class="fc" id="L94">   public void setQuantityOfBase(Integer quantityOfBase) { this.quantityOfBase = quantityOfBase; }</span>
+<span class="fc" id="L95">   public WmsUnitOfMeasure withQuantityOfBase(Integer quantityOfBase) { this.quantityOfBase = quantityOfBase; return (this); }</span>
+
+<span class="fc" id="L97">   public String getBarcode() { return (this.barcode); }</span>
+<span class="fc" id="L98">   public void setBarcode(String barcode) { this.barcode = barcode; }</span>
+<span class="fc" id="L99">   public WmsUnitOfMeasure withBarcode(String barcode) { this.barcode = barcode; return (this); }</span>
+
+<span class="fc" id="L101">   public BigDecimal getWeightLbs() { return (this.weightLbs); }</span>
+<span class="fc" id="L102">   public void setWeightLbs(BigDecimal weightLbs) { this.weightLbs = weightLbs; }</span>
+<span class="fc" id="L103">   public WmsUnitOfMeasure withWeightLbs(BigDecimal weightLbs) { this.weightLbs = weightLbs; return (this); }</span>
+
+<span class="fc" id="L105">   public BigDecimal getLengthIn() { return (this.lengthIn); }</span>
+<span class="fc" id="L106">   public void setLengthIn(BigDecimal lengthIn) { this.lengthIn = lengthIn; }</span>
+<span class="fc" id="L107">   public WmsUnitOfMeasure withLengthIn(BigDecimal lengthIn) { this.lengthIn = lengthIn; return (this); }</span>
+
+<span class="fc" id="L109">   public BigDecimal getWidthIn() { return (this.widthIn); }</span>
+<span class="fc" id="L110">   public void setWidthIn(BigDecimal widthIn) { this.widthIn = widthIn; }</span>
+<span class="fc" id="L111">   public WmsUnitOfMeasure withWidthIn(BigDecimal widthIn) { this.widthIn = widthIn; return (this); }</span>
+
+<span class="fc" id="L113">   public BigDecimal getHeightIn() { return (this.heightIn); }</span>
+<span class="fc" id="L114">   public void setHeightIn(BigDecimal heightIn) { this.heightIn = heightIn; }</span>
+<span class="fc" id="L115">   public WmsUnitOfMeasure withHeightIn(BigDecimal heightIn) { this.heightIn = heightIn; return (this); }</span>
+
+<span class="fc" id="L117">   public Instant getCreateDate() { return (this.createDate); }</span>
+<span class="fc" id="L118">   public void setCreateDate(Instant createDate) { this.createDate = createDate; }</span>
+<span class="fc" id="L119">   public WmsUnitOfMeasure withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }</span>
+
+<span class="fc" id="L121">   public Instant getModifyDate() { return (this.modifyDate); }</span>
+<span class="fc" id="L122">   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }</span>
+<span class="fc" id="L123">   public WmsUnitOfMeasure withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

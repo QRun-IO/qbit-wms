@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsZone.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.model</a> &gt; <span class="el_source">WmsZone.java</span></div><h1>WmsZone.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** QRecord Entity for WmsZone table.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.model;
+
+
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
+import com.kingsrook.qbits.wms.core.enums.ZoneType;
+
+
+@QMetaDataProducingEntity(
+   producePossibleValueSource = true,
+   produceTableMetaData = true,
+   tableMetaDataCustomizer = WmsZone.TableMetaDataCustomizer.class
+)
+public class WmsZone extends QRecordEntity
+{
+   public static final String TABLE_NAME = &quot;wmsZone&quot;;
+
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
+<span class="fc" id="L35">   public static class TableMetaDataCustomizer implements MetaDataCustomizerInterface&lt;QTableMetaData&gt;</span>
+   {
+      /***************************************************************************
+       **
+       ***************************************************************************/
+      @Override
+      public QTableMetaData customizeMetaData(QInstance qInstance, QTableMetaData table) throws QException
+      {
+<span class="fc" id="L43">         table</span>
+<span class="fc" id="L44">            .withIcon(new QIcon().withName(&quot;grid_view&quot;))</span>
+<span class="fc" id="L45">            .withRecordLabelFormat(&quot;%s&quot;)</span>
+<span class="fc" id="L46">            .withRecordLabelFields(&quot;name&quot;)</span>
+<span class="fc" id="L47">            .withSection(SectionFactory.defaultT1(&quot;id&quot;, &quot;warehouseId&quot;, &quot;name&quot;, &quot;code&quot;, &quot;zoneTypeId&quot;, &quot;pickSequence&quot;, &quot;isActive&quot;))</span>
+<span class="fc" id="L48">            .withSection(SectionFactory.defaultT3(&quot;createDate&quot;, &quot;modifyDate&quot;));</span>
+
+<span class="fc" id="L50">         return (table);</span>
+      }
+   }
+
+
+
+   @QField(isEditable = false, isPrimaryKey = true)
+   private Integer id;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsWarehouse.TABLE_NAME)
+   private Integer warehouseId;
+
+   @QField(isRequired = true, maxLength = 100)
+   private String name;
+
+   @QField(isRequired = true, maxLength = 20)
+   private String code;
+
+   @QField(possibleValueSourceName = ZoneType.NAME, label = &quot;Zone Type&quot;)
+   private Integer zoneTypeId;
+
+   @QField()
+   private Integer pickSequence;
+
+   @QField()
+   private Boolean isActive;
+
+   @QField(isEditable = false)
+   private Instant createDate;
+
+   @QField(isEditable = false)
+   private Instant modifyDate;
+
+
+
+   /*******************************************************************************
+    ** Default constructor
+    *******************************************************************************/
+   public WmsZone()
+<span class="fc" id="L89">   {</span>
+<span class="fc" id="L90">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Constructor that takes a QRecord
+    *******************************************************************************/
+   public WmsZone(QRecord record)
+<span class="fc" id="L98">   {</span>
+<span class="fc" id="L99">      populateFromQRecord(record);</span>
+<span class="fc" id="L100">   }</span>
+
+
+
+<span class="fc" id="L104">   public Integer getId() { return (this.id); }</span>
+<span class="fc" id="L105">   public void setId(Integer id) { this.id = id; }</span>
+<span class="fc" id="L106">   public WmsZone withId(Integer id) { this.id = id; return (this); }</span>
+
+<span class="fc" id="L108">   public Integer getWarehouseId() { return (this.warehouseId); }</span>
+<span class="fc" id="L109">   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }</span>
+<span class="fc" id="L110">   public WmsZone withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }</span>
+
+<span class="fc" id="L112">   public String getName() { return (this.name); }</span>
+<span class="fc" id="L113">   public void setName(String name) { this.name = name; }</span>
+<span class="fc" id="L114">   public WmsZone withName(String name) { this.name = name; return (this); }</span>
+
+<span class="fc" id="L116">   public String getCode() { return (this.code); }</span>
+<span class="fc" id="L117">   public void setCode(String code) { this.code = code; }</span>
+<span class="fc" id="L118">   public WmsZone withCode(String code) { this.code = code; return (this); }</span>
+
+<span class="fc" id="L120">   public Integer getZoneTypeId() { return (this.zoneTypeId); }</span>
+<span class="fc" id="L121">   public void setZoneTypeId(Integer zoneTypeId) { this.zoneTypeId = zoneTypeId; }</span>
+<span class="fc" id="L122">   public WmsZone withZoneTypeId(Integer zoneTypeId) { this.zoneTypeId = zoneTypeId; return (this); }</span>
+
+<span class="fc" id="L124">   public Integer getPickSequence() { return (this.pickSequence); }</span>
+<span class="fc" id="L125">   public void setPickSequence(Integer pickSequence) { this.pickSequence = pickSequence; }</span>
+<span class="fc" id="L126">   public WmsZone withPickSequence(Integer pickSequence) { this.pickSequence = pickSequence; return (this); }</span>
+
+<span class="fc" id="L128">   public Boolean getIsActive() { return (this.isActive); }</span>
+<span class="fc" id="L129">   public void setIsActive(Boolean isActive) { this.isActive = isActive; }</span>
+<span class="fc" id="L130">   public WmsZone withIsActive(Boolean isActive) { this.isActive = isActive; return (this); }</span>
+
+<span class="fc" id="L132">   public Instant getCreateDate() { return (this.createDate); }</span>
+<span class="fc" id="L133">   public void setCreateDate(Instant createDate) { this.createDate = createDate; }</span>
+<span class="fc" id="L134">   public WmsZone withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }</span>
+
+<span class="fc" id="L136">   public Instant getModifyDate() { return (this.modifyDate); }</span>
+<span class="fc" id="L137">   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }</span>
+<span class="fc" id="L138">   public WmsZone withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

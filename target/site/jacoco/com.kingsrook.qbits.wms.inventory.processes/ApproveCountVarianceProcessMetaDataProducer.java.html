@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApproveCountVarianceProcessMetaDataProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">ApproveCountVarianceProcessMetaDataProducer.java</span></div><h1>ApproveCountVarianceProcessMetaDataProducer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** MetaData producer for the ApproveCountVariance process.  Supervisor reviews
+ ** cycle count variances and either approves them (adjusting inventory) or
+ ** rejects them (triggering a recount).
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QBackendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QComponentType;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendComponentMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QProcessMetaData;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
+
+
+<span class="fc" id="L24">public class ApproveCountVarianceProcessMetaDataProducer implements MetaDataProducerInterface&lt;QProcessMetaData&gt;</span>
+{
+   public static final String NAME = &quot;wmsApproveCountVariance&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public QProcessMetaData produce(QInstance qInstance) throws QException
+   {
+<span class="fc" id="L36">      return new QProcessMetaData()</span>
+<span class="fc" id="L37">         .withName(NAME)</span>
+<span class="fc" id="L38">         .withLabel(&quot;Approve Count Variance&quot;)</span>
+<span class="fc" id="L39">         .withIcon(new QIcon().withName(&quot;fact_check&quot;))</span>
+<span class="fc" id="L40">         .withTableName(WmsCycleCount.TABLE_NAME)</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 1: Select cycle count to review                                 //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L45">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L46">            .withName(&quot;selectCycleCount&quot;)</span>
+<span class="fc" id="L47">            .withLabel(&quot;Select Cycle Count&quot;)</span>
+<span class="fc" id="L48">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L49">            .withFormField(new QFieldMetaData(&quot;cycleCountId&quot;, QFieldType.INTEGER).withLabel(&quot;Cycle Count ID&quot;).withIsRequired(true)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 2: Review variances (display lines with variance)               //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L54">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L55">            .withName(&quot;reviewVariances&quot;)</span>
+<span class="fc" id="L56">            .withLabel(&quot;Review Variances&quot;)</span>
+<span class="fc" id="L57">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L58">            .withFormField(new QFieldMetaData(&quot;approveAll&quot;, QFieldType.BOOLEAN).withLabel(&quot;Approve All Variances&quot;).withDefaultValue(false))</span>
+<span class="fc" id="L59">            .withFormField(new QFieldMetaData(&quot;rejectLineIds&quot;, QFieldType.STRING).withLabel(&quot;Line IDs to Reject (comma-separated)&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 3: Apply decisions                                              //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L64">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L65">            .withName(&quot;applyDecisions&quot;)</span>
+<span class="fc" id="L66">            .withCode(new QCodeReference(ApproveCountVarianceStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 4: Show result                                                  //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L71">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L72">            .withName(&quot;confirmResult&quot;)</span>
+<span class="fc" id="L73">            .withLabel(&quot;Variance Review Complete&quot;)</span>
+<span class="fc" id="L74">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.VIEW_FORM))</span>
+<span class="fc" id="L75">            .withViewField(new QFieldMetaData(&quot;resultMessage&quot;, QFieldType.STRING).withLabel(&quot;Result&quot;))</span>
+<span class="fc" id="L76">            .withViewField(new QFieldMetaData(&quot;approvedCount&quot;, QFieldType.INTEGER).withLabel(&quot;Lines Approved&quot;))</span>
+<span class="fc" id="L77">            .withViewField(new QFieldMetaData(&quot;rejectedCount&quot;, QFieldType.INTEGER).withLabel(&quot;Recounts Requested&quot;)));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

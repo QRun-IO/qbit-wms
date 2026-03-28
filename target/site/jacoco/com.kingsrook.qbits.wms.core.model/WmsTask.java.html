@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsTask.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.model</a> &gt; <span class="el_source">WmsTask.java</span></div><h1>WmsTask.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** QRecord Entity for WmsTask table -- the central work execution entity.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.model;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
+import com.kingsrook.qbits.wms.core.enums.EquipmentType;
+import com.kingsrook.qbits.wms.core.enums.TaskStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskType;
+
+
+@QMetaDataProducingEntity(
+   producePossibleValueSource = true,
+   produceTableMetaData = true,
+   tableMetaDataCustomizer = WmsTask.TableMetaDataCustomizer.class
+)
+public class WmsTask extends QRecordEntity
+{
+   public static final String TABLE_NAME = &quot;wmsTask&quot;;
+
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
+<span class="fc" id="L40">   public static class TableMetaDataCustomizer implements MetaDataCustomizerInterface&lt;QTableMetaData&gt;</span>
+   {
+      /***************************************************************************
+       **
+       ***************************************************************************/
+      @Override
+      public QTableMetaData customizeMetaData(QInstance qInstance, QTableMetaData table) throws QException
+      {
+<span class="fc" id="L48">         table</span>
+<span class="fc" id="L49">            .withIcon(new QIcon().withName(&quot;assignment&quot;))</span>
+<span class="fc" id="L50">            .withRecordLabelFormat(&quot;%s&quot;)</span>
+<span class="fc" id="L51">            .withRecordLabelFields(&quot;id&quot;)</span>
+<span class="fc" id="L52">            .withSection(new QFieldSection(&quot;taskInfo&quot;, &quot;Task Info&quot;, new QIcon(&quot;info&quot;), Tier.T1,</span>
+<span class="fc" id="L53">               java.util.List.of(&quot;id&quot;, &quot;warehouseId&quot;, &quot;clientId&quot;, &quot;taskTypeId&quot;, &quot;taskStatusId&quot;, &quot;priority&quot;, &quot;equipmentTypeId&quot;)))</span>
+<span class="fc" id="L54">            .withSection(new QFieldSection(&quot;what&quot;, &quot;What&quot;, new QIcon(&quot;inventory_2&quot;), Tier.T2,</span>
+<span class="fc" id="L55">               java.util.List.of(&quot;itemId&quot;, &quot;quantityRequested&quot;, &quot;quantityCompleted&quot;, &quot;lotNumber&quot;, &quot;serialNumber&quot;, &quot;lpnId&quot;)))</span>
+<span class="fc" id="L56">            .withSection(new QFieldSection(&quot;where&quot;, &quot;Where&quot;, new QIcon(&quot;place&quot;), Tier.T2,</span>
+<span class="fc" id="L57">               java.util.List.of(&quot;sourceLocationId&quot;, &quot;destinationLocationId&quot;, &quot;zoneId&quot;)))</span>
+<span class="fc" id="L58">            .withSection(new QFieldSection(&quot;who&quot;, &quot;Who&quot;, new QIcon(&quot;person&quot;), Tier.T2,</span>
+<span class="fc" id="L59">               java.util.List.of(&quot;assignedTo&quot;, &quot;assignedDate&quot;, &quot;startedDate&quot;, &quot;completedDate&quot;, &quot;completedBy&quot;)))</span>
+<span class="fc" id="L60">            .withSection(new QFieldSection(&quot;grouping&quot;, &quot;Grouping&quot;, new QIcon(&quot;workspaces&quot;), Tier.T2,</span>
+<span class="fc" id="L61">               java.util.List.of(&quot;waveId&quot;, &quot;taskGroupId&quot;, &quot;sequence&quot;)))</span>
+<span class="fc" id="L62">            .withSection(new QFieldSection(&quot;references&quot;, &quot;References&quot;, new QIcon(&quot;link&quot;), Tier.T2,</span>
+<span class="fc" id="L63">               java.util.List.of(&quot;referenceType&quot;, &quot;referenceId&quot;, &quot;orderId&quot;, &quot;orderLineId&quot;, &quot;receiptId&quot;, &quot;receiptLineId&quot;, &quot;cycleCountId&quot;, &quot;returnAuthorizationId&quot;)))</span>
+<span class="fc" id="L64">            .withSection(new QFieldSection(&quot;countSpecific&quot;, &quot;Count Specific&quot;, new QIcon(&quot;exposure&quot;), Tier.T2,</span>
+<span class="fc" id="L65">               java.util.List.of(&quot;expectedQuantity&quot;, &quot;countedQuantity&quot;, &quot;variance&quot;, &quot;isBlindCount&quot;, &quot;recountRequired&quot;)))</span>
+<span class="fc" id="L66">            .withSection(new QFieldSection(&quot;notes&quot;, &quot;Notes&quot;, new QIcon(&quot;notes&quot;), Tier.T2,</span>
+<span class="fc" id="L67">               java.util.List.of(&quot;notes&quot;, &quot;shortReason&quot;)))</span>
+<span class="fc" id="L68">            .withSection(SectionFactory.defaultT3(&quot;createDate&quot;, &quot;modifyDate&quot;));</span>
+
+<span class="fc" id="L70">         return (table);</span>
+      }
+   }
+
+
+
+   @QField(isEditable = false, isPrimaryKey = true)
+   private Integer id;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsWarehouse.TABLE_NAME)
+   private Integer warehouseId;
+
+   @QField(possibleValueSourceName = WmsClient.TABLE_NAME)
+   private Integer clientId;
+
+   @QField(isRequired = true, possibleValueSourceName = TaskType.NAME, label = &quot;Task Type&quot;)
+   private Integer taskTypeId;
+
+   @QField(isRequired = true, possibleValueSourceName = TaskStatus.NAME, label = &quot;Status&quot;)
+   private Integer taskStatusId;
+
+   @QField()
+   private Integer priority;
+
+   @QField(possibleValueSourceName = WmsItem.TABLE_NAME)
+   private Integer itemId;
+
+   @QField()
+   private BigDecimal quantityRequested;
+
+   @QField()
+   private BigDecimal quantityCompleted;
+
+   @QField(maxLength = 50)
+   private String lotNumber;
+
+   @QField(maxLength = 50)
+   private String serialNumber;
+
+   @QField(possibleValueSourceName = WmsLicensePlate.TABLE_NAME)
+   private Integer lpnId;
+
+   @QField(possibleValueSourceName = WmsLocation.TABLE_NAME, label = &quot;Source Location&quot;)
+   private Integer sourceLocationId;
+
+   @QField(possibleValueSourceName = WmsLocation.TABLE_NAME, label = &quot;Destination Location&quot;)
+   private Integer destinationLocationId;
+
+   @QField(possibleValueSourceName = &quot;wmsZone&quot;)
+   private Integer zoneId;
+
+   @QField(maxLength = 100)
+   private String assignedTo;
+
+   @QField()
+   private Instant assignedDate;
+
+   @QField()
+   private Instant startedDate;
+
+   @QField()
+   private Instant completedDate;
+
+   @QField(maxLength = 100)
+   private String completedBy;
+
+   @QField()
+   private Integer waveId;
+
+   @QField(maxLength = 50)
+   private String taskGroupId;
+
+   @QField()
+   private Integer sequence;
+
+   @QField(possibleValueSourceName = EquipmentType.NAME, label = &quot;Equipment Type&quot;)
+   private Integer equipmentTypeId;
+
+   @QField(maxLength = 50)
+   private String referenceType;
+
+   @QField()
+   private Integer referenceId;
+
+   @QField()
+   private Integer orderId;
+
+   @QField()
+   private Integer orderLineId;
+
+   @QField()
+   private Integer receiptId;
+
+   @QField()
+   private Integer receiptLineId;
+
+   @QField()
+   private Integer cycleCountId;
+
+   @QField()
+   private Integer returnAuthorizationId;
+
+   @QField()
+   private BigDecimal expectedQuantity;
+
+   @QField()
+   private BigDecimal countedQuantity;
+
+   @QField()
+   private BigDecimal variance;
+
+   @QField()
+   private Boolean isBlindCount;
+
+   @QField()
+   private Boolean recountRequired;
+
+   @QField(maxLength = 500)
+   private String notes;
+
+   @QField(maxLength = 250)
+   private String shortReason;
+
+   @QField(isEditable = false)
+   private Instant createDate;
+
+   @QField(isEditable = false)
+   private Instant modifyDate;
+
+
+
+   /*******************************************************************************
+    ** Default constructor
+    *******************************************************************************/
+   public WmsTask()
+<span class="fc" id="L205">   {</span>
+<span class="fc" id="L206">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Constructor that takes a QRecord
+    *******************************************************************************/
+   public WmsTask(QRecord record)
+<span class="fc" id="L214">   {</span>
+<span class="fc" id="L215">      populateFromQRecord(record);</span>
+<span class="fc" id="L216">   }</span>
+
+
+
+<span class="fc" id="L220">   public Integer getId() { return (this.id); }</span>
+<span class="fc" id="L221">   public void setId(Integer id) { this.id = id; }</span>
+<span class="fc" id="L222">   public WmsTask withId(Integer id) { this.id = id; return (this); }</span>
+
+<span class="fc" id="L224">   public Integer getWarehouseId() { return (this.warehouseId); }</span>
+<span class="fc" id="L225">   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }</span>
+<span class="fc" id="L226">   public WmsTask withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }</span>
+
+<span class="fc" id="L228">   public Integer getClientId() { return (this.clientId); }</span>
+<span class="fc" id="L229">   public void setClientId(Integer clientId) { this.clientId = clientId; }</span>
+<span class="fc" id="L230">   public WmsTask withClientId(Integer clientId) { this.clientId = clientId; return (this); }</span>
+
+<span class="fc" id="L232">   public Integer getTaskTypeId() { return (this.taskTypeId); }</span>
+<span class="fc" id="L233">   public void setTaskTypeId(Integer taskTypeId) { this.taskTypeId = taskTypeId; }</span>
+<span class="fc" id="L234">   public WmsTask withTaskTypeId(Integer taskTypeId) { this.taskTypeId = taskTypeId; return (this); }</span>
+
+<span class="fc" id="L236">   public Integer getTaskStatusId() { return (this.taskStatusId); }</span>
+<span class="fc" id="L237">   public void setTaskStatusId(Integer taskStatusId) { this.taskStatusId = taskStatusId; }</span>
+<span class="fc" id="L238">   public WmsTask withTaskStatusId(Integer taskStatusId) { this.taskStatusId = taskStatusId; return (this); }</span>
+
+<span class="fc" id="L240">   public Integer getPriority() { return (this.priority); }</span>
+<span class="fc" id="L241">   public void setPriority(Integer priority) { this.priority = priority; }</span>
+<span class="fc" id="L242">   public WmsTask withPriority(Integer priority) { this.priority = priority; return (this); }</span>
+
+<span class="fc" id="L244">   public Integer getItemId() { return (this.itemId); }</span>
+<span class="fc" id="L245">   public void setItemId(Integer itemId) { this.itemId = itemId; }</span>
+<span class="fc" id="L246">   public WmsTask withItemId(Integer itemId) { this.itemId = itemId; return (this); }</span>
+
+<span class="fc" id="L248">   public BigDecimal getQuantityRequested() { return (this.quantityRequested); }</span>
+<span class="fc" id="L249">   public void setQuantityRequested(BigDecimal quantityRequested) { this.quantityRequested = quantityRequested; }</span>
+<span class="fc" id="L250">   public WmsTask withQuantityRequested(BigDecimal quantityRequested) { this.quantityRequested = quantityRequested; return (this); }</span>
+
+<span class="fc" id="L252">   public BigDecimal getQuantityCompleted() { return (this.quantityCompleted); }</span>
+<span class="fc" id="L253">   public void setQuantityCompleted(BigDecimal quantityCompleted) { this.quantityCompleted = quantityCompleted; }</span>
+<span class="fc" id="L254">   public WmsTask withQuantityCompleted(BigDecimal quantityCompleted) { this.quantityCompleted = quantityCompleted; return (this); }</span>
+
+<span class="fc" id="L256">   public String getLotNumber() { return (this.lotNumber); }</span>
+<span class="fc" id="L257">   public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }</span>
+<span class="fc" id="L258">   public WmsTask withLotNumber(String lotNumber) { this.lotNumber = lotNumber; return (this); }</span>
+
+<span class="fc" id="L260">   public String getSerialNumber() { return (this.serialNumber); }</span>
+<span class="fc" id="L261">   public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }</span>
+<span class="fc" id="L262">   public WmsTask withSerialNumber(String serialNumber) { this.serialNumber = serialNumber; return (this); }</span>
+
+<span class="fc" id="L264">   public Integer getLpnId() { return (this.lpnId); }</span>
+<span class="fc" id="L265">   public void setLpnId(Integer lpnId) { this.lpnId = lpnId; }</span>
+<span class="fc" id="L266">   public WmsTask withLpnId(Integer lpnId) { this.lpnId = lpnId; return (this); }</span>
+
+<span class="fc" id="L268">   public Integer getSourceLocationId() { return (this.sourceLocationId); }</span>
+<span class="fc" id="L269">   public void setSourceLocationId(Integer sourceLocationId) { this.sourceLocationId = sourceLocationId; }</span>
+<span class="fc" id="L270">   public WmsTask withSourceLocationId(Integer sourceLocationId) { this.sourceLocationId = sourceLocationId; return (this); }</span>
+
+<span class="fc" id="L272">   public Integer getDestinationLocationId() { return (this.destinationLocationId); }</span>
+<span class="fc" id="L273">   public void setDestinationLocationId(Integer destinationLocationId) { this.destinationLocationId = destinationLocationId; }</span>
+<span class="fc" id="L274">   public WmsTask withDestinationLocationId(Integer destinationLocationId) { this.destinationLocationId = destinationLocationId; return (this); }</span>
+
+<span class="fc" id="L276">   public Integer getZoneId() { return (this.zoneId); }</span>
+<span class="fc" id="L277">   public void setZoneId(Integer zoneId) { this.zoneId = zoneId; }</span>
+<span class="fc" id="L278">   public WmsTask withZoneId(Integer zoneId) { this.zoneId = zoneId; return (this); }</span>
+
+<span class="fc" id="L280">   public String getAssignedTo() { return (this.assignedTo); }</span>
+<span class="fc" id="L281">   public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }</span>
+<span class="fc" id="L282">   public WmsTask withAssignedTo(String assignedTo) { this.assignedTo = assignedTo; return (this); }</span>
+
+<span class="fc" id="L284">   public Instant getAssignedDate() { return (this.assignedDate); }</span>
+<span class="fc" id="L285">   public void setAssignedDate(Instant assignedDate) { this.assignedDate = assignedDate; }</span>
+<span class="fc" id="L286">   public WmsTask withAssignedDate(Instant assignedDate) { this.assignedDate = assignedDate; return (this); }</span>
+
+<span class="fc" id="L288">   public Instant getStartedDate() { return (this.startedDate); }</span>
+<span class="fc" id="L289">   public void setStartedDate(Instant startedDate) { this.startedDate = startedDate; }</span>
+<span class="fc" id="L290">   public WmsTask withStartedDate(Instant startedDate) { this.startedDate = startedDate; return (this); }</span>
+
+<span class="fc" id="L292">   public Instant getCompletedDate() { return (this.completedDate); }</span>
+<span class="fc" id="L293">   public void setCompletedDate(Instant completedDate) { this.completedDate = completedDate; }</span>
+<span class="fc" id="L294">   public WmsTask withCompletedDate(Instant completedDate) { this.completedDate = completedDate; return (this); }</span>
+
+<span class="fc" id="L296">   public String getCompletedBy() { return (this.completedBy); }</span>
+<span class="fc" id="L297">   public void setCompletedBy(String completedBy) { this.completedBy = completedBy; }</span>
+<span class="fc" id="L298">   public WmsTask withCompletedBy(String completedBy) { this.completedBy = completedBy; return (this); }</span>
+
+<span class="fc" id="L300">   public Integer getWaveId() { return (this.waveId); }</span>
+<span class="fc" id="L301">   public void setWaveId(Integer waveId) { this.waveId = waveId; }</span>
+<span class="fc" id="L302">   public WmsTask withWaveId(Integer waveId) { this.waveId = waveId; return (this); }</span>
+
+<span class="fc" id="L304">   public String getTaskGroupId() { return (this.taskGroupId); }</span>
+<span class="fc" id="L305">   public void setTaskGroupId(String taskGroupId) { this.taskGroupId = taskGroupId; }</span>
+<span class="fc" id="L306">   public WmsTask withTaskGroupId(String taskGroupId) { this.taskGroupId = taskGroupId; return (this); }</span>
+
+<span class="fc" id="L308">   public Integer getSequence() { return (this.sequence); }</span>
+<span class="fc" id="L309">   public void setSequence(Integer sequence) { this.sequence = sequence; }</span>
+<span class="fc" id="L310">   public WmsTask withSequence(Integer sequence) { this.sequence = sequence; return (this); }</span>
+
+<span class="fc" id="L312">   public Integer getEquipmentTypeId() { return (this.equipmentTypeId); }</span>
+<span class="fc" id="L313">   public void setEquipmentTypeId(Integer equipmentTypeId) { this.equipmentTypeId = equipmentTypeId; }</span>
+<span class="fc" id="L314">   public WmsTask withEquipmentTypeId(Integer equipmentTypeId) { this.equipmentTypeId = equipmentTypeId; return (this); }</span>
+
+<span class="fc" id="L316">   public String getReferenceType() { return (this.referenceType); }</span>
+<span class="fc" id="L317">   public void setReferenceType(String referenceType) { this.referenceType = referenceType; }</span>
+<span class="fc" id="L318">   public WmsTask withReferenceType(String referenceType) { this.referenceType = referenceType; return (this); }</span>
+
+<span class="fc" id="L320">   public Integer getReferenceId() { return (this.referenceId); }</span>
+<span class="fc" id="L321">   public void setReferenceId(Integer referenceId) { this.referenceId = referenceId; }</span>
+<span class="fc" id="L322">   public WmsTask withReferenceId(Integer referenceId) { this.referenceId = referenceId; return (this); }</span>
+
+<span class="fc" id="L324">   public Integer getOrderId() { return (this.orderId); }</span>
+<span class="fc" id="L325">   public void setOrderId(Integer orderId) { this.orderId = orderId; }</span>
+<span class="fc" id="L326">   public WmsTask withOrderId(Integer orderId) { this.orderId = orderId; return (this); }</span>
+
+<span class="fc" id="L328">   public Integer getOrderLineId() { return (this.orderLineId); }</span>
+<span class="fc" id="L329">   public void setOrderLineId(Integer orderLineId) { this.orderLineId = orderLineId; }</span>
+<span class="fc" id="L330">   public WmsTask withOrderLineId(Integer orderLineId) { this.orderLineId = orderLineId; return (this); }</span>
+
+<span class="fc" id="L332">   public Integer getReceiptId() { return (this.receiptId); }</span>
+<span class="fc" id="L333">   public void setReceiptId(Integer receiptId) { this.receiptId = receiptId; }</span>
+<span class="fc" id="L334">   public WmsTask withReceiptId(Integer receiptId) { this.receiptId = receiptId; return (this); }</span>
+
+<span class="fc" id="L336">   public Integer getReceiptLineId() { return (this.receiptLineId); }</span>
+<span class="fc" id="L337">   public void setReceiptLineId(Integer receiptLineId) { this.receiptLineId = receiptLineId; }</span>
+<span class="fc" id="L338">   public WmsTask withReceiptLineId(Integer receiptLineId) { this.receiptLineId = receiptLineId; return (this); }</span>
+
+<span class="fc" id="L340">   public Integer getCycleCountId() { return (this.cycleCountId); }</span>
+<span class="fc" id="L341">   public void setCycleCountId(Integer cycleCountId) { this.cycleCountId = cycleCountId; }</span>
+<span class="fc" id="L342">   public WmsTask withCycleCountId(Integer cycleCountId) { this.cycleCountId = cycleCountId; return (this); }</span>
+
+<span class="fc" id="L344">   public Integer getReturnAuthorizationId() { return (this.returnAuthorizationId); }</span>
+<span class="fc" id="L345">   public void setReturnAuthorizationId(Integer returnAuthorizationId) { this.returnAuthorizationId = returnAuthorizationId; }</span>
+<span class="fc" id="L346">   public WmsTask withReturnAuthorizationId(Integer returnAuthorizationId) { this.returnAuthorizationId = returnAuthorizationId; return (this); }</span>
+
+<span class="fc" id="L348">   public BigDecimal getExpectedQuantity() { return (this.expectedQuantity); }</span>
+<span class="fc" id="L349">   public void setExpectedQuantity(BigDecimal expectedQuantity) { this.expectedQuantity = expectedQuantity; }</span>
+<span class="fc" id="L350">   public WmsTask withExpectedQuantity(BigDecimal expectedQuantity) { this.expectedQuantity = expectedQuantity; return (this); }</span>
+
+<span class="fc" id="L352">   public BigDecimal getCountedQuantity() { return (this.countedQuantity); }</span>
+<span class="fc" id="L353">   public void setCountedQuantity(BigDecimal countedQuantity) { this.countedQuantity = countedQuantity; }</span>
+<span class="fc" id="L354">   public WmsTask withCountedQuantity(BigDecimal countedQuantity) { this.countedQuantity = countedQuantity; return (this); }</span>
+
+<span class="fc" id="L356">   public BigDecimal getVariance() { return (this.variance); }</span>
+<span class="fc" id="L357">   public void setVariance(BigDecimal variance) { this.variance = variance; }</span>
+<span class="fc" id="L358">   public WmsTask withVariance(BigDecimal variance) { this.variance = variance; return (this); }</span>
+
+<span class="fc" id="L360">   public Boolean getIsBlindCount() { return (this.isBlindCount); }</span>
+<span class="fc" id="L361">   public void setIsBlindCount(Boolean isBlindCount) { this.isBlindCount = isBlindCount; }</span>
+<span class="fc" id="L362">   public WmsTask withIsBlindCount(Boolean isBlindCount) { this.isBlindCount = isBlindCount; return (this); }</span>
+
+<span class="fc" id="L364">   public Boolean getRecountRequired() { return (this.recountRequired); }</span>
+<span class="fc" id="L365">   public void setRecountRequired(Boolean recountRequired) { this.recountRequired = recountRequired; }</span>
+<span class="fc" id="L366">   public WmsTask withRecountRequired(Boolean recountRequired) { this.recountRequired = recountRequired; return (this); }</span>
+
+<span class="fc" id="L368">   public String getNotes() { return (this.notes); }</span>
+<span class="fc" id="L369">   public void setNotes(String notes) { this.notes = notes; }</span>
+<span class="fc" id="L370">   public WmsTask withNotes(String notes) { this.notes = notes; return (this); }</span>
+
+<span class="fc" id="L372">   public String getShortReason() { return (this.shortReason); }</span>
+<span class="fc" id="L373">   public void setShortReason(String shortReason) { this.shortReason = shortReason; }</span>
+<span class="fc" id="L374">   public WmsTask withShortReason(String shortReason) { this.shortReason = shortReason; return (this); }</span>
+
+<span class="fc" id="L376">   public Instant getCreateDate() { return (this.createDate); }</span>
+<span class="fc" id="L377">   public void setCreateDate(Instant createDate) { this.createDate = createDate; }</span>
+<span class="fc" id="L378">   public WmsTask withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }</span>
+
+<span class="fc" id="L380">   public Instant getModifyDate() { return (this.modifyDate); }</span>
+<span class="fc" id="L381">   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }</span>
+<span class="fc" id="L382">   public WmsTask withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

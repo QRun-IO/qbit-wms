@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompleteTaskProcessMetaDataProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.tasks.processes</a> &gt; <span class="el_source">CompleteTaskProcessMetaDataProducer.java</span></div><h1>CompleteTaskProcessMetaDataProducer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** MetaData producer for the CompleteTask process.  The central mobile workflow
+ ** that walks a worker through scan verification (source location, item,
+ ** quantity, destination) and then fires the TaskCompletionDispatcher for
+ ** type-specific side effects.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.tasks.processes;
+
+
+import java.util.List;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QBackendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QComponentType;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendComponentMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QProcessMetaData;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+
+
+<span class="fc" id="L26">public class CompleteTaskProcessMetaDataProducer implements MetaDataProducerInterface&lt;QProcessMetaData&gt;</span>
+{
+   public static final String NAME = &quot;wmsCompleteTask&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public QProcessMetaData produce(QInstance qInstance) throws QException
+   {
+<span class="fc" id="L38">      return new QProcessMetaData()</span>
+<span class="fc" id="L39">         .withName(NAME)</span>
+<span class="fc" id="L40">         .withLabel(&quot;Complete Task&quot;)</span>
+<span class="fc" id="L41">         .withIcon(new QIcon().withName(&quot;task_alt&quot;))</span>
+<span class="fc" id="L42">         .withTableName(WmsTask.TABLE_NAME)</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 1: Scan source location barcode                                 //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L47">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L48">            .withName(&quot;scanSource&quot;)</span>
+<span class="fc" id="L49">            .withLabel(&quot;Scan Source Location&quot;)</span>
+<span class="fc" id="L50">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L51">            .withFormField(new QFieldMetaData(&quot;taskId&quot;, QFieldType.INTEGER).withLabel(&quot;Task ID&quot;).withIsEditable(false))</span>
+<span class="fc" id="L52">            .withFormField(new QFieldMetaData(&quot;scannedSourceBarcode&quot;, QFieldType.STRING).withLabel(&quot;Source Location Barcode&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 2: Validate source location                                     //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L57">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L58">            .withName(&quot;validateSource&quot;)</span>
+<span class="fc" id="L59">            .withCode(new QCodeReference(CompleteTaskStep.ValidateSourceStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 3: Scan item barcode                                            //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L64">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L65">            .withName(&quot;scanItem&quot;)</span>
+<span class="fc" id="L66">            .withLabel(&quot;Scan Item&quot;)</span>
+<span class="fc" id="L67">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L68">            .withFormField(new QFieldMetaData(&quot;scannedItemBarcode&quot;, QFieldType.STRING).withLabel(&quot;Item Barcode&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 4: Validate item                                                //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L73">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L74">            .withName(&quot;validateItem&quot;)</span>
+<span class="fc" id="L75">            .withCode(new QCodeReference(CompleteTaskStep.ValidateItemStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 5: Enter quantity                                               //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L80">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L81">            .withName(&quot;enterQuantity&quot;)</span>
+<span class="fc" id="L82">            .withLabel(&quot;Enter Quantity&quot;)</span>
+<span class="fc" id="L83">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L84">            .withFormField(new QFieldMetaData(&quot;quantityCompleted&quot;, QFieldType.DECIMAL).withLabel(&quot;Quantity&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 6: Scan destination location (for MOVE, PUTAWAY, etc.)          //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L89">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L90">            .withName(&quot;scanDestination&quot;)</span>
+<span class="fc" id="L91">            .withLabel(&quot;Scan Destination Location&quot;)</span>
+<span class="fc" id="L92">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L93">            .withFormField(new QFieldMetaData(&quot;scannedDestinationBarcode&quot;, QFieldType.STRING).withLabel(&quot;Destination Location Barcode&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 7: Validate destination                                         //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L98">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L99">            .withName(&quot;validateDestination&quot;)</span>
+<span class="fc" id="L100">            .withCode(new QCodeReference(CompleteTaskStep.ValidateDestinationStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 8: Execute completion and dispatch to handler                   //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L105">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L106">            .withName(&quot;executeCompletion&quot;)</span>
+<span class="fc" id="L107">            .withCode(new QCodeReference(CompleteTaskStep.ExecuteCompletionStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 9: Show result                                                  //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L112">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L113">            .withName(&quot;showResult&quot;)</span>
+<span class="fc" id="L114">            .withLabel(&quot;Completion Summary&quot;)</span>
+<span class="fc" id="L115">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.VIEW_FORM))</span>
+<span class="fc" id="L116">            .withViewField(new QFieldMetaData(&quot;resultMessage&quot;, QFieldType.STRING).withLabel(&quot;Result&quot;))</span>
+<span class="fc" id="L117">            .withViewField(new QFieldMetaData(&quot;completedTaskId&quot;, QFieldType.INTEGER).withLabel(&quot;Task ID&quot;))</span>
+<span class="fc" id="L118">            .withViewField(new QFieldMetaData(&quot;completedStatus&quot;, QFieldType.STRING).withLabel(&quot;Status&quot;))</span>
+<span class="fc" id="L119">            .withViewField(new QFieldMetaData(&quot;completedQuantity&quot;, QFieldType.DECIMAL).withLabel(&quot;Quantity Completed&quot;)));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

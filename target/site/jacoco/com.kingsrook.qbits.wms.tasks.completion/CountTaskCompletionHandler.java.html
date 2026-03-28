@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CountTaskCompletionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.tasks.completion</a> &gt; <span class="el_source">CountTaskCompletionHandler.java</span></div><h1>CountTaskCompletionHandler.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Completion handler for COUNT tasks.  Computes the variance between the
+ ** expected and counted quantities, updates the cycle count line, and
+ ** optionally triggers a recount if the variance exceeds a threshold.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.tasks.completion;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qbits.wms.core.enums.CycleCountStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskType;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCountLine;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+
+
+<span class="nc" id="L34">public class CountTaskCompletionHandler extends AbstractTaskCompletionHandler</span>
+{
+<span class="nc" id="L36">   private static final QLogger LOG = QLogger.getLogger(CountTaskCompletionHandler.class);</span>
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Variance percentage threshold that triggers an automatic recount.       //
+   // Applies only when is_blind_count is true.                               //
+   /////////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L42">   private static final BigDecimal RECOUNT_VARIANCE_THRESHOLD = new BigDecimal(&quot;10&quot;);</span>
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Priority boost applied to automatically generated recount tasks.        //
+   /////////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L47">   private static final Integer RECOUNT_PRIORITY_BOOST = 2;</span>
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public void handle(QRecord task) throws QException
+   {
+<span class="nc" id="L57">      Integer taskId = task.getValueInteger(&quot;id&quot;);</span>
+<span class="nc" id="L58">      BigDecimal expectedQuantity = task.getValueBigDecimal(&quot;expectedQuantity&quot;);</span>
+<span class="nc" id="L59">      BigDecimal countedQuantity = task.getValueBigDecimal(&quot;countedQuantity&quot;);</span>
+<span class="nc" id="L60">      Integer cycleCountId = task.getValueInteger(&quot;cycleCountId&quot;);</span>
+
+<span class="nc" id="L62">      LOG.info(&quot;Handling COUNT task completion&quot;,</span>
+<span class="nc" id="L63">         logPair(&quot;taskId&quot;, taskId),</span>
+<span class="nc" id="L64">         logPair(&quot;expectedQuantity&quot;, expectedQuantity),</span>
+<span class="nc" id="L65">         logPair(&quot;countedQuantity&quot;, countedQuantity));</span>
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">      if(expectedQuantity == null)</span>
+      {
+<span class="nc" id="L69">         expectedQuantity = BigDecimal.ZERO;</span>
+      }
+<span class="nc bnc" id="L71" title="All 2 branches missed.">      if(countedQuantity == null)</span>
+      {
+<span class="nc" id="L73">         countedQuantity = BigDecimal.ZERO;</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Compute variance and update the task record                         //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L79">      BigDecimal variance = countedQuantity.subtract(expectedQuantity);</span>
+
+<span class="nc" id="L81">      new UpdateAction().execute(new UpdateInput(WmsTask.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L82">         .withValue(&quot;id&quot;, taskId)</span>
+<span class="nc" id="L83">         .withValue(&quot;variance&quot;, variance)));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Update the corresponding cycle count line                           //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc bnc" id="L88" title="All 2 branches missed.">      if(cycleCountId != null)</span>
+      {
+<span class="nc" id="L90">         updateCycleCountLine(task, countedQuantity, variance);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Check if an automatic recount is needed                             //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L96">      Boolean isBlindCount = task.getValueBoolean(&quot;isBlindCount&quot;);</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">      if(Boolean.TRUE.equals(isBlindCount) &amp;&amp; variance.abs().compareTo(BigDecimal.ZERO) &gt; 0)</span>
+      {
+<span class="nc" id="L99">         checkRecountThreshold(task, expectedQuantity, variance);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Check if the entire cycle count can be marked complete              //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc bnc" id="L105" title="All 2 branches missed.">      if(cycleCountId != null)</span>
+      {
+<span class="nc" id="L107">         checkCycleCountCompletion(cycleCountId);</span>
+      }
+<span class="nc" id="L109">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Update the cycle count line with counted quantity and variance.
+    *******************************************************************************/
+   private void updateCycleCountLine(QRecord task, BigDecimal countedQuantity, BigDecimal variance) throws QException
+   {
+<span class="nc" id="L118">      Integer taskId = task.getValueInteger(&quot;id&quot;);</span>
+
+<span class="nc" id="L120">      QueryOutput lineQuery = new QueryAction().execute(new QueryInput(WmsCycleCountLine.TABLE_NAME)</span>
+<span class="nc" id="L121">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L122">            .withCriteria(new QFilterCriteria(&quot;taskId&quot;, QCriteriaOperator.EQUALS, taskId))));</span>
+
+<span class="nc" id="L124">      List&lt;QRecord&gt; lines = lineQuery.getRecords();</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">      if(lines.isEmpty())</span>
+      {
+<span class="nc" id="L127">         LOG.warn(&quot;No cycle count line found for task&quot;, logPair(&quot;taskId&quot;, taskId));</span>
+<span class="nc" id="L128">         return;</span>
+      }
+
+<span class="nc" id="L131">      QRecord line = lines.get(0);</span>
+      String newLineStatus;
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">      if(variance.compareTo(BigDecimal.ZERO) == 0)</span>
+      {
+         /////////////////////////////////////////////////////////////////////
+         // Zero variance -- auto-approve                                   //
+         /////////////////////////////////////////////////////////////////////
+<span class="nc" id="L139">         newLineStatus = &quot;APPROVED&quot;;</span>
+      }
+      else
+      {
+         /////////////////////////////////////////////////////////////////////
+         // Non-zero variance -- awaits supervisor review                   //
+         /////////////////////////////////////////////////////////////////////
+<span class="nc" id="L146">         newLineStatus = &quot;COUNTED&quot;;</span>
+      }
+
+<span class="nc" id="L149">      new UpdateAction().execute(new UpdateInput(WmsCycleCountLine.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L150">         .withValue(&quot;id&quot;, line.getValueInteger(&quot;id&quot;))</span>
+<span class="nc" id="L151">         .withValue(&quot;countedQuantity&quot;, countedQuantity)</span>
+<span class="nc" id="L152">         .withValue(&quot;variance&quot;, variance)</span>
+<span class="nc" id="L153">         .withValue(&quot;status&quot;, newLineStatus)));</span>
+<span class="nc" id="L154">   }</span>
+
+
+
+   /*******************************************************************************
+    ** If the variance exceeds the threshold on a blind count, auto-create a
+    ** recount task at higher priority.
+    *******************************************************************************/
+   private void checkRecountThreshold(QRecord task, BigDecimal expectedQuantity, BigDecimal variance) throws QException
+   {
+<span class="nc bnc" id="L164" title="All 2 branches missed.">      if(expectedQuantity.compareTo(BigDecimal.ZERO) == 0)</span>
+      {
+<span class="nc" id="L166">         return;</span>
+      }
+
+<span class="nc" id="L169">      BigDecimal variancePercent = variance.abs()</span>
+<span class="nc" id="L170">         .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="nc" id="L171">         .divide(expectedQuantity.abs(), 2, java.math.RoundingMode.HALF_UP);</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">      if(variancePercent.compareTo(RECOUNT_VARIANCE_THRESHOLD) &gt; 0)</span>
+      {
+<span class="nc" id="L175">         LOG.info(&quot;Variance exceeds threshold, creating recount task&quot;,</span>
+<span class="nc" id="L176">            logPair(&quot;taskId&quot;, task.getValueInteger(&quot;id&quot;)),</span>
+<span class="nc" id="L177">            logPair(&quot;variancePercent&quot;, variancePercent));</span>
+
+<span class="nc" id="L179">         Integer currentPriority = task.getValueInteger(&quot;priority&quot;);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">         Integer recountPriority = (currentPriority != null ? currentPriority : 5) - RECOUNT_PRIORITY_BOOST;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">         if(recountPriority &lt; 1)</span>
+         {
+<span class="nc" id="L183">            recountPriority = 1;</span>
+         }
+
+<span class="nc" id="L186">         new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L187">            .withValue(&quot;warehouseId&quot;, task.getValueInteger(&quot;warehouseId&quot;))</span>
+<span class="nc" id="L188">            .withValue(&quot;clientId&quot;, task.getValueInteger(&quot;clientId&quot;))</span>
+<span class="nc" id="L189">            .withValue(&quot;taskTypeId&quot;, TaskType.COUNT.getPossibleValueId())</span>
+<span class="nc" id="L190">            .withValue(&quot;taskStatusId&quot;, TaskStatus.PENDING.getPossibleValueId())</span>
+<span class="nc" id="L191">            .withValue(&quot;priority&quot;, recountPriority)</span>
+<span class="nc" id="L192">            .withValue(&quot;itemId&quot;, task.getValueInteger(&quot;itemId&quot;))</span>
+<span class="nc" id="L193">            .withValue(&quot;sourceLocationId&quot;, task.getValueInteger(&quot;sourceLocationId&quot;))</span>
+<span class="nc" id="L194">            .withValue(&quot;zoneId&quot;, task.getValueInteger(&quot;zoneId&quot;))</span>
+<span class="nc" id="L195">            .withValue(&quot;cycleCountId&quot;, task.getValueInteger(&quot;cycleCountId&quot;))</span>
+<span class="nc" id="L196">            .withValue(&quot;expectedQuantity&quot;, task.getValueBigDecimal(&quot;expectedQuantity&quot;))</span>
+<span class="nc" id="L197">            .withValue(&quot;isBlindCount&quot;, false)</span>
+<span class="nc" id="L198">            .withValue(&quot;recountRequired&quot;, true)</span>
+<span class="nc" id="L199">            .withValue(&quot;notes&quot;, &quot;Auto-generated recount due to variance of &quot; + variancePercent + &quot;%&quot;)));</span>
+      }
+<span class="nc" id="L201">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Check if all lines for a cycle count have reached a terminal status.
+    ** If so, mark the cycle count as COMPLETED or PENDING_REVIEW.
+    *******************************************************************************/
+   private void checkCycleCountCompletion(Integer cycleCountId) throws QException
+   {
+<span class="nc" id="L211">      QueryOutput linesOutput = new QueryAction().execute(new QueryInput(WmsCycleCountLine.TABLE_NAME)</span>
+<span class="nc" id="L212">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L213">            .withCriteria(new QFilterCriteria(&quot;cycleCountId&quot;, QCriteriaOperator.EQUALS, cycleCountId))));</span>
+
+<span class="nc" id="L215">      List&lt;QRecord&gt; allLines = linesOutput.getRecords();</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">      if(allLines.isEmpty())</span>
+      {
+<span class="nc" id="L218">         return;</span>
+      }
+
+<span class="nc" id="L221">      boolean allTerminal = true;</span>
+<span class="nc" id="L222">      boolean anyNeedsReview = false;</span>
+
+<span class="nc bnc" id="L224" title="All 2 branches missed.">      for(QRecord line : allLines)</span>
+      {
+<span class="nc" id="L226">         String status = line.getValueString(&quot;status&quot;);</span>
+<span class="nc bnc" id="L227" title="All 4 branches missed.">         if(&quot;APPROVED&quot;.equals(status) || &quot;ADJUSTED&quot;.equals(status))</span>
+         {
+            // terminal
+         }
+<span class="nc bnc" id="L231" title="All 4 branches missed.">         else if(&quot;COUNTED&quot;.equals(status) || &quot;RECOUNTED&quot;.equals(status))</span>
+         {
+<span class="nc" id="L233">            anyNeedsReview = true;</span>
+<span class="nc" id="L234">            allTerminal = false;</span>
+         }
+         else
+         {
+            // PENDING or other -- not terminal
+<span class="nc" id="L239">            allTerminal = false;</span>
+         }
+<span class="nc" id="L241">      }</span>
+
+<span class="nc bnc" id="L243" title="All 2 branches missed.">      if(allTerminal)</span>
+      {
+<span class="nc" id="L245">         new UpdateAction().execute(new UpdateInput(WmsCycleCount.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L246">            .withValue(&quot;id&quot;, cycleCountId)</span>
+<span class="nc" id="L247">            .withValue(&quot;cycleCountStatusId&quot;, CycleCountStatus.COMPLETED.getPossibleValueId())</span>
+<span class="nc" id="L248">            .withValue(&quot;completedDate&quot;, Instant.now())));</span>
+      }
+<span class="nc bnc" id="L250" title="All 2 branches missed.">      else if(anyNeedsReview)</span>
+      {
+<span class="nc" id="L252">         new UpdateAction().execute(new UpdateInput(WmsCycleCount.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L253">            .withValue(&quot;id&quot;, cycleCountId)</span>
+<span class="nc" id="L254">            .withValue(&quot;cycleCountStatusId&quot;, CycleCountStatus.PENDING_REVIEW.getPossibleValueId())));</span>
+      }
+<span class="nc" id="L256">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

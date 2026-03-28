@@ -12,7 +12,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMeta
 import com.kingsrook.qbits.wms.core.enums.StorageRequirements;
 
 
-@QMetaDataProducingEntity(producePossibleValueSource = true)
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
 public class WmsItemCategory extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsItemCategory";
@@ -57,20 +57,26 @@ public class WmsItemCategory extends QRecordEntity
 
 
    public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
    public WmsItemCategory withId(Integer id) { this.id = id; return (this); }
 
    public String getName() { return (this.name); }
+   public void setName(String name) { this.name = name; }
    public WmsItemCategory withName(String name) { this.name = name; return (this); }
 
    public Integer getParentCategoryId() { return (this.parentCategoryId); }
+   public void setParentCategoryId(Integer parentCategoryId) { this.parentCategoryId = parentCategoryId; }
    public WmsItemCategory withParentCategoryId(Integer parentCategoryId) { this.parentCategoryId = parentCategoryId; return (this); }
 
    public Integer getDefaultStorageRequirementsId() { return (this.defaultStorageRequirementsId); }
+   public void setDefaultStorageRequirementsId(Integer defaultStorageRequirementsId) { this.defaultStorageRequirementsId = defaultStorageRequirementsId; }
    public WmsItemCategory withDefaultStorageRequirementsId(Integer defaultStorageRequirementsId) { this.defaultStorageRequirementsId = defaultStorageRequirementsId; return (this); }
 
    public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
    public WmsItemCategory withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
    public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
    public WmsItemCategory withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryReleaseProcessMetaDataProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">InventoryReleaseProcessMetaDataProducer.java</span></div><h1>InventoryReleaseProcessMetaDataProducer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** MetaData producer for the InventoryRelease process.  Releases an active
+ ** hold on inventory, restoring the inventory status to AVAILABLE and creating
+ ** a RELEASE transaction.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QBackendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QComponentType;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendComponentMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QProcessMetaData;
+import com.kingsrook.qbits.wms.core.model.WmsInventoryHold;
+
+
+<span class="fc" id="L24">public class InventoryReleaseProcessMetaDataProducer implements MetaDataProducerInterface&lt;QProcessMetaData&gt;</span>
+{
+   public static final String NAME = &quot;wmsInventoryRelease&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public QProcessMetaData produce(QInstance qInstance) throws QException
+   {
+<span class="fc" id="L36">      return new QProcessMetaData()</span>
+<span class="fc" id="L37">         .withName(NAME)</span>
+<span class="fc" id="L38">         .withLabel(&quot;Release Inventory Hold&quot;)</span>
+<span class="fc" id="L39">         .withIcon(new QIcon().withName(&quot;lock_open&quot;))</span>
+<span class="fc" id="L40">         .withTableName(WmsInventoryHold.TABLE_NAME)</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 1: Select active hold                                           //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L45">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L46">            .withName(&quot;selectHold&quot;)</span>
+<span class="fc" id="L47">            .withLabel(&quot;Select Hold to Release&quot;)</span>
+<span class="fc" id="L48">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L49">            .withFormField(new QFieldMetaData(&quot;holdId&quot;, QFieldType.INTEGER).withLabel(&quot;Hold ID&quot;).withIsRequired(true)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 2: Confirm release                                              //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L54">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L55">            .withName(&quot;confirmRelease&quot;)</span>
+<span class="fc" id="L56">            .withLabel(&quot;Confirm Release&quot;)</span>
+<span class="fc" id="L57">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.VIEW_FORM))</span>
+<span class="fc" id="L58">            .withViewField(new QFieldMetaData(&quot;holdDetails&quot;, QFieldType.STRING).withLabel(&quot;Hold Details&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 3: Execute the release                                          //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L63">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L64">            .withName(&quot;executeRelease&quot;)</span>
+<span class="fc" id="L65">            .withCode(new QCodeReference(InventoryReleaseStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 4: Show result                                                  //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L70">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L71">            .withName(&quot;confirmResult&quot;)</span>
+<span class="fc" id="L72">            .withLabel(&quot;Hold Released&quot;)</span>
+<span class="fc" id="L73">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.VIEW_FORM))</span>
+<span class="fc" id="L74">            .withViewField(new QFieldMetaData(&quot;resultMessage&quot;, QFieldType.STRING).withLabel(&quot;Result&quot;))</span>
+<span class="fc" id="L75">            .withViewField(new QFieldMetaData(&quot;affectedRecords&quot;, QFieldType.INTEGER).withLabel(&quot;Affected Inventory Records&quot;)));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

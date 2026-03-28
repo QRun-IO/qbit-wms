@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.model</a> &gt; <span class="el_source">WmsItem.java</span></div><h1>WmsItem.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** QRecord Entity for WmsItem table.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.model;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
+import com.kingsrook.qbits.wms.core.enums.StorageRequirements;
+import com.kingsrook.qbits.wms.core.enums.VelocityClass;
+
+
+@QMetaDataProducingEntity(
+   producePossibleValueSource = true,
+   produceTableMetaData = true,
+   tableMetaDataCustomizer = WmsItem.TableMetaDataCustomizer.class
+)
+public class WmsItem extends QRecordEntity
+{
+   public static final String TABLE_NAME = &quot;wmsItem&quot;;
+
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
+<span class="fc" id="L39">   public static class TableMetaDataCustomizer implements MetaDataCustomizerInterface&lt;QTableMetaData&gt;</span>
+   {
+      /***************************************************************************
+       **
+       ***************************************************************************/
+      @Override
+      public QTableMetaData customizeMetaData(QInstance qInstance, QTableMetaData table) throws QException
+      {
+<span class="fc" id="L47">         table</span>
+<span class="fc" id="L48">            .withIcon(new QIcon().withName(&quot;inventory_2&quot;))</span>
+<span class="fc" id="L49">            .withRecordLabelFormat(&quot;%s - %s&quot;)</span>
+<span class="fc" id="L50">            .withRecordLabelFields(&quot;sku&quot;, &quot;name&quot;)</span>
+<span class="fc" id="L51">            .withSection(SectionFactory.defaultT1(&quot;id&quot;, &quot;clientId&quot;, &quot;sku&quot;, &quot;name&quot;, &quot;description&quot;, &quot;barcodeUpc&quot;, &quot;barcodeSecondary&quot;, &quot;itemCategoryId&quot;, &quot;isActive&quot;))</span>
+<span class="fc" id="L52">            .withSection(new QFieldSection(&quot;dimensions&quot;, &quot;Dimensions&quot;, new QIcon(&quot;straighten&quot;), Tier.T2,</span>
+<span class="fc" id="L53">               java.util.List.of(&quot;weightLbs&quot;, &quot;lengthIn&quot;, &quot;widthIn&quot;, &quot;heightIn&quot;)))</span>
+<span class="fc" id="L54">            .withSection(new QFieldSection(&quot;packaging&quot;, &quot;Packaging&quot;, new QIcon(&quot;all_inbox&quot;), Tier.T2,</span>
+<span class="fc" id="L55">               java.util.List.of(&quot;baseUom&quot;, &quot;unitsPerCase&quot;, &quot;casesPerPallet&quot;)))</span>
+<span class="fc" id="L56">            .withSection(new QFieldSection(&quot;tracking&quot;, &quot;Tracking&quot;, new QIcon(&quot;track_changes&quot;), Tier.T2,</span>
+<span class="fc" id="L57">               java.util.List.of(&quot;isLotTracked&quot;, &quot;isSerialTracked&quot;, &quot;isExpirationTracked&quot;, &quot;shelfLifeDays&quot;, &quot;minRemainingShelfLifeDays&quot;)))</span>
+<span class="fc" id="L58">            .withSection(new QFieldSection(&quot;slotting&quot;, &quot;Slotting&quot;, new QIcon(&quot;speed&quot;), Tier.T2,</span>
+<span class="fc" id="L59">               java.util.List.of(&quot;velocityClassId&quot;, &quot;storageRequirementsId&quot;, &quot;reorderPoint&quot;, &quot;reorderQuantity&quot;)))</span>
+<span class="fc" id="L60">            .withSection(new QFieldSection(&quot;media&quot;, &quot;Media&quot;, new QIcon(&quot;image&quot;), Tier.T2,</span>
+<span class="fc" id="L61">               java.util.List.of(&quot;imageUrl&quot;)))</span>
+<span class="fc" id="L62">            .withSection(SectionFactory.defaultT3(&quot;createDate&quot;, &quot;modifyDate&quot;));</span>
+
+<span class="fc" id="L64">         return (table);</span>
+      }
+   }
+
+
+
+   @QField(isEditable = false, isPrimaryKey = true)
+   private Integer id;
+
+   @QField(possibleValueSourceName = WmsClient.TABLE_NAME)
+   private Integer clientId;
+
+   @QField(isRequired = true, maxLength = 50)
+   private String sku;
+
+   @QField(isRequired = true, maxLength = 200)
+   private String name;
+
+   @QField(maxLength = 1000)
+   private String description;
+
+   @QField(maxLength = 50)
+   private String barcodeUpc;
+
+   @QField(maxLength = 50)
+   private String barcodeSecondary;
+
+   @QField(possibleValueSourceName = WmsItemCategory.TABLE_NAME)
+   private Integer itemCategoryId;
+
+   @QField()
+   private BigDecimal weightLbs;
+
+   @QField()
+   private BigDecimal lengthIn;
+
+   @QField()
+   private BigDecimal widthIn;
+
+   @QField()
+   private BigDecimal heightIn;
+
+   @QField(maxLength = 20)
+   private String baseUom;
+
+   @QField()
+   private Integer unitsPerCase;
+
+   @QField()
+   private Integer casesPerPallet;
+
+   @QField()
+   private Boolean isLotTracked;
+
+   @QField()
+   private Boolean isSerialTracked;
+
+   @QField()
+   private Boolean isExpirationTracked;
+
+   @QField()
+   private Integer shelfLifeDays;
+
+   @QField()
+   private Integer minRemainingShelfLifeDays;
+
+   @QField(possibleValueSourceName = VelocityClass.NAME, label = &quot;Velocity Class&quot;)
+   private Integer velocityClassId;
+
+   @QField(possibleValueSourceName = StorageRequirements.NAME, label = &quot;Storage Requirements&quot;)
+   private Integer storageRequirementsId;
+
+   @QField()
+   private Integer reorderPoint;
+
+   @QField()
+   private Integer reorderQuantity;
+
+   @QField()
+   private Boolean isActive;
+
+   @QField(maxLength = 500)
+   private String imageUrl;
+
+   @QField(isEditable = false)
+   private Instant createDate;
+
+   @QField(isEditable = false)
+   private Instant modifyDate;
+
+
+
+   /*******************************************************************************
+    ** Default constructor
+    *******************************************************************************/
+   public WmsItem()
+<span class="fc" id="L160">   {</span>
+<span class="fc" id="L161">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Constructor that takes a QRecord
+    *******************************************************************************/
+   public WmsItem(QRecord record)
+<span class="fc" id="L169">   {</span>
+<span class="fc" id="L170">      populateFromQRecord(record);</span>
+<span class="fc" id="L171">   }</span>
+
+
+
+<span class="fc" id="L175">   public Integer getId() { return (this.id); }</span>
+<span class="fc" id="L176">   public void setId(Integer id) { this.id = id; }</span>
+<span class="fc" id="L177">   public WmsItem withId(Integer id) { this.id = id; return (this); }</span>
+
+<span class="fc" id="L179">   public Integer getClientId() { return (this.clientId); }</span>
+<span class="fc" id="L180">   public void setClientId(Integer clientId) { this.clientId = clientId; }</span>
+<span class="fc" id="L181">   public WmsItem withClientId(Integer clientId) { this.clientId = clientId; return (this); }</span>
+
+<span class="fc" id="L183">   public String getSku() { return (this.sku); }</span>
+<span class="fc" id="L184">   public void setSku(String sku) { this.sku = sku; }</span>
+<span class="fc" id="L185">   public WmsItem withSku(String sku) { this.sku = sku; return (this); }</span>
+
+<span class="fc" id="L187">   public String getName() { return (this.name); }</span>
+<span class="fc" id="L188">   public void setName(String name) { this.name = name; }</span>
+<span class="fc" id="L189">   public WmsItem withName(String name) { this.name = name; return (this); }</span>
+
+<span class="fc" id="L191">   public String getDescription() { return (this.description); }</span>
+<span class="fc" id="L192">   public void setDescription(String description) { this.description = description; }</span>
+<span class="fc" id="L193">   public WmsItem withDescription(String description) { this.description = description; return (this); }</span>
+
+<span class="fc" id="L195">   public String getBarcodeUpc() { return (this.barcodeUpc); }</span>
+<span class="fc" id="L196">   public void setBarcodeUpc(String barcodeUpc) { this.barcodeUpc = barcodeUpc; }</span>
+<span class="fc" id="L197">   public WmsItem withBarcodeUpc(String barcodeUpc) { this.barcodeUpc = barcodeUpc; return (this); }</span>
+
+<span class="fc" id="L199">   public String getBarcodeSecondary() { return (this.barcodeSecondary); }</span>
+<span class="fc" id="L200">   public void setBarcodeSecondary(String barcodeSecondary) { this.barcodeSecondary = barcodeSecondary; }</span>
+<span class="fc" id="L201">   public WmsItem withBarcodeSecondary(String barcodeSecondary) { this.barcodeSecondary = barcodeSecondary; return (this); }</span>
+
+<span class="fc" id="L203">   public Integer getItemCategoryId() { return (this.itemCategoryId); }</span>
+<span class="fc" id="L204">   public void setItemCategoryId(Integer itemCategoryId) { this.itemCategoryId = itemCategoryId; }</span>
+<span class="fc" id="L205">   public WmsItem withItemCategoryId(Integer itemCategoryId) { this.itemCategoryId = itemCategoryId; return (this); }</span>
+
+<span class="fc" id="L207">   public BigDecimal getWeightLbs() { return (this.weightLbs); }</span>
+<span class="fc" id="L208">   public void setWeightLbs(BigDecimal weightLbs) { this.weightLbs = weightLbs; }</span>
+<span class="fc" id="L209">   public WmsItem withWeightLbs(BigDecimal weightLbs) { this.weightLbs = weightLbs; return (this); }</span>
+
+<span class="fc" id="L211">   public BigDecimal getLengthIn() { return (this.lengthIn); }</span>
+<span class="fc" id="L212">   public void setLengthIn(BigDecimal lengthIn) { this.lengthIn = lengthIn; }</span>
+<span class="fc" id="L213">   public WmsItem withLengthIn(BigDecimal lengthIn) { this.lengthIn = lengthIn; return (this); }</span>
+
+<span class="fc" id="L215">   public BigDecimal getWidthIn() { return (this.widthIn); }</span>
+<span class="fc" id="L216">   public void setWidthIn(BigDecimal widthIn) { this.widthIn = widthIn; }</span>
+<span class="fc" id="L217">   public WmsItem withWidthIn(BigDecimal widthIn) { this.widthIn = widthIn; return (this); }</span>
+
+<span class="fc" id="L219">   public BigDecimal getHeightIn() { return (this.heightIn); }</span>
+<span class="fc" id="L220">   public void setHeightIn(BigDecimal heightIn) { this.heightIn = heightIn; }</span>
+<span class="fc" id="L221">   public WmsItem withHeightIn(BigDecimal heightIn) { this.heightIn = heightIn; return (this); }</span>
+
+<span class="fc" id="L223">   public String getBaseUom() { return (this.baseUom); }</span>
+<span class="fc" id="L224">   public void setBaseUom(String baseUom) { this.baseUom = baseUom; }</span>
+<span class="fc" id="L225">   public WmsItem withBaseUom(String baseUom) { this.baseUom = baseUom; return (this); }</span>
+
+<span class="fc" id="L227">   public Integer getUnitsPerCase() { return (this.unitsPerCase); }</span>
+<span class="fc" id="L228">   public void setUnitsPerCase(Integer unitsPerCase) { this.unitsPerCase = unitsPerCase; }</span>
+<span class="fc" id="L229">   public WmsItem withUnitsPerCase(Integer unitsPerCase) { this.unitsPerCase = unitsPerCase; return (this); }</span>
+
+<span class="fc" id="L231">   public Integer getCasesPerPallet() { return (this.casesPerPallet); }</span>
+<span class="fc" id="L232">   public void setCasesPerPallet(Integer casesPerPallet) { this.casesPerPallet = casesPerPallet; }</span>
+<span class="fc" id="L233">   public WmsItem withCasesPerPallet(Integer casesPerPallet) { this.casesPerPallet = casesPerPallet; return (this); }</span>
+
+<span class="fc" id="L235">   public Boolean getIsLotTracked() { return (this.isLotTracked); }</span>
+<span class="fc" id="L236">   public void setIsLotTracked(Boolean isLotTracked) { this.isLotTracked = isLotTracked; }</span>
+<span class="fc" id="L237">   public WmsItem withIsLotTracked(Boolean isLotTracked) { this.isLotTracked = isLotTracked; return (this); }</span>
+
+<span class="fc" id="L239">   public Boolean getIsSerialTracked() { return (this.isSerialTracked); }</span>
+<span class="fc" id="L240">   public void setIsSerialTracked(Boolean isSerialTracked) { this.isSerialTracked = isSerialTracked; }</span>
+<span class="fc" id="L241">   public WmsItem withIsSerialTracked(Boolean isSerialTracked) { this.isSerialTracked = isSerialTracked; return (this); }</span>
+
+<span class="fc" id="L243">   public Boolean getIsExpirationTracked() { return (this.isExpirationTracked); }</span>
+<span class="fc" id="L244">   public void setIsExpirationTracked(Boolean isExpirationTracked) { this.isExpirationTracked = isExpirationTracked; }</span>
+<span class="fc" id="L245">   public WmsItem withIsExpirationTracked(Boolean isExpirationTracked) { this.isExpirationTracked = isExpirationTracked; return (this); }</span>
+
+<span class="fc" id="L247">   public Integer getShelfLifeDays() { return (this.shelfLifeDays); }</span>
+<span class="fc" id="L248">   public void setShelfLifeDays(Integer shelfLifeDays) { this.shelfLifeDays = shelfLifeDays; }</span>
+<span class="fc" id="L249">   public WmsItem withShelfLifeDays(Integer shelfLifeDays) { this.shelfLifeDays = shelfLifeDays; return (this); }</span>
+
+<span class="fc" id="L251">   public Integer getMinRemainingShelfLifeDays() { return (this.minRemainingShelfLifeDays); }</span>
+<span class="fc" id="L252">   public void setMinRemainingShelfLifeDays(Integer minRemainingShelfLifeDays) { this.minRemainingShelfLifeDays = minRemainingShelfLifeDays; }</span>
+<span class="fc" id="L253">   public WmsItem withMinRemainingShelfLifeDays(Integer minRemainingShelfLifeDays) { this.minRemainingShelfLifeDays = minRemainingShelfLifeDays; return (this); }</span>
+
+<span class="fc" id="L255">   public Integer getVelocityClassId() { return (this.velocityClassId); }</span>
+<span class="fc" id="L256">   public void setVelocityClassId(Integer velocityClassId) { this.velocityClassId = velocityClassId; }</span>
+<span class="fc" id="L257">   public WmsItem withVelocityClassId(Integer velocityClassId) { this.velocityClassId = velocityClassId; return (this); }</span>
+
+<span class="fc" id="L259">   public Integer getStorageRequirementsId() { return (this.storageRequirementsId); }</span>
+<span class="fc" id="L260">   public void setStorageRequirementsId(Integer storageRequirementsId) { this.storageRequirementsId = storageRequirementsId; }</span>
+<span class="fc" id="L261">   public WmsItem withStorageRequirementsId(Integer storageRequirementsId) { this.storageRequirementsId = storageRequirementsId; return (this); }</span>
+
+<span class="fc" id="L263">   public Integer getReorderPoint() { return (this.reorderPoint); }</span>
+<span class="fc" id="L264">   public void setReorderPoint(Integer reorderPoint) { this.reorderPoint = reorderPoint; }</span>
+<span class="fc" id="L265">   public WmsItem withReorderPoint(Integer reorderPoint) { this.reorderPoint = reorderPoint; return (this); }</span>
+
+<span class="fc" id="L267">   public Integer getReorderQuantity() { return (this.reorderQuantity); }</span>
+<span class="fc" id="L268">   public void setReorderQuantity(Integer reorderQuantity) { this.reorderQuantity = reorderQuantity; }</span>
+<span class="fc" id="L269">   public WmsItem withReorderQuantity(Integer reorderQuantity) { this.reorderQuantity = reorderQuantity; return (this); }</span>
+
+<span class="fc" id="L271">   public Boolean getIsActive() { return (this.isActive); }</span>
+<span class="fc" id="L272">   public void setIsActive(Boolean isActive) { this.isActive = isActive; }</span>
+<span class="fc" id="L273">   public WmsItem withIsActive(Boolean isActive) { this.isActive = isActive; return (this); }</span>
+
+<span class="fc" id="L275">   public String getImageUrl() { return (this.imageUrl); }</span>
+<span class="fc" id="L276">   public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }</span>
+<span class="fc" id="L277">   public WmsItem withImageUrl(String imageUrl) { this.imageUrl = imageUrl; return (this); }</span>
+
+<span class="fc" id="L279">   public Instant getCreateDate() { return (this.createDate); }</span>
+<span class="fc" id="L280">   public void setCreateDate(Instant createDate) { this.createDate = createDate; }</span>
+<span class="fc" id="L281">   public WmsItem withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }</span>
+
+<span class="fc" id="L283">   public Instant getModifyDate() { return (this.modifyDate); }</span>
+<span class="fc" id="L284">   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }</span>
+<span class="fc" id="L285">   public WmsItem withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

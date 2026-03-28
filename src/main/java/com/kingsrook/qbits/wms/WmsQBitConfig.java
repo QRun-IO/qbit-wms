@@ -70,6 +70,17 @@ public class WmsQBitConfig implements QBitConfig
 
 
    /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public String getDefaultBackendNameForTables()
+   {
+      return (this.backendName);
+   }
+
+
+
+   /*******************************************************************************
     ** Fluent setter for backendName
     *******************************************************************************/
    public WmsQBitConfig withBackendName(String backendName)

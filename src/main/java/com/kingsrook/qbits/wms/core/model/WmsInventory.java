@@ -153,68 +153,90 @@ public class WmsInventory extends QRecordEntity
 
 
    public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
    public WmsInventory withId(Integer id) { this.id = id; return (this); }
 
    public Integer getWarehouseId() { return (this.warehouseId); }
+   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }
    public WmsInventory withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }
 
    public Integer getClientId() { return (this.clientId); }
+   public void setClientId(Integer clientId) { this.clientId = clientId; }
    public WmsInventory withClientId(Integer clientId) { this.clientId = clientId; return (this); }
 
    public Integer getItemId() { return (this.itemId); }
+   public void setItemId(Integer itemId) { this.itemId = itemId; }
    public WmsInventory withItemId(Integer itemId) { this.itemId = itemId; return (this); }
 
    public Integer getLocationId() { return (this.locationId); }
+   public void setLocationId(Integer locationId) { this.locationId = locationId; }
    public WmsInventory withLocationId(Integer locationId) { this.locationId = locationId; return (this); }
 
    public String getLotNumber() { return (this.lotNumber); }
+   public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }
    public WmsInventory withLotNumber(String lotNumber) { this.lotNumber = lotNumber; return (this); }
 
    public String getSerialNumber() { return (this.serialNumber); }
+   public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
    public WmsInventory withSerialNumber(String serialNumber) { this.serialNumber = serialNumber; return (this); }
 
    public LocalDate getExpirationDate() { return (this.expirationDate); }
+   public void setExpirationDate(LocalDate expirationDate) { this.expirationDate = expirationDate; }
    public WmsInventory withExpirationDate(LocalDate expirationDate) { this.expirationDate = expirationDate; return (this); }
 
    public LocalDate getManufactureDate() { return (this.manufactureDate); }
+   public void setManufactureDate(LocalDate manufactureDate) { this.manufactureDate = manufactureDate; }
    public WmsInventory withManufactureDate(LocalDate manufactureDate) { this.manufactureDate = manufactureDate; return (this); }
 
    public Integer getLpnId() { return (this.lpnId); }
+   public void setLpnId(Integer lpnId) { this.lpnId = lpnId; }
    public WmsInventory withLpnId(Integer lpnId) { this.lpnId = lpnId; return (this); }
 
    public BigDecimal getQuantityOnHand() { return (this.quantityOnHand); }
+   public void setQuantityOnHand(BigDecimal quantityOnHand) { this.quantityOnHand = quantityOnHand; }
    public WmsInventory withQuantityOnHand(BigDecimal quantityOnHand) { this.quantityOnHand = quantityOnHand; return (this); }
 
    public BigDecimal getQuantityAllocated() { return (this.quantityAllocated); }
+   public void setQuantityAllocated(BigDecimal quantityAllocated) { this.quantityAllocated = quantityAllocated; }
    public WmsInventory withQuantityAllocated(BigDecimal quantityAllocated) { this.quantityAllocated = quantityAllocated; return (this); }
 
    public BigDecimal getQuantityAvailable() { return (this.quantityAvailable); }
+   public void setQuantityAvailable(BigDecimal quantityAvailable) { this.quantityAvailable = quantityAvailable; }
    public WmsInventory withQuantityAvailable(BigDecimal quantityAvailable) { this.quantityAvailable = quantityAvailable; return (this); }
 
    public BigDecimal getQuantityOnHold() { return (this.quantityOnHold); }
+   public void setQuantityOnHold(BigDecimal quantityOnHold) { this.quantityOnHold = quantityOnHold; }
    public WmsInventory withQuantityOnHold(BigDecimal quantityOnHold) { this.quantityOnHold = quantityOnHold; return (this); }
 
    public Integer getInventoryStatusId() { return (this.inventoryStatusId); }
+   public void setInventoryStatusId(Integer inventoryStatusId) { this.inventoryStatusId = inventoryStatusId; }
    public WmsInventory withInventoryStatusId(Integer inventoryStatusId) { this.inventoryStatusId = inventoryStatusId; return (this); }
 
    public String getHoldReason() { return (this.holdReason); }
+   public void setHoldReason(String holdReason) { this.holdReason = holdReason; }
    public WmsInventory withHoldReason(String holdReason) { this.holdReason = holdReason; return (this); }
 
    public Integer getReceiptId() { return (this.receiptId); }
+   public void setReceiptId(Integer receiptId) { this.receiptId = receiptId; }
    public WmsInventory withReceiptId(Integer receiptId) { this.receiptId = receiptId; return (this); }
 
    public Instant getReceivedDate() { return (this.receivedDate); }
+   public void setReceivedDate(Instant receivedDate) { this.receivedDate = receivedDate; }
    public WmsInventory withReceivedDate(Instant receivedDate) { this.receivedDate = receivedDate; return (this); }
 
    public Instant getLastCountDate() { return (this.lastCountDate); }
+   public void setLastCountDate(Instant lastCountDate) { this.lastCountDate = lastCountDate; }
    public WmsInventory withLastCountDate(Instant lastCountDate) { this.lastCountDate = lastCountDate; return (this); }
 
    public BigDecimal getCostPerUnit() { return (this.costPerUnit); }
+   public void setCostPerUnit(BigDecimal costPerUnit) { this.costPerUnit = costPerUnit; }
    public WmsInventory withCostPerUnit(BigDecimal costPerUnit) { this.costPerUnit = costPerUnit; return (this); }
 
    public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
    public WmsInventory withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
    public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
    public WmsInventory withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

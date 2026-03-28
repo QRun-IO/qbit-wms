@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TaskCompletionDispatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.tasks.completion</a> &gt; <span class="el_source">TaskCompletionDispatcher.java</span></div><h1>TaskCompletionDispatcher.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Dispatcher that routes completed tasks to their type-specific completion
+ ** handler.  Called from the CompleteTask process after a task is marked
+ ** COMPLETED (or SHORT).  Each TaskType registers a handler at class-load time;
+ ** future phases add their own handlers via the static registerHandler method.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.tasks.completion;
+
+
+import java.util.HashMap;
+import java.util.Map;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qbits.wms.core.enums.TaskType;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+
+
+<span class="nc" id="L19">public class TaskCompletionDispatcher</span>
+{
+<span class="nc" id="L21">   private static final QLogger LOG = QLogger.getLogger(TaskCompletionDispatcher.class);</span>
+
+<span class="nc" id="L23">   private static final Map&lt;Integer, AbstractTaskCompletionHandler&gt; HANDLERS = new HashMap&lt;&gt;();</span>
+
+   static
+   {
+      ///////////////////////////////////
+      // Phase 1 handlers              //
+      ///////////////////////////////////
+<span class="nc" id="L30">      HANDLERS.put(TaskType.COUNT.getPossibleValueId(), new CountTaskCompletionHandler());</span>
+<span class="nc" id="L31">      HANDLERS.put(TaskType.MOVE.getPossibleValueId(), new MoveTaskCompletionHandler());</span>
+<span class="nc" id="L32">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Register a completion handler for a given task type.  Called by later
+    ** phases to plug in PUTAWAY, PICK, PACK, etc.
+    *******************************************************************************/
+   public static void registerHandler(TaskType taskType, AbstractTaskCompletionHandler handler)
+   {
+<span class="nc" id="L42">      HANDLERS.put(taskType.getPossibleValueId(), handler);</span>
+<span class="nc" id="L43">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Dispatch completion logic for the given task record.
+    *******************************************************************************/
+   public static void complete(QRecord task) throws QException
+   {
+<span class="nc" id="L52">      Integer taskTypeId = task.getValueInteger(&quot;taskTypeId&quot;);</span>
+<span class="nc" id="L53">      LOG.info(&quot;Dispatching task completion&quot;, logPair(&quot;taskId&quot;, task.getValueInteger(&quot;id&quot;)), logPair(&quot;taskTypeId&quot;, taskTypeId));</span>
+
+<span class="nc" id="L55">      AbstractTaskCompletionHandler handler = HANDLERS.get(taskTypeId);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">      if(handler == null)</span>
+      {
+<span class="nc" id="L58">         throw new QException(&quot;No completion handler registered for task type id: &quot; + taskTypeId);</span>
+      }
+
+<span class="nc" id="L61">      handler.handle(task);</span>
+<span class="nc" id="L62">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

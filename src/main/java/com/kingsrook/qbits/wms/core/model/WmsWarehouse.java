@@ -129,274 +129,55 @@ public class WmsWarehouse extends QRecordEntity
 
 
 
-   /*******************************************************************************
-    ** Getter for id
-    *******************************************************************************/
-   public Integer getId()
-   {
-      return (this.id);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for id
-    *******************************************************************************/
-   public WmsWarehouse withId(Integer id)
-   {
-      this.id = id;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for name
-    *******************************************************************************/
-   public String getName()
-   {
-      return (this.name);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for name
-    *******************************************************************************/
-   public WmsWarehouse withName(String name)
-   {
-      this.name = name;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for code
-    *******************************************************************************/
-   public String getCode()
-   {
-      return (this.code);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for code
-    *******************************************************************************/
-   public WmsWarehouse withCode(String code)
-   {
-      this.code = code;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for addressLine1
-    *******************************************************************************/
-   public String getAddressLine1()
-   {
-      return (this.addressLine1);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for addressLine1
-    *******************************************************************************/
-   public WmsWarehouse withAddressLine1(String addressLine1)
-   {
-      this.addressLine1 = addressLine1;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for addressLine2
-    *******************************************************************************/
-   public String getAddressLine2()
-   {
-      return (this.addressLine2);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for addressLine2
-    *******************************************************************************/
-   public WmsWarehouse withAddressLine2(String addressLine2)
-   {
-      this.addressLine2 = addressLine2;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for city
-    *******************************************************************************/
-   public String getCity()
-   {
-      return (this.city);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for city
-    *******************************************************************************/
-   public WmsWarehouse withCity(String city)
-   {
-      this.city = city;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for stateProvince
-    *******************************************************************************/
-   public String getStateProvince()
-   {
-      return (this.stateProvince);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for stateProvince
-    *******************************************************************************/
-   public WmsWarehouse withStateProvince(String stateProvince)
-   {
-      this.stateProvince = stateProvince;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for postalCode
-    *******************************************************************************/
-   public String getPostalCode()
-   {
-      return (this.postalCode);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for postalCode
-    *******************************************************************************/
-   public WmsWarehouse withPostalCode(String postalCode)
-   {
-      this.postalCode = postalCode;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for country
-    *******************************************************************************/
-   public String getCountry()
-   {
-      return (this.country);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for country
-    *******************************************************************************/
-   public WmsWarehouse withCountry(String country)
-   {
-      this.country = country;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for timezone
-    *******************************************************************************/
-   public String getTimezone()
-   {
-      return (this.timezone);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for timezone
-    *******************************************************************************/
-   public WmsWarehouse withTimezone(String timezone)
-   {
-      this.timezone = timezone;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for isActive
-    *******************************************************************************/
-   public Boolean getIsActive()
-   {
-      return (this.isActive);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for isActive
-    *******************************************************************************/
-   public WmsWarehouse withIsActive(Boolean isActive)
-   {
-      this.isActive = isActive;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for createDate
-    *******************************************************************************/
-   public Instant getCreateDate()
-   {
-      return (this.createDate);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for createDate
-    *******************************************************************************/
-   public WmsWarehouse withCreateDate(Instant createDate)
-   {
-      this.createDate = createDate;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for modifyDate
-    *******************************************************************************/
-   public Instant getModifyDate()
-   {
-      return (this.modifyDate);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for modifyDate
-    *******************************************************************************/
-   public WmsWarehouse withModifyDate(Instant modifyDate)
-   {
-      this.modifyDate = modifyDate;
-      return (this);
-   }
+   public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
+   public WmsWarehouse withId(Integer id) { this.id = id; return (this); }
+
+   public String getName() { return (this.name); }
+   public void setName(String name) { this.name = name; }
+   public WmsWarehouse withName(String name) { this.name = name; return (this); }
+
+   public String getCode() { return (this.code); }
+   public void setCode(String code) { this.code = code; }
+   public WmsWarehouse withCode(String code) { this.code = code; return (this); }
+
+   public String getAddressLine1() { return (this.addressLine1); }
+   public void setAddressLine1(String addressLine1) { this.addressLine1 = addressLine1; }
+   public WmsWarehouse withAddressLine1(String addressLine1) { this.addressLine1 = addressLine1; return (this); }
+
+   public String getAddressLine2() { return (this.addressLine2); }
+   public void setAddressLine2(String addressLine2) { this.addressLine2 = addressLine2; }
+   public WmsWarehouse withAddressLine2(String addressLine2) { this.addressLine2 = addressLine2; return (this); }
+
+   public String getCity() { return (this.city); }
+   public void setCity(String city) { this.city = city; }
+   public WmsWarehouse withCity(String city) { this.city = city; return (this); }
+
+   public String getStateProvince() { return (this.stateProvince); }
+   public void setStateProvince(String stateProvince) { this.stateProvince = stateProvince; }
+   public WmsWarehouse withStateProvince(String stateProvince) { this.stateProvince = stateProvince; return (this); }
+
+   public String getPostalCode() { return (this.postalCode); }
+   public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+   public WmsWarehouse withPostalCode(String postalCode) { this.postalCode = postalCode; return (this); }
+
+   public String getCountry() { return (this.country); }
+   public void setCountry(String country) { this.country = country; }
+   public WmsWarehouse withCountry(String country) { this.country = country; return (this); }
+
+   public String getTimezone() { return (this.timezone); }
+   public void setTimezone(String timezone) { this.timezone = timezone; }
+   public WmsWarehouse withTimezone(String timezone) { this.timezone = timezone; return (this); }
+
+   public Boolean getIsActive() { return (this.isActive); }
+   public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+   public WmsWarehouse withIsActive(Boolean isActive) { this.isActive = isActive; return (this); }
+
+   public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
+   public WmsWarehouse withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
+
+   public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
+   public WmsWarehouse withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

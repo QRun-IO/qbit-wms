@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ZoneType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.enums</a> &gt; <span class="el_source">ZoneType.java</span></div><h1>ZoneType.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Enum of zone types within a warehouse.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.enums;
+
+
+import java.util.Objects;
+import com.kingsrook.qqq.backend.core.model.metadata.possiblevalues.PossibleValueEnum;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingPossibleValueEnum;
+
+
+<span class="fc" id="L12">@QMetaDataProducingPossibleValueEnum()</span>
+public enum ZoneType implements PossibleValueEnum&lt;Integer&gt;
+{
+<span class="fc" id="L15">   BULK(1, &quot;Bulk&quot;),</span>
+<span class="fc" id="L16">   PICK_FACE(2, &quot;Pick Face&quot;),</span>
+<span class="fc" id="L17">   RESERVE(3, &quot;Reserve&quot;),</span>
+<span class="fc" id="L18">   COLD(4, &quot;Cold&quot;),</span>
+<span class="fc" id="L19">   HAZMAT(5, &quot;Hazmat&quot;),</span>
+<span class="fc" id="L20">   STAGING(6, &quot;Staging&quot;),</span>
+<span class="fc" id="L21">   RECEIVING(7, &quot;Receiving&quot;),</span>
+<span class="fc" id="L22">   SHIPPING(8, &quot;Shipping&quot;),</span>
+<span class="fc" id="L23">   QUARANTINE(9, &quot;Quarantine&quot;),</span>
+<span class="fc" id="L24">   RETURNS(10, &quot;Returns&quot;);</span>
+
+   private final Integer id;
+   private final String  label;
+
+   public static final String NAME = &quot;ZoneType&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   ZoneType(Integer id, String label)
+<span class="fc" id="L37">   {</span>
+<span class="fc" id="L38">      this.id = id;</span>
+<span class="fc" id="L39">      this.label = label;</span>
+<span class="fc" id="L40">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Get instance by id
+    *******************************************************************************/
+   public static ZoneType getById(Integer id)
+   {
+<span class="fc bfc" id="L49" title="All 2 branches covered.">      if(id == null)</span>
+      {
+<span class="fc" id="L51">         return (null);</span>
+      }
+
+<span class="fc bfc" id="L54" title="All 2 branches covered.">      for(ZoneType value : ZoneType.values())</span>
+      {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">         if(Objects.equals(value.id, id))</span>
+         {
+<span class="fc" id="L58">            return (value);</span>
+         }
+      }
+
+<span class="fc" id="L62">      return (null);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for id
+    *******************************************************************************/
+   public Integer getId()
+   {
+<span class="fc" id="L72">      return id;</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for label
+    *******************************************************************************/
+   public String getLabel()
+   {
+<span class="fc" id="L82">      return label;</span>
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public Integer getPossibleValueId()
+   {
+<span class="fc" id="L93">      return (getId());</span>
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public String getPossibleValueLabel()
+   {
+<span class="fc" id="L104">      return (getLabel());</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

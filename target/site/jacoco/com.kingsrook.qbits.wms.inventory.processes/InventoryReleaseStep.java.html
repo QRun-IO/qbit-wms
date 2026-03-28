@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryReleaseStep.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">InventoryReleaseStep.java</span></div><h1>InventoryReleaseStep.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Backend step for InventoryRelease.  Updates the wms_inventory_hold record
+ ** to RELEASED status, creates a RELEASE inventory transaction, and restores
+ ** matching wms_inventory records to AVAILABLE status.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
+import com.kingsrook.qqq.backend.core.actions.tables.GetAction;
+import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.context.QContext;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.exceptions.QUserFacingException;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepInput;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.get.GetInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.get.GetOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qbits.wms.core.enums.InventoryStatus;
+import com.kingsrook.qbits.wms.core.enums.TransactionType;
+import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qbits.wms.core.model.WmsInventoryHold;
+import com.kingsrook.qbits.wms.core.model.WmsInventoryTransaction;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+
+
+<span class="fc" id="L41">public class InventoryReleaseStep implements BackendStep</span>
+{
+<span class="fc" id="L43">   private static final QLogger LOG = QLogger.getLogger(InventoryReleaseStep.class);</span>
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public void run(RunBackendStepInput input, RunBackendStepOutput output) throws QException
+   {
+<span class="nc" id="L53">      Integer holdId = input.getValueInteger(&quot;holdId&quot;);</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">      if(holdId == null)</span>
+      {
+<span class="nc" id="L57">         throw new QUserFacingException(&quot;Hold ID is required.&quot;);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Load the hold record                                                //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L63">      GetOutput holdOutput = new GetAction().execute(new GetInput(WmsInventoryHold.TABLE_NAME).withPrimaryKey(holdId));</span>
+<span class="nc" id="L64">      QRecord hold = holdOutput.getRecord();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">      if(hold == null)</span>
+      {
+<span class="nc" id="L67">         throw new QUserFacingException(&quot;Hold not found: &quot; + holdId);</span>
+      }
+
+<span class="nc" id="L70">      String holdStatus = hold.getValueString(&quot;status&quot;);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">      if(!&quot;ACTIVE&quot;.equals(holdStatus))</span>
+      {
+<span class="nc" id="L73">         throw new QUserFacingException(&quot;Only ACTIVE holds can be released. Current status: &quot; + holdStatus);</span>
+      }
+
+<span class="nc" id="L76">      Integer itemId = hold.getValueInteger(&quot;itemId&quot;);</span>
+<span class="nc" id="L77">      String lotNumber = hold.getValueString(&quot;lotNumber&quot;);</span>
+<span class="nc" id="L78">      Integer locationId = hold.getValueInteger(&quot;locationId&quot;);</span>
+<span class="nc" id="L79">      Integer warehouseId = hold.getValueInteger(&quot;warehouseId&quot;);</span>
+<span class="nc" id="L80">      Integer clientId = hold.getValueInteger(&quot;clientId&quot;);</span>
+
+<span class="nc" id="L82">      String releasedBy = null;</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">      if(QContext.getQSession() != null &amp;&amp; QContext.getQSession().getUser() != null)</span>
+      {
+<span class="nc" id="L85">         releasedBy = QContext.getQSession().getUser().getFullName();</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Update the hold record to RELEASED                                  //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L91">      new UpdateAction().execute(new UpdateInput(WmsInventoryHold.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L92">         .withValue(&quot;id&quot;, holdId)</span>
+<span class="nc" id="L93">         .withValue(&quot;status&quot;, &quot;RELEASED&quot;)</span>
+<span class="nc" id="L94">         .withValue(&quot;releasedBy&quot;, releasedBy)</span>
+<span class="nc" id="L95">         .withValue(&quot;releasedDate&quot;, Instant.now())));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Find matching ON_HOLD inventory records                             //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L100">      QQueryFilter filter = new QQueryFilter()</span>
+<span class="nc" id="L101">         .withCriteria(new QFilterCriteria(&quot;itemId&quot;, QCriteriaOperator.EQUALS, itemId))</span>
+<span class="nc" id="L102">         .withCriteria(new QFilterCriteria(&quot;inventoryStatusId&quot;, QCriteriaOperator.EQUALS, InventoryStatus.ON_HOLD.getPossibleValueId()));</span>
+
+<span class="nc bnc" id="L104" title="All 4 branches missed.">      if(lotNumber != null &amp;&amp; !lotNumber.isBlank())</span>
+      {
+<span class="nc" id="L106">         filter.withCriteria(new QFilterCriteria(&quot;lotNumber&quot;, QCriteriaOperator.EQUALS, lotNumber));</span>
+      }
+<span class="nc bnc" id="L108" title="All 2 branches missed.">      if(locationId != null)</span>
+      {
+<span class="nc" id="L110">         filter.withCriteria(new QFilterCriteria(&quot;locationId&quot;, QCriteriaOperator.EQUALS, locationId));</span>
+      }
+
+<span class="nc" id="L113">      QueryOutput invQuery = new QueryAction().execute(new QueryInput(WmsInventory.TABLE_NAME).withFilter(filter));</span>
+<span class="nc" id="L114">      List&lt;QRecord&gt; invRecords = invQuery.getRecords();</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Release each matching inventory record                              //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L119">      Integer affectedCount = 0;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">      for(QRecord inv : invRecords)</span>
+      {
+<span class="nc" id="L122">         BigDecimal onHold = inv.getValueBigDecimal(&quot;quantityOnHold&quot;);</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">         if(onHold == null || onHold.compareTo(BigDecimal.ZERO) &lt;= 0)</span>
+         {
+<span class="nc" id="L125">            continue;</span>
+         }
+
+         //////////////////////////////////////////////////////////////////
+         // Step 1: Create RELEASE transaction (perpetual inventory)     //
+         //////////////////////////////////////////////////////////////////
+<span class="nc" id="L131">         new InsertAction().execute(new InsertInput(WmsInventoryTransaction.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L132">            .withValue(&quot;warehouseId&quot;, inv.getValueInteger(&quot;warehouseId&quot;))</span>
+<span class="nc" id="L133">            .withValue(&quot;clientId&quot;, inv.getValueInteger(&quot;clientId&quot;))</span>
+<span class="nc" id="L134">            .withValue(&quot;itemId&quot;, itemId)</span>
+<span class="nc" id="L135">            .withValue(&quot;transactionTypeId&quot;, TransactionType.RELEASE.getPossibleValueId())</span>
+<span class="nc" id="L136">            .withValue(&quot;fromLocationId&quot;, inv.getValueInteger(&quot;locationId&quot;))</span>
+<span class="nc" id="L137">            .withValue(&quot;quantity&quot;, onHold)</span>
+<span class="nc" id="L138">            .withValue(&quot;lotNumber&quot;, inv.getValueString(&quot;lotNumber&quot;))</span>
+<span class="nc" id="L139">            .withValue(&quot;reasonCode&quot;, &quot;Hold released&quot;)</span>
+<span class="nc" id="L140">            .withValue(&quot;performedBy&quot;, releasedBy)</span>
+<span class="nc" id="L141">            .withValue(&quot;performedDate&quot;, Instant.now())</span>
+<span class="nc" id="L142">            .withValue(&quot;notes&quot;, &quot;Hold &quot; + holdId + &quot; released&quot;)));</span>
+
+         //////////////////////////////////////////////////////////////////
+         // Step 2: Restore inventory to AVAILABLE                       //
+         //////////////////////////////////////////////////////////////////
+<span class="nc" id="L147">         BigDecimal qoh = inv.getValueBigDecimal(&quot;quantityOnHand&quot;);</span>
+<span class="nc" id="L148">         BigDecimal allocated = inv.getValueBigDecimal(&quot;quantityAllocated&quot;);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">         if(qoh == null) qoh = BigDecimal.ZERO;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">         if(allocated == null) allocated = BigDecimal.ZERO;</span>
+
+<span class="nc" id="L152">         BigDecimal newAvailable = qoh.subtract(allocated);</span>
+
+<span class="nc" id="L154">         new UpdateAction().execute(new UpdateInput(WmsInventory.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L155">            .withValue(&quot;id&quot;, inv.getValueInteger(&quot;id&quot;))</span>
+<span class="nc" id="L156">            .withValue(&quot;inventoryStatusId&quot;, InventoryStatus.AVAILABLE.getPossibleValueId())</span>
+<span class="nc" id="L157">            .withValue(&quot;quantityOnHold&quot;, BigDecimal.ZERO)</span>
+<span class="nc" id="L158">            .withValue(&quot;quantityAvailable&quot;, newAvailable)</span>
+<span class="nc" id="L159">            .withValue(&quot;holdReason&quot;, null)));</span>
+
+<span class="nc" id="L161">         affectedCount++;</span>
+<span class="nc" id="L162">      }</span>
+
+<span class="nc" id="L164">      LOG.info(&quot;Inventory hold released&quot;,</span>
+<span class="nc" id="L165">         logPair(&quot;holdId&quot;, holdId),</span>
+<span class="nc" id="L166">         logPair(&quot;itemId&quot;, itemId),</span>
+<span class="nc" id="L167">         logPair(&quot;affectedRecords&quot;, affectedCount));</span>
+
+<span class="nc" id="L169">      output.addValue(&quot;resultMessage&quot;, &quot;Hold released successfully.&quot;);</span>
+<span class="nc" id="L170">      output.addValue(&quot;affectedRecords&quot;, affectedCount);</span>
+<span class="nc" id="L171">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

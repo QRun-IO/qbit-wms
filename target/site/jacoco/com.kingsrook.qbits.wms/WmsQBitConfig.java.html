@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsQBitConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms</a> &gt; <span class="el_source">WmsQBitConfig.java</span></div><h1>WmsQBitConfig.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Configuration class for the WMS QBit.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms;
+
+
+import java.math.BigDecimal;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitConfig;
+import com.kingsrook.qqq.backend.core.utils.StringUtils;
+
+
+<span class="fc" id="L14">public class WmsQBitConfig implements QBitConfig</span>
+{
+   private String     backendName;
+   private String     tableNamePrefix;
+<span class="fc" id="L18">   private String     defaultPickStrategy          = &quot;BATCH&quot;;</span>
+<span class="fc" id="L19">   private String     defaultPutawayStrategy       = &quot;DIRECTED&quot;;</span>
+<span class="fc" id="L20">   private String     defaultAllocationStrategy    = &quot;FIFO&quot;;</span>
+<span class="fc" id="L21">   private Integer    adjustmentApprovalThreshold  = 100;</span>
+<span class="fc" id="L22">   private BigDecimal cycleCountVarianceThreshold  = new BigDecimal(&quot;5.0&quot;);</span>
+<span class="fc" id="L23">   private Boolean    blindCountDefault            = true;</span>
+   private String     opensearchHost;
+   private Integer    opensearchPort;
+   private String     opensearchIndexName;
+
+
+
+   /*******************************************************************************
+    ** Validate the configuration before the QBit is produced.
+    *******************************************************************************/
+   @Override
+   public void validate(QInstance qInstance, List&lt;String&gt; errors)
+   {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">      if(!StringUtils.hasContent(backendName))</span>
+      {
+<span class="fc" id="L38">         errors.add(&quot;backendName is required for WmsQBit&quot;);</span>
+      }
+<span class="fc" id="L40">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Apply prefix to a table name if configured.
+    *******************************************************************************/
+   public String applyPrefix(String tableName)
+   {
+<span class="fc bfc" id="L49" title="All 2 branches covered.">      if(StringUtils.hasContent(tableNamePrefix))</span>
+      {
+<span class="fc" id="L51">         return tableNamePrefix + &quot;_&quot; + tableName;</span>
+      }
+<span class="fc" id="L53">      return tableName;</span>
+   }
+
+
+
+   //////////////////////////////////////////////////////////////////////////////
+   // Getters and fluent setters                                               //
+   //////////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Getter for backendName
+    *******************************************************************************/
+   public String getBackendName()
+   {
+<span class="fc" id="L67">      return (this.backendName);</span>
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public String getDefaultBackendNameForTables()
+   {
+<span class="fc" id="L78">      return (this.backendName);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for backendName
+    *******************************************************************************/
+   public WmsQBitConfig withBackendName(String backendName)
+   {
+<span class="fc" id="L88">      this.backendName = backendName;</span>
+<span class="fc" id="L89">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for tableNamePrefix
+    *******************************************************************************/
+   public String getTableNamePrefix()
+   {
+<span class="fc" id="L99">      return (this.tableNamePrefix);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for tableNamePrefix
+    *******************************************************************************/
+   public WmsQBitConfig withTableNamePrefix(String tableNamePrefix)
+   {
+<span class="fc" id="L109">      this.tableNamePrefix = tableNamePrefix;</span>
+<span class="fc" id="L110">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for defaultPickStrategy
+    *******************************************************************************/
+   public String getDefaultPickStrategy()
+   {
+<span class="fc" id="L120">      return (this.defaultPickStrategy);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for defaultPickStrategy
+    *******************************************************************************/
+   public WmsQBitConfig withDefaultPickStrategy(String defaultPickStrategy)
+   {
+<span class="fc" id="L130">      this.defaultPickStrategy = defaultPickStrategy;</span>
+<span class="fc" id="L131">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for defaultPutawayStrategy
+    *******************************************************************************/
+   public String getDefaultPutawayStrategy()
+   {
+<span class="fc" id="L141">      return (this.defaultPutawayStrategy);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for defaultPutawayStrategy
+    *******************************************************************************/
+   public WmsQBitConfig withDefaultPutawayStrategy(String defaultPutawayStrategy)
+   {
+<span class="fc" id="L151">      this.defaultPutawayStrategy = defaultPutawayStrategy;</span>
+<span class="fc" id="L152">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for defaultAllocationStrategy
+    *******************************************************************************/
+   public String getDefaultAllocationStrategy()
+   {
+<span class="fc" id="L162">      return (this.defaultAllocationStrategy);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for defaultAllocationStrategy
+    *******************************************************************************/
+   public WmsQBitConfig withDefaultAllocationStrategy(String defaultAllocationStrategy)
+   {
+<span class="fc" id="L172">      this.defaultAllocationStrategy = defaultAllocationStrategy;</span>
+<span class="fc" id="L173">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for adjustmentApprovalThreshold
+    *******************************************************************************/
+   public Integer getAdjustmentApprovalThreshold()
+   {
+<span class="fc" id="L183">      return (this.adjustmentApprovalThreshold);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for adjustmentApprovalThreshold
+    *******************************************************************************/
+   public WmsQBitConfig withAdjustmentApprovalThreshold(Integer adjustmentApprovalThreshold)
+   {
+<span class="fc" id="L193">      this.adjustmentApprovalThreshold = adjustmentApprovalThreshold;</span>
+<span class="fc" id="L194">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for cycleCountVarianceThreshold
+    *******************************************************************************/
+   public BigDecimal getCycleCountVarianceThreshold()
+   {
+<span class="fc" id="L204">      return (this.cycleCountVarianceThreshold);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for cycleCountVarianceThreshold
+    *******************************************************************************/
+   public WmsQBitConfig withCycleCountVarianceThreshold(BigDecimal cycleCountVarianceThreshold)
+   {
+<span class="fc" id="L214">      this.cycleCountVarianceThreshold = cycleCountVarianceThreshold;</span>
+<span class="fc" id="L215">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for blindCountDefault
+    *******************************************************************************/
+   public Boolean getBlindCountDefault()
+   {
+<span class="fc" id="L225">      return (this.blindCountDefault);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for blindCountDefault
+    *******************************************************************************/
+   public WmsQBitConfig withBlindCountDefault(Boolean blindCountDefault)
+   {
+<span class="fc" id="L235">      this.blindCountDefault = blindCountDefault;</span>
+<span class="fc" id="L236">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for opensearchHost
+    *******************************************************************************/
+   public String getOpensearchHost()
+   {
+<span class="fc" id="L246">      return (this.opensearchHost);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for opensearchHost
+    *******************************************************************************/
+   public WmsQBitConfig withOpensearchHost(String opensearchHost)
+   {
+<span class="fc" id="L256">      this.opensearchHost = opensearchHost;</span>
+<span class="fc" id="L257">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for opensearchPort
+    *******************************************************************************/
+   public Integer getOpensearchPort()
+   {
+<span class="fc" id="L267">      return (this.opensearchPort);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for opensearchPort
+    *******************************************************************************/
+   public WmsQBitConfig withOpensearchPort(Integer opensearchPort)
+   {
+<span class="fc" id="L277">      this.opensearchPort = opensearchPort;</span>
+<span class="fc" id="L278">      return (this);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for opensearchIndexName
+    *******************************************************************************/
+   public String getOpensearchIndexName()
+   {
+<span class="fc" id="L288">      return (this.opensearchIndexName);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for opensearchIndexName
+    *******************************************************************************/
+   public WmsQBitConfig withOpensearchIndexName(String opensearchIndexName)
+   {
+<span class="fc" id="L298">      this.opensearchIndexName = opensearchIndexName;</span>
+<span class="fc" id="L299">      return (this);</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

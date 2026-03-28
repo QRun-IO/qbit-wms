@@ -101,190 +101,39 @@ public class WmsZone extends QRecordEntity
 
 
 
-   /*******************************************************************************
-    ** Getter for id
-    *******************************************************************************/
-   public Integer getId()
-   {
-      return (this.id);
-   }
+   public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
+   public WmsZone withId(Integer id) { this.id = id; return (this); }
 
+   public Integer getWarehouseId() { return (this.warehouseId); }
+   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }
+   public WmsZone withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }
 
+   public String getName() { return (this.name); }
+   public void setName(String name) { this.name = name; }
+   public WmsZone withName(String name) { this.name = name; return (this); }
 
-   /*******************************************************************************
-    ** Fluent setter for id
-    *******************************************************************************/
-   public WmsZone withId(Integer id)
-   {
-      this.id = id;
-      return (this);
-   }
+   public String getCode() { return (this.code); }
+   public void setCode(String code) { this.code = code; }
+   public WmsZone withCode(String code) { this.code = code; return (this); }
 
+   public Integer getZoneTypeId() { return (this.zoneTypeId); }
+   public void setZoneTypeId(Integer zoneTypeId) { this.zoneTypeId = zoneTypeId; }
+   public WmsZone withZoneTypeId(Integer zoneTypeId) { this.zoneTypeId = zoneTypeId; return (this); }
 
+   public Integer getPickSequence() { return (this.pickSequence); }
+   public void setPickSequence(Integer pickSequence) { this.pickSequence = pickSequence; }
+   public WmsZone withPickSequence(Integer pickSequence) { this.pickSequence = pickSequence; return (this); }
 
-   /*******************************************************************************
-    ** Getter for warehouseId
-    *******************************************************************************/
-   public Integer getWarehouseId()
-   {
-      return (this.warehouseId);
-   }
+   public Boolean getIsActive() { return (this.isActive); }
+   public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+   public WmsZone withIsActive(Boolean isActive) { this.isActive = isActive; return (this); }
 
+   public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
+   public WmsZone withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
-
-   /*******************************************************************************
-    ** Fluent setter for warehouseId
-    *******************************************************************************/
-   public WmsZone withWarehouseId(Integer warehouseId)
-   {
-      this.warehouseId = warehouseId;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for name
-    *******************************************************************************/
-   public String getName()
-   {
-      return (this.name);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for name
-    *******************************************************************************/
-   public WmsZone withName(String name)
-   {
-      this.name = name;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for code
-    *******************************************************************************/
-   public String getCode()
-   {
-      return (this.code);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for code
-    *******************************************************************************/
-   public WmsZone withCode(String code)
-   {
-      this.code = code;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for zoneTypeId
-    *******************************************************************************/
-   public Integer getZoneTypeId()
-   {
-      return (this.zoneTypeId);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for zoneTypeId
-    *******************************************************************************/
-   public WmsZone withZoneTypeId(Integer zoneTypeId)
-   {
-      this.zoneTypeId = zoneTypeId;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for pickSequence
-    *******************************************************************************/
-   public Integer getPickSequence()
-   {
-      return (this.pickSequence);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for pickSequence
-    *******************************************************************************/
-   public WmsZone withPickSequence(Integer pickSequence)
-   {
-      this.pickSequence = pickSequence;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for isActive
-    *******************************************************************************/
-   public Boolean getIsActive()
-   {
-      return (this.isActive);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for isActive
-    *******************************************************************************/
-   public WmsZone withIsActive(Boolean isActive)
-   {
-      this.isActive = isActive;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for createDate
-    *******************************************************************************/
-   public Instant getCreateDate()
-   {
-      return (this.createDate);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for createDate
-    *******************************************************************************/
-   public WmsZone withCreateDate(Instant createDate)
-   {
-      this.createDate = createDate;
-      return (this);
-   }
-
-
-
-   /*******************************************************************************
-    ** Getter for modifyDate
-    *******************************************************************************/
-   public Instant getModifyDate()
-   {
-      return (this.modifyDate);
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for modifyDate
-    *******************************************************************************/
-   public WmsZone withModifyDate(Instant modifyDate)
-   {
-      this.modifyDate = modifyDate;
-      return (this);
-   }
+   public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
+   public WmsZone withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsLicensePlate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.model</a> &gt; <span class="el_source">WmsLicensePlate.java</span></div><h1>WmsLicensePlate.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** QRecord Entity for WmsLicensePlate (LPN) table.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.model;
+
+
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+import com.kingsrook.qbits.wms.core.enums.LpnStatus;
+
+
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
+public class WmsLicensePlate extends QRecordEntity
+{
+   public static final String TABLE_NAME = &quot;wmsLicensePlate&quot;;
+
+   @QField(isEditable = false, isPrimaryKey = true)
+   private Integer id;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsWarehouse.TABLE_NAME)
+   private Integer warehouseId;
+
+   @QField(possibleValueSourceName = WmsClient.TABLE_NAME)
+   private Integer clientId;
+
+   @QField(isRequired = true, maxLength = 50)
+   private String lpnBarcode;
+
+   @QField(possibleValueSourceName = LpnStatus.NAME, label = &quot;Status&quot;)
+   private Integer statusId;
+
+   @QField(possibleValueSourceName = WmsLocation.TABLE_NAME)
+   private Integer locationId;
+
+   @QField()
+   private Integer receiptId;
+
+   @QField(isEditable = false)
+   private Instant createDate;
+
+   @QField(isEditable = false)
+   private Instant modifyDate;
+
+
+
+   /*******************************************************************************
+    ** Default constructor
+    *******************************************************************************/
+   public WmsLicensePlate()
+<span class="fc" id="L53">   {</span>
+<span class="fc" id="L54">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Constructor that takes a QRecord
+    *******************************************************************************/
+   public WmsLicensePlate(QRecord record)
+<span class="fc" id="L62">   {</span>
+<span class="fc" id="L63">      populateFromQRecord(record);</span>
+<span class="fc" id="L64">   }</span>
+
+
+
+<span class="fc" id="L68">   public Integer getId() { return (this.id); }</span>
+<span class="fc" id="L69">   public void setId(Integer id) { this.id = id; }</span>
+<span class="fc" id="L70">   public WmsLicensePlate withId(Integer id) { this.id = id; return (this); }</span>
+
+<span class="fc" id="L72">   public Integer getWarehouseId() { return (this.warehouseId); }</span>
+<span class="fc" id="L73">   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }</span>
+<span class="fc" id="L74">   public WmsLicensePlate withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }</span>
+
+<span class="fc" id="L76">   public Integer getClientId() { return (this.clientId); }</span>
+<span class="fc" id="L77">   public void setClientId(Integer clientId) { this.clientId = clientId; }</span>
+<span class="fc" id="L78">   public WmsLicensePlate withClientId(Integer clientId) { this.clientId = clientId; return (this); }</span>
+
+<span class="fc" id="L80">   public String getLpnBarcode() { return (this.lpnBarcode); }</span>
+<span class="fc" id="L81">   public void setLpnBarcode(String lpnBarcode) { this.lpnBarcode = lpnBarcode; }</span>
+<span class="fc" id="L82">   public WmsLicensePlate withLpnBarcode(String lpnBarcode) { this.lpnBarcode = lpnBarcode; return (this); }</span>
+
+<span class="fc" id="L84">   public Integer getStatusId() { return (this.statusId); }</span>
+<span class="fc" id="L85">   public void setStatusId(Integer statusId) { this.statusId = statusId; }</span>
+<span class="fc" id="L86">   public WmsLicensePlate withStatusId(Integer statusId) { this.statusId = statusId; return (this); }</span>
+
+<span class="fc" id="L88">   public Integer getLocationId() { return (this.locationId); }</span>
+<span class="fc" id="L89">   public void setLocationId(Integer locationId) { this.locationId = locationId; }</span>
+<span class="fc" id="L90">   public WmsLicensePlate withLocationId(Integer locationId) { this.locationId = locationId; return (this); }</span>
+
+<span class="fc" id="L92">   public Integer getReceiptId() { return (this.receiptId); }</span>
+<span class="fc" id="L93">   public void setReceiptId(Integer receiptId) { this.receiptId = receiptId; }</span>
+<span class="fc" id="L94">   public WmsLicensePlate withReceiptId(Integer receiptId) { this.receiptId = receiptId; return (this); }</span>
+
+<span class="fc" id="L96">   public Instant getCreateDate() { return (this.createDate); }</span>
+<span class="fc" id="L97">   public void setCreateDate(Instant createDate) { this.createDate = createDate; }</span>
+<span class="fc" id="L98">   public WmsLicensePlate withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }</span>
+
+<span class="fc" id="L100">   public Instant getModifyDate() { return (this.modifyDate); }</span>
+<span class="fc" id="L101">   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }</span>
+<span class="fc" id="L102">   public WmsLicensePlate withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

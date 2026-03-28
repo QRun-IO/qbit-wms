@@ -12,7 +12,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMeta
 import com.kingsrook.qbits.wms.core.enums.LpnStatus;
 
 
-@QMetaDataProducingEntity(producePossibleValueSource = true)
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
 public class WmsLicensePlate extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsLicensePlate";
@@ -66,29 +66,38 @@ public class WmsLicensePlate extends QRecordEntity
 
 
    public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
    public WmsLicensePlate withId(Integer id) { this.id = id; return (this); }
 
    public Integer getWarehouseId() { return (this.warehouseId); }
+   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }
    public WmsLicensePlate withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }
 
    public Integer getClientId() { return (this.clientId); }
+   public void setClientId(Integer clientId) { this.clientId = clientId; }
    public WmsLicensePlate withClientId(Integer clientId) { this.clientId = clientId; return (this); }
 
    public String getLpnBarcode() { return (this.lpnBarcode); }
+   public void setLpnBarcode(String lpnBarcode) { this.lpnBarcode = lpnBarcode; }
    public WmsLicensePlate withLpnBarcode(String lpnBarcode) { this.lpnBarcode = lpnBarcode; return (this); }
 
    public Integer getStatusId() { return (this.statusId); }
+   public void setStatusId(Integer statusId) { this.statusId = statusId; }
    public WmsLicensePlate withStatusId(Integer statusId) { this.statusId = statusId; return (this); }
 
    public Integer getLocationId() { return (this.locationId); }
+   public void setLocationId(Integer locationId) { this.locationId = locationId; }
    public WmsLicensePlate withLocationId(Integer locationId) { this.locationId = locationId; return (this); }
 
    public Integer getReceiptId() { return (this.receiptId); }
+   public void setReceiptId(Integer receiptId) { this.receiptId = receiptId; }
    public WmsLicensePlate withReceiptId(Integer receiptId) { this.receiptId = receiptId; return (this); }
 
    public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
    public WmsLicensePlate withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
    public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
    public WmsLicensePlate withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

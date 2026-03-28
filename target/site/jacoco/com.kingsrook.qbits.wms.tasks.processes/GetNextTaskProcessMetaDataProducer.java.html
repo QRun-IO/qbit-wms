@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GetNextTaskProcessMetaDataProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.tasks.processes</a> &gt; <span class="el_source">GetNextTaskProcessMetaDataProducer.java</span></div><h1>GetNextTaskProcessMetaDataProducer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** MetaData producer for the GetNextTask process.  Presents a mobile workflow
+ ** where a worker selects optional zone/equipment filters, receives their next
+ ** highest-priority PENDING task, and can begin working it.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.tasks.processes;
+
+
+import java.util.List;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QBackendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QComponentType;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendComponentMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QProcessMetaData;
+import com.kingsrook.qbits.wms.core.enums.EquipmentType;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+import com.kingsrook.qbits.wms.core.model.WmsZone;
+
+
+<span class="fc" id="L27">public class GetNextTaskProcessMetaDataProducer implements MetaDataProducerInterface&lt;QProcessMetaData&gt;</span>
+{
+   public static final String NAME = &quot;wmsGetNextTask&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public QProcessMetaData produce(QInstance qInstance) throws QException
+   {
+<span class="fc" id="L39">      return new QProcessMetaData()</span>
+<span class="fc" id="L40">         .withName(NAME)</span>
+<span class="fc" id="L41">         .withLabel(&quot;Get Next Task&quot;)</span>
+<span class="fc" id="L42">         .withIcon(new QIcon().withName(&quot;assignment_ind&quot;))</span>
+<span class="fc" id="L43">         .withTableName(WmsTask.TABLE_NAME)</span>
+<span class="fc" id="L44">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L45">            .withName(&quot;enterCriteria&quot;)</span>
+<span class="fc" id="L46">            .withLabel(&quot;Select Filters&quot;)</span>
+<span class="fc" id="L47">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L48">            .withFormField(new QFieldMetaData(&quot;workerUserId&quot;, QFieldType.STRING).withLabel(&quot;Worker ID&quot;))</span>
+<span class="fc" id="L49">            .withFormField(new QFieldMetaData(&quot;zoneId&quot;, QFieldType.INTEGER).withLabel(&quot;Zone&quot;).withPossibleValueSourceName(WmsZone.TABLE_NAME))</span>
+<span class="fc" id="L50">            .withFormField(new QFieldMetaData(&quot;equipmentTypeId&quot;, QFieldType.INTEGER).withLabel(&quot;Equipment Type&quot;).withPossibleValueSourceName(EquipmentType.NAME)))</span>
+<span class="fc" id="L51">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L52">            .withName(&quot;findAndAssign&quot;)</span>
+<span class="fc" id="L53">            .withCode(new QCodeReference(GetNextTaskStep.class)))</span>
+<span class="fc" id="L54">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L55">            .withName(&quot;showTask&quot;)</span>
+<span class="fc" id="L56">            .withLabel(&quot;Your Next Task&quot;)</span>
+<span class="fc" id="L57">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.VIEW_FORM))</span>
+<span class="fc" id="L58">            .withViewField(new QFieldMetaData(&quot;taskId&quot;, QFieldType.INTEGER).withLabel(&quot;Task ID&quot;))</span>
+<span class="fc" id="L59">            .withViewField(new QFieldMetaData(&quot;taskType&quot;, QFieldType.STRING).withLabel(&quot;Task Type&quot;))</span>
+<span class="fc" id="L60">            .withViewField(new QFieldMetaData(&quot;sourceLocation&quot;, QFieldType.STRING).withLabel(&quot;Source Location&quot;))</span>
+<span class="fc" id="L61">            .withViewField(new QFieldMetaData(&quot;itemName&quot;, QFieldType.STRING).withLabel(&quot;Item&quot;))</span>
+<span class="fc" id="L62">            .withViewField(new QFieldMetaData(&quot;quantityRequested&quot;, QFieldType.DECIMAL).withLabel(&quot;Quantity&quot;))</span>
+<span class="fc" id="L63">            .withViewField(new QFieldMetaData(&quot;destinationLocation&quot;, QFieldType.STRING).withLabel(&quot;Destination Location&quot;))</span>
+<span class="fc" id="L64">            .withViewField(new QFieldMetaData(&quot;taskNotes&quot;, QFieldType.STRING).withLabel(&quot;Notes&quot;))</span>
+<span class="fc" id="L65">            .withViewField(new QFieldMetaData(&quot;resultMessage&quot;, QFieldType.STRING).withLabel(&quot;Status&quot;)));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

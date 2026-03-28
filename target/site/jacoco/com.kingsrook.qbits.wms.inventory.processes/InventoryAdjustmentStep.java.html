@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryAdjustmentStep.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">InventoryAdjustmentStep.java</span></div><h1>InventoryAdjustmentStep.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Backend step for InventoryAdjustment.  Creates an ADJUST inventory
+ ** transaction and then updates the wms_inventory quantity_on_hand, following
+ ** the perpetual inventory principle.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import java.math.BigDecimal;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.context.QContext;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.exceptions.QUserFacingException;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.core.enums.AdjustmentReasonCode;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.core.enums.TransactionType;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.core.model.WmsInventoryTransaction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+
+
+<span class="fc" id="L63">public class InventoryAdjustmentStep implements BackendStep</span>
+{
+<span class="fc" id="L65">   private static final QLogger LOG = QLogger.getLogger(InventoryAdjustmentStep.class);</span>
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public void run(RunBackendStepInput input, RunBackendStepOutput output) throws QException
+   {
+<span class="nc" id="L75">      Integer locationId = input.getValueInteger(&quot;locationId&quot;);</span>
+<span class="nc" id="L76">      Integer itemId = input.getValueInteger(&quot;itemId&quot;);</span>
+<span class="nc" id="L77">      BigDecimal newQuantity = ValueUtils.getValueAsBigDecimal(input.getValue(&quot;newQuantity&quot;));</span>
+<span class="nc" id="L78">      Integer reasonCodeId = input.getValueInteger(&quot;reasonCodeId&quot;);</span>
+<span class="nc" id="L79">      String notes = input.getValueString(&quot;adjustmentNotes&quot;);</span>
+
+<span class="nc bnc" id="L81" title="All 4 branches missed.">      if(locationId == null || itemId == null)</span>
+      {
+<span class="nc" id="L83">         throw new QUserFacingException(&quot;Location and item are required.&quot;);</span>
+      }
+<span class="nc bnc" id="L85" title="All 2 branches missed.">      if(newQuantity == null)</span>
+      {
+<span class="nc" id="L87">         throw new QUserFacingException(&quot;New quantity is required.&quot;);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Look up existing inventory at this item + location                  //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L93">      QueryOutput invQuery = new QueryAction().execute(new QueryInput(WmsInventory.TABLE_NAME)</span>
+<span class="nc" id="L94">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L95">            .withCriteria(new QFilterCriteria(&quot;itemId&quot;, QCriteriaOperator.EQUALS, itemId))</span>
+<span class="nc" id="L96">            .withCriteria(new QFilterCriteria(&quot;locationId&quot;, QCriteriaOperator.EQUALS, locationId))));</span>
+
+<span class="nc" id="L98">      List&lt;QRecord&gt; invRecords = invQuery.getRecords();</span>
+<span class="nc" id="L99">      BigDecimal currentQuantity = BigDecimal.ZERO;</span>
+<span class="nc" id="L100">      QRecord existingInv = null;</span>
+<span class="nc" id="L101">      Integer warehouseId = null;</span>
+<span class="nc" id="L102">      Integer clientId = null;</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">      if(!invRecords.isEmpty())</span>
+      {
+<span class="nc" id="L106">         existingInv = invRecords.get(0);</span>
+<span class="nc" id="L107">         currentQuantity = existingInv.getValueBigDecimal(&quot;quantityOnHand&quot;);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">         if(currentQuantity == null)</span>
+         {
+<span class="nc" id="L110">            currentQuantity = BigDecimal.ZERO;</span>
+         }
+<span class="nc" id="L112">         warehouseId = existingInv.getValueInteger(&quot;warehouseId&quot;);</span>
+<span class="nc" id="L113">         clientId = existingInv.getValueInteger(&quot;clientId&quot;);</span>
+      }
+
+<span class="nc" id="L116">      BigDecimal delta = newQuantity.subtract(currentQuantity);</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Resolve performer and reason code                                   //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L121">      String performedBy = null;</span>
+<span class="nc bnc" id="L122" title="All 4 branches missed.">      if(QContext.getQSession() != null &amp;&amp; QContext.getQSession().getUser() != null)</span>
+      {
+<span class="nc" id="L124">         performedBy = QContext.getQSession().getUser().getFullName();</span>
+      }
+
+<span class="nc" id="L127">      AdjustmentReasonCode reasonCode = AdjustmentReasonCode.getById(reasonCodeId);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">      String reasonCodeLabel = reasonCode != null ? reasonCode.getLabel() : null;</span>
+
+<span class="nc" id="L130">      LOG.info(&quot;Executing inventory adjustment&quot;,</span>
+<span class="nc" id="L131">         logPair(&quot;itemId&quot;, itemId),</span>
+<span class="nc" id="L132">         logPair(&quot;locationId&quot;, locationId),</span>
+<span class="nc" id="L133">         logPair(&quot;currentQuantity&quot;, currentQuantity),</span>
+<span class="nc" id="L134">         logPair(&quot;newQuantity&quot;, newQuantity),</span>
+<span class="nc" id="L135">         logPair(&quot;delta&quot;, delta),</span>
+<span class="nc" id="L136">         logPair(&quot;reasonCode&quot;, reasonCodeLabel));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Step 1: Create inventory transaction (MUST come first)              //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L141">      new InsertAction().execute(new InsertInput(WmsInventoryTransaction.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L142">         .withValue(&quot;warehouseId&quot;, warehouseId)</span>
+<span class="nc" id="L143">         .withValue(&quot;clientId&quot;, clientId)</span>
+<span class="nc" id="L144">         .withValue(&quot;itemId&quot;, itemId)</span>
+<span class="nc" id="L145">         .withValue(&quot;transactionTypeId&quot;, TransactionType.ADJUST.getPossibleValueId())</span>
+<span class="nc" id="L146">         .withValue(&quot;fromLocationId&quot;, locationId)</span>
+<span class="nc" id="L147">         .withValue(&quot;toLocationId&quot;, locationId)</span>
+<span class="nc" id="L148">         .withValue(&quot;quantity&quot;, delta)</span>
+<span class="nc" id="L149">         .withValue(&quot;reasonCode&quot;, reasonCodeLabel)</span>
+<span class="nc" id="L150">         .withValue(&quot;performedBy&quot;, performedBy)</span>
+<span class="nc" id="L151">         .withValue(&quot;performedDate&quot;, Instant.now())</span>
+<span class="nc" id="L152">         .withValue(&quot;notes&quot;, notes)));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Step 2: Update inventory record                                     //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc bnc" id="L157" title="All 2 branches missed.">      if(existingInv != null)</span>
+      {
+<span class="nc" id="L159">         BigDecimal allocated = existingInv.getValueBigDecimal(&quot;quantityAllocated&quot;);</span>
+<span class="nc" id="L160">         BigDecimal onHold = existingInv.getValueBigDecimal(&quot;quantityOnHold&quot;);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">         if(allocated == null) allocated = BigDecimal.ZERO;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">         if(onHold == null) onHold = BigDecimal.ZERO;</span>
+
+<span class="nc" id="L164">         BigDecimal newAvailable = newQuantity.subtract(allocated).subtract(onHold);</span>
+
+<span class="nc" id="L166">         new UpdateAction().execute(new UpdateInput(WmsInventory.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L167">            .withValue(&quot;id&quot;, existingInv.getValueInteger(&quot;id&quot;))</span>
+<span class="nc" id="L168">            .withValue(&quot;quantityOnHand&quot;, newQuantity)</span>
+<span class="nc" id="L169">            .withValue(&quot;quantityAvailable&quot;, newAvailable)));</span>
+<span class="nc" id="L170">      }</span>
+      else
+      {
+         //////////////////////////////////////////////////////////////////
+         // No existing inventory record -- create one if adding stock   //
+         //////////////////////////////////////////////////////////////////
+<span class="nc bnc" id="L176" title="All 2 branches missed.">         if(newQuantity.compareTo(BigDecimal.ZERO) &gt; 0)</span>
+         {
+<span class="nc" id="L178">            new InsertAction().execute(new InsertInput(WmsInventory.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L179">               .withValue(&quot;warehouseId&quot;, warehouseId)</span>
+<span class="nc" id="L180">               .withValue(&quot;clientId&quot;, clientId)</span>
+<span class="nc" id="L181">               .withValue(&quot;itemId&quot;, itemId)</span>
+<span class="nc" id="L182">               .withValue(&quot;locationId&quot;, locationId)</span>
+<span class="nc" id="L183">               .withValue(&quot;quantityOnHand&quot;, newQuantity)</span>
+<span class="nc" id="L184">               .withValue(&quot;quantityAllocated&quot;, BigDecimal.ZERO)</span>
+<span class="nc" id="L185">               .withValue(&quot;quantityAvailable&quot;, newQuantity)</span>
+<span class="nc" id="L186">               .withValue(&quot;quantityOnHold&quot;, BigDecimal.ZERO)</span>
+<span class="nc" id="L187">               .withValue(&quot;inventoryStatusId&quot;, 1))); // AVAILABLE</span>
+         }
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Populate output fields                                              //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L194">      output.addValue(&quot;resultMessage&quot;, &quot;Inventory adjusted successfully.&quot;);</span>
+<span class="nc" id="L195">      output.addValue(&quot;adjustedItem&quot;, String.valueOf(itemId));</span>
+<span class="nc" id="L196">      output.addValue(&quot;adjustedLocation&quot;, String.valueOf(locationId));</span>
+<span class="nc" id="L197">      output.addValue(&quot;previousQuantity&quot;, currentQuantity);</span>
+<span class="nc" id="L198">      output.addValue(&quot;adjustedQuantity&quot;, newQuantity);</span>
+<span class="nc" id="L199">      output.addValue(&quot;delta&quot;, delta);</span>
+<span class="nc" id="L200">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

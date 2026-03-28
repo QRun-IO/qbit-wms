@@ -139,59 +139,78 @@ public class WmsLocation extends QRecordEntity
 
 
    public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
    public WmsLocation withId(Integer id) { this.id = id; return (this); }
 
    public Integer getWarehouseId() { return (this.warehouseId); }
+   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }
    public WmsLocation withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }
 
    public Integer getZoneId() { return (this.zoneId); }
+   public void setZoneId(Integer zoneId) { this.zoneId = zoneId; }
    public WmsLocation withZoneId(Integer zoneId) { this.zoneId = zoneId; return (this); }
 
    public String getBarcode() { return (this.barcode); }
+   public void setBarcode(String barcode) { this.barcode = barcode; }
    public WmsLocation withBarcode(String barcode) { this.barcode = barcode; return (this); }
 
    public String getLabel() { return (this.label); }
+   public void setLabel(String label) { this.label = label; }
    public WmsLocation withLabel(String label) { this.label = label; return (this); }
 
    public String getAisle() { return (this.aisle); }
+   public void setAisle(String aisle) { this.aisle = aisle; }
    public WmsLocation withAisle(String aisle) { this.aisle = aisle; return (this); }
 
    public String getRack() { return (this.rack); }
+   public void setRack(String rack) { this.rack = rack; }
    public WmsLocation withRack(String rack) { this.rack = rack; return (this); }
 
    public String getShelf() { return (this.shelf); }
+   public void setShelf(String shelf) { this.shelf = shelf; }
    public WmsLocation withShelf(String shelf) { this.shelf = shelf; return (this); }
 
    public String getPosition() { return (this.position); }
+   public void setPosition(String position) { this.position = position; }
    public WmsLocation withPosition(String position) { this.position = position; return (this); }
 
    public Integer getLocationTypeId() { return (this.locationTypeId); }
+   public void setLocationTypeId(Integer locationTypeId) { this.locationTypeId = locationTypeId; }
    public WmsLocation withLocationTypeId(Integer locationTypeId) { this.locationTypeId = locationTypeId; return (this); }
 
    public BigDecimal getMaxWeightLbs() { return (this.maxWeightLbs); }
+   public void setMaxWeightLbs(BigDecimal maxWeightLbs) { this.maxWeightLbs = maxWeightLbs; }
    public WmsLocation withMaxWeightLbs(BigDecimal maxWeightLbs) { this.maxWeightLbs = maxWeightLbs; return (this); }
 
    public BigDecimal getMaxVolumeCubicFt() { return (this.maxVolumeCubicFt); }
+   public void setMaxVolumeCubicFt(BigDecimal maxVolumeCubicFt) { this.maxVolumeCubicFt = maxVolumeCubicFt; }
    public WmsLocation withMaxVolumeCubicFt(BigDecimal maxVolumeCubicFt) { this.maxVolumeCubicFt = maxVolumeCubicFt; return (this); }
 
    public BigDecimal getCurrentWeightLbs() { return (this.currentWeightLbs); }
+   public void setCurrentWeightLbs(BigDecimal currentWeightLbs) { this.currentWeightLbs = currentWeightLbs; }
    public WmsLocation withCurrentWeightLbs(BigDecimal currentWeightLbs) { this.currentWeightLbs = currentWeightLbs; return (this); }
 
    public BigDecimal getCurrentVolumeCubicFt() { return (this.currentVolumeCubicFt); }
+   public void setCurrentVolumeCubicFt(BigDecimal currentVolumeCubicFt) { this.currentVolumeCubicFt = currentVolumeCubicFt; }
    public WmsLocation withCurrentVolumeCubicFt(BigDecimal currentVolumeCubicFt) { this.currentVolumeCubicFt = currentVolumeCubicFt; return (this); }
 
    public Boolean getIsMixedSkuAllowed() { return (this.isMixedSkuAllowed); }
+   public void setIsMixedSkuAllowed(Boolean isMixedSkuAllowed) { this.isMixedSkuAllowed = isMixedSkuAllowed; }
    public WmsLocation withIsMixedSkuAllowed(Boolean isMixedSkuAllowed) { this.isMixedSkuAllowed = isMixedSkuAllowed; return (this); }
 
    public Integer getPickSequence() { return (this.pickSequence); }
+   public void setPickSequence(Integer pickSequence) { this.pickSequence = pickSequence; }
    public WmsLocation withPickSequence(Integer pickSequence) { this.pickSequence = pickSequence; return (this); }
 
    public Boolean getIsActive() { return (this.isActive); }
+   public void setIsActive(Boolean isActive) { this.isActive = isActive; }
    public WmsLocation withIsActive(Boolean isActive) { this.isActive = isActive; return (this); }
 
    public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
    public WmsLocation withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
    public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
    public WmsLocation withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

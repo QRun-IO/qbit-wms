@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmsCycleCountLine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.model</a> &gt; <span class="el_source">WmsCycleCountLine.java</span></div><h1>WmsCycleCountLine.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** QRecord Entity for WmsCycleCountLine table.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.model;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+
+
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
+public class WmsCycleCountLine extends QRecordEntity
+{
+   public static final String TABLE_NAME = &quot;wmsCycleCountLine&quot;;
+
+   @QField(isEditable = false, isPrimaryKey = true)
+   private Integer id;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsCycleCount.TABLE_NAME)
+   private Integer cycleCountId;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsLocation.TABLE_NAME)
+   private Integer locationId;
+
+   @QField(isRequired = true, possibleValueSourceName = WmsItem.TABLE_NAME)
+   private Integer itemId;
+
+   @QField(maxLength = 50)
+   private String lotNumber;
+
+   @QField()
+   private BigDecimal expectedQuantity;
+
+   @QField()
+   private BigDecimal countedQuantity;
+
+   @QField()
+   private BigDecimal variance;
+
+   @QField()
+   private Boolean varianceApproved;
+
+   @QField(maxLength = 100)
+   private String approvedBy;
+
+   @QField(maxLength = 20)
+   private String status;
+
+   @QField()
+   private Integer taskId;
+
+   @QField(isEditable = false)
+   private Instant createDate;
+
+   @QField(isEditable = false)
+   private Instant modifyDate;
+
+
+
+   /*******************************************************************************
+    ** Default constructor
+    *******************************************************************************/
+   public WmsCycleCountLine()
+<span class="fc" id="L68">   {</span>
+<span class="fc" id="L69">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Constructor that takes a QRecord
+    *******************************************************************************/
+   public WmsCycleCountLine(QRecord record)
+<span class="fc" id="L77">   {</span>
+<span class="fc" id="L78">      populateFromQRecord(record);</span>
+<span class="fc" id="L79">   }</span>
+
+
+
+<span class="fc" id="L83">   public Integer getId() { return (this.id); }</span>
+<span class="fc" id="L84">   public void setId(Integer id) { this.id = id; }</span>
+<span class="fc" id="L85">   public WmsCycleCountLine withId(Integer id) { this.id = id; return (this); }</span>
+
+<span class="fc" id="L87">   public Integer getCycleCountId() { return (this.cycleCountId); }</span>
+<span class="fc" id="L88">   public void setCycleCountId(Integer cycleCountId) { this.cycleCountId = cycleCountId; }</span>
+<span class="fc" id="L89">   public WmsCycleCountLine withCycleCountId(Integer cycleCountId) { this.cycleCountId = cycleCountId; return (this); }</span>
+
+<span class="fc" id="L91">   public Integer getLocationId() { return (this.locationId); }</span>
+<span class="fc" id="L92">   public void setLocationId(Integer locationId) { this.locationId = locationId; }</span>
+<span class="fc" id="L93">   public WmsCycleCountLine withLocationId(Integer locationId) { this.locationId = locationId; return (this); }</span>
+
+<span class="fc" id="L95">   public Integer getItemId() { return (this.itemId); }</span>
+<span class="fc" id="L96">   public void setItemId(Integer itemId) { this.itemId = itemId; }</span>
+<span class="fc" id="L97">   public WmsCycleCountLine withItemId(Integer itemId) { this.itemId = itemId; return (this); }</span>
+
+<span class="fc" id="L99">   public String getLotNumber() { return (this.lotNumber); }</span>
+<span class="fc" id="L100">   public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }</span>
+<span class="fc" id="L101">   public WmsCycleCountLine withLotNumber(String lotNumber) { this.lotNumber = lotNumber; return (this); }</span>
+
+<span class="fc" id="L103">   public BigDecimal getExpectedQuantity() { return (this.expectedQuantity); }</span>
+<span class="fc" id="L104">   public void setExpectedQuantity(BigDecimal expectedQuantity) { this.expectedQuantity = expectedQuantity; }</span>
+<span class="fc" id="L105">   public WmsCycleCountLine withExpectedQuantity(BigDecimal expectedQuantity) { this.expectedQuantity = expectedQuantity; return (this); }</span>
+
+<span class="fc" id="L107">   public BigDecimal getCountedQuantity() { return (this.countedQuantity); }</span>
+<span class="fc" id="L108">   public void setCountedQuantity(BigDecimal countedQuantity) { this.countedQuantity = countedQuantity; }</span>
+<span class="fc" id="L109">   public WmsCycleCountLine withCountedQuantity(BigDecimal countedQuantity) { this.countedQuantity = countedQuantity; return (this); }</span>
+
+<span class="fc" id="L111">   public BigDecimal getVariance() { return (this.variance); }</span>
+<span class="fc" id="L112">   public void setVariance(BigDecimal variance) { this.variance = variance; }</span>
+<span class="fc" id="L113">   public WmsCycleCountLine withVariance(BigDecimal variance) { this.variance = variance; return (this); }</span>
+
+<span class="fc" id="L115">   public Boolean getVarianceApproved() { return (this.varianceApproved); }</span>
+<span class="fc" id="L116">   public void setVarianceApproved(Boolean varianceApproved) { this.varianceApproved = varianceApproved; }</span>
+<span class="fc" id="L117">   public WmsCycleCountLine withVarianceApproved(Boolean varianceApproved) { this.varianceApproved = varianceApproved; return (this); }</span>
+
+<span class="fc" id="L119">   public String getApprovedBy() { return (this.approvedBy); }</span>
+<span class="fc" id="L120">   public void setApprovedBy(String approvedBy) { this.approvedBy = approvedBy; }</span>
+<span class="fc" id="L121">   public WmsCycleCountLine withApprovedBy(String approvedBy) { this.approvedBy = approvedBy; return (this); }</span>
+
+<span class="fc" id="L123">   public String getStatus() { return (this.status); }</span>
+<span class="fc" id="L124">   public void setStatus(String status) { this.status = status; }</span>
+<span class="fc" id="L125">   public WmsCycleCountLine withStatus(String status) { this.status = status; return (this); }</span>
+
+<span class="fc" id="L127">   public Integer getTaskId() { return (this.taskId); }</span>
+<span class="fc" id="L128">   public void setTaskId(Integer taskId) { this.taskId = taskId; }</span>
+<span class="fc" id="L129">   public WmsCycleCountLine withTaskId(Integer taskId) { this.taskId = taskId; return (this); }</span>
+
+<span class="fc" id="L131">   public Instant getCreateDate() { return (this.createDate); }</span>
+<span class="fc" id="L132">   public void setCreateDate(Instant createDate) { this.createDate = createDate; }</span>
+<span class="fc" id="L133">   public WmsCycleCountLine withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }</span>
+
+<span class="fc" id="L135">   public Instant getModifyDate() { return (this.modifyDate); }</span>
+<span class="fc" id="L136">   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }</span>
+<span class="fc" id="L137">   public WmsCycleCountLine withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TaskQueueSummaryRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.widgets</a> &gt; <span class="el_source">TaskQueueSummaryRenderer.java</span></div><h1>TaskQueueSummaryRenderer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Renderer for the Task Queue Summary widget.
+ **
+ ** Queries wms_task and groups counts by task type and status, producing a
+ ** MultiStatisticsData structure with one statistics group per task type.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.widgets;
+
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.AbstractWidgetRenderer;
+import com.kingsrook.qqq.backend.core.actions.tables.AggregateAction;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.Aggregate;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.AggregateResult;
+import com.kingsrook.qqq.backend.core.model.actions.tables.aggregate.GroupBy;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetInput;
+import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetOutput;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.MultiStatisticsData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.utils.StringUtils;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.core.enums.TaskStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskType;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+
+
+<span class="fc" id="L38">public class TaskQueueSummaryRenderer extends AbstractWidgetRenderer</span>
+{
+<span class="fc" id="L40">   private static final List&lt;TaskStatus&gt; ACTIVE_STATUSES = List.of(</span>
+      TaskStatus.PENDING,
+      TaskStatus.ASSIGNED,
+      TaskStatus.IN_PROGRESS,
+      TaskStatus.PAUSED,
+      TaskStatus.ON_HOLD
+   );
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public RenderWidgetOutput render(RenderWidgetInput input) throws QException
+   {
+<span class="nc" id="L56">      String warehouseId = input.getQueryParams().get(&quot;warehouseId&quot;);</span>
+
+      ///////////////////////////////////////////////////////////
+      // build filter for only active (non-terminal) statuses  //
+      ///////////////////////////////////////////////////////////
+<span class="nc" id="L61">      List&lt;Integer&gt; statusIds = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">      for(TaskStatus status : ACTIVE_STATUSES)</span>
+      {
+<span class="nc" id="L64">         statusIds.add(status.getId());</span>
+<span class="nc" id="L65">      }</span>
+
+<span class="nc" id="L67">      QQueryFilter filter = new QQueryFilter()</span>
+<span class="nc" id="L68">         .withCriteria(new QFilterCriteria(&quot;taskStatusId&quot;, QCriteriaOperator.IN, new ArrayList&lt;&gt;(statusIds)));</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">      if(StringUtils.hasContent(warehouseId))</span>
+      {
+<span class="nc" id="L72">         filter.withCriteria(new QFilterCriteria(&quot;warehouseId&quot;, QCriteriaOperator.EQUALS, ValueUtils.getValueAsInteger(warehouseId)));</span>
+      }
+
+      //////////////////////////////////////////////////////////
+      // aggregate: COUNT(id) GROUP BY taskTypeId, taskStatusId //
+      //////////////////////////////////////////////////////////
+<span class="nc" id="L78">      Aggregate countAggregate = new Aggregate(&quot;id&quot;, AggregateOperator.COUNT);</span>
+<span class="nc" id="L79">      GroupBy   taskTypeGroup  = new GroupBy(QFieldType.INTEGER, &quot;taskTypeId&quot;);</span>
+<span class="nc" id="L80">      GroupBy   statusGroup    = new GroupBy(QFieldType.INTEGER, &quot;taskStatusId&quot;);</span>
+
+<span class="nc" id="L82">      AggregateInput aggregateInput = new AggregateInput(WmsTask.TABLE_NAME);</span>
+<span class="nc" id="L83">      aggregateInput.setFilter(filter);</span>
+<span class="nc" id="L84">      aggregateInput.withAggregates(List.of(countAggregate));</span>
+<span class="nc" id="L85">      aggregateInput.withGroupBys(List.of(taskTypeGroup, statusGroup));</span>
+
+<span class="nc" id="L87">      AggregateOutput aggregateOutput = new AggregateAction().execute(aggregateInput);</span>
+
+      /////////////////////////////////////////////////////////////////
+      // organize results into a map: taskTypeId -&gt; statusId -&gt; count //
+      /////////////////////////////////////////////////////////////////
+<span class="nc" id="L92">      Map&lt;Integer, Map&lt;Integer, Integer&gt;&gt; typeStatusCounts = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">      for(AggregateResult result : aggregateOutput.getResults())</span>
+      {
+<span class="nc" id="L95">         Integer typeId  = ValueUtils.getValueAsInteger(result.getGroupByValue(taskTypeGroup));</span>
+<span class="nc" id="L96">         Integer stId    = ValueUtils.getValueAsInteger(result.getGroupByValue(statusGroup));</span>
+<span class="nc" id="L97">         Integer count   = ValueUtils.getValueAsInteger(result.getAggregateValue(countAggregate));</span>
+<span class="nc" id="L98">         typeStatusCounts.computeIfAbsent(typeId, k -&gt; new LinkedHashMap&lt;&gt;()).put(stId, count);</span>
+<span class="nc" id="L99">      }</span>
+
+      ////////////////////////////////////////////////////////
+      // build a StatisticsGroupData per task type           //
+      ////////////////////////////////////////////////////////
+<span class="nc" id="L104">      List&lt;MultiStatisticsData.StatisticsGroupData&gt; groups = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">      for(TaskType taskType : TaskType.values())</span>
+      {
+<span class="nc" id="L107">         Map&lt;Integer, Integer&gt; statusCounts = typeStatusCounts.get(taskType.getId());</span>
+<span class="nc bnc" id="L108" title="All 4 branches missed.">         if(statusCounts == null || statusCounts.isEmpty())</span>
+         {
+<span class="nc" id="L110">            continue;</span>
+         }
+
+<span class="nc" id="L113">         List&lt;MultiStatisticsData.StatisticsGroupData.Statistic&gt; stats = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">         for(TaskStatus status : ACTIVE_STATUSES)</span>
+         {
+<span class="nc" id="L116">            Integer count = statusCounts.getOrDefault(status.getId(), 0);</span>
+<span class="nc" id="L117">            stats.add(new MultiStatisticsData.StatisticsGroupData.Statistic(status.getLabel(), count, null));</span>
+<span class="nc" id="L118">         }</span>
+
+<span class="nc" id="L120">         MultiStatisticsData.StatisticsGroupData group = new MultiStatisticsData.StatisticsGroupData()</span>
+<span class="nc" id="L121">            .withIcon(&quot;assignment&quot;)</span>
+<span class="nc" id="L122">            .withIconColor(&quot;#1565C0&quot;)</span>
+<span class="nc" id="L123">            .withHeader(taskType.getLabel())</span>
+<span class="nc" id="L124">            .withStatisticList(stats);</span>
+
+<span class="nc" id="L126">         groups.add(group);</span>
+      }
+
+<span class="nc" id="L129">      MultiStatisticsData data = new MultiStatisticsData()</span>
+<span class="nc" id="L130">         .withTitle(&quot;Task Queue Summary&quot;)</span>
+<span class="nc" id="L131">         .withStatisticsGroupData(groups);</span>
+
+<span class="nc" id="L133">      return (new RenderWidgetOutput(data));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

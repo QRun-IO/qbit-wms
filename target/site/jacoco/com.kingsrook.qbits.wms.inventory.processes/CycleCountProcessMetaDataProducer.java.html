@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CycleCountProcessMetaDataProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">CycleCountProcessMetaDataProducer.java</span></div><h1>CycleCountProcessMetaDataProducer.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** MetaData producer for the CreateCycleCount process.  Generates a count plan
+ ** with lines for selected locations and creates COUNT tasks that enter the
+ ** task queue for worker assignment.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QBackendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QComponentType;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendComponentMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendStepMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.processes.QProcessMetaData;
+import com.kingsrook.qbits.wms.core.enums.CycleCountType;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
+import com.kingsrook.qbits.wms.core.model.WmsZone;
+
+
+<span class="fc" id="L27">public class CycleCountProcessMetaDataProducer implements MetaDataProducerInterface&lt;QProcessMetaData&gt;</span>
+{
+   public static final String NAME = &quot;wmsCreateCycleCount&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public QProcessMetaData produce(QInstance qInstance) throws QException
+   {
+<span class="fc" id="L39">      return new QProcessMetaData()</span>
+<span class="fc" id="L40">         .withName(NAME)</span>
+<span class="fc" id="L41">         .withLabel(&quot;Create Cycle Count&quot;)</span>
+<span class="fc" id="L42">         .withIcon(new QIcon().withName(&quot;exposure&quot;))</span>
+<span class="fc" id="L43">         .withTableName(WmsCycleCount.TABLE_NAME)</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 1: Select count parameters                                      //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L48">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L49">            .withName(&quot;selectCountType&quot;)</span>
+<span class="fc" id="L50">            .withLabel(&quot;Count Parameters&quot;)</span>
+<span class="fc" id="L51">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))</span>
+<span class="fc" id="L52">            .withFormField(new QFieldMetaData(&quot;warehouseId&quot;, QFieldType.INTEGER).withLabel(&quot;Warehouse&quot;).withPossibleValueSourceName(WmsWarehouse.TABLE_NAME).withIsRequired(true))</span>
+<span class="fc" id="L53">            .withFormField(new QFieldMetaData(&quot;countTypeId&quot;, QFieldType.INTEGER).withLabel(&quot;Count Type&quot;).withPossibleValueSourceName(CycleCountType.NAME).withIsRequired(true))</span>
+<span class="fc" id="L54">            .withFormField(new QFieldMetaData(&quot;zoneId&quot;, QFieldType.INTEGER).withLabel(&quot;Target Zone&quot;).withPossibleValueSourceName(WmsZone.TABLE_NAME))</span>
+<span class="fc" id="L55">            .withFormField(new QFieldMetaData(&quot;assignedTo&quot;, QFieldType.STRING).withLabel(&quot;Assign To&quot;)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 2: Generate count list and create tasks                         //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L60">         .withStep(new QBackendStepMetaData()</span>
+<span class="fc" id="L61">            .withName(&quot;generateCountList&quot;)</span>
+<span class="fc" id="L62">            .withCode(new QCodeReference(CycleCountStep.class)))</span>
+
+         //////////////////////////////////////////////////////////////////////////
+         // Step 3: Show count plan summary                                      //
+         //////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L67">         .withStep(new QFrontendStepMetaData()</span>
+<span class="fc" id="L68">            .withName(&quot;showCountPlan&quot;)</span>
+<span class="fc" id="L69">            .withLabel(&quot;Count Plan Created&quot;)</span>
+<span class="fc" id="L70">            .withComponent(new QFrontendComponentMetaData().withType(QComponentType.VIEW_FORM))</span>
+<span class="fc" id="L71">            .withViewField(new QFieldMetaData(&quot;resultMessage&quot;, QFieldType.STRING).withLabel(&quot;Result&quot;))</span>
+<span class="fc" id="L72">            .withViewField(new QFieldMetaData(&quot;cycleCountId&quot;, QFieldType.INTEGER).withLabel(&quot;Cycle Count ID&quot;))</span>
+<span class="fc" id="L73">            .withViewField(new QFieldMetaData(&quot;lineCount&quot;, QFieldType.INTEGER).withLabel(&quot;Lines Created&quot;))</span>
+<span class="fc" id="L74">            .withViewField(new QFieldMetaData(&quot;taskCount&quot;, QFieldType.INTEGER).withLabel(&quot;Tasks Created&quot;)));</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

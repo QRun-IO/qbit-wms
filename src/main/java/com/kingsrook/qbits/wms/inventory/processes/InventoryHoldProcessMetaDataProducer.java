@@ -26,7 +26,7 @@ import com.kingsrook.qbits.wms.core.model.WmsLocation;
 
 public class InventoryHoldProcessMetaDataProducer implements MetaDataProducerInterface<QProcessMetaData>
 {
-   public static final String NAME = "wmsInventoryHold";
+   public static final String NAME = "wmsPlaceInventoryHold";
 
 
 

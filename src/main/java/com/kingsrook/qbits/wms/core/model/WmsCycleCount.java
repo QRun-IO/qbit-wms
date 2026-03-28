@@ -127,38 +127,50 @@ public class WmsCycleCount extends QRecordEntity
 
 
    public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
    public WmsCycleCount withId(Integer id) { this.id = id; return (this); }
 
    public Integer getWarehouseId() { return (this.warehouseId); }
+   public void setWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; }
    public WmsCycleCount withWarehouseId(Integer warehouseId) { this.warehouseId = warehouseId; return (this); }
 
    public Integer getClientId() { return (this.clientId); }
+   public void setClientId(Integer clientId) { this.clientId = clientId; }
    public WmsCycleCount withClientId(Integer clientId) { this.clientId = clientId; return (this); }
 
    public Integer getCountTypeId() { return (this.countTypeId); }
+   public void setCountTypeId(Integer countTypeId) { this.countTypeId = countTypeId; }
    public WmsCycleCount withCountTypeId(Integer countTypeId) { this.countTypeId = countTypeId; return (this); }
 
    public Integer getCycleCountStatusId() { return (this.cycleCountStatusId); }
+   public void setCycleCountStatusId(Integer cycleCountStatusId) { this.cycleCountStatusId = cycleCountStatusId; }
    public WmsCycleCount withCycleCountStatusId(Integer cycleCountStatusId) { this.cycleCountStatusId = cycleCountStatusId; return (this); }
 
    public Instant getPlannedDate() { return (this.plannedDate); }
+   public void setPlannedDate(Instant plannedDate) { this.plannedDate = plannedDate; }
    public WmsCycleCount withPlannedDate(Instant plannedDate) { this.plannedDate = plannedDate; return (this); }
 
    public Instant getStartedDate() { return (this.startedDate); }
+   public void setStartedDate(Instant startedDate) { this.startedDate = startedDate; }
    public WmsCycleCount withStartedDate(Instant startedDate) { this.startedDate = startedDate; return (this); }
 
    public Instant getCompletedDate() { return (this.completedDate); }
+   public void setCompletedDate(Instant completedDate) { this.completedDate = completedDate; }
    public WmsCycleCount withCompletedDate(Instant completedDate) { this.completedDate = completedDate; return (this); }
 
    public String getAssignedTo() { return (this.assignedTo); }
+   public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
    public WmsCycleCount withAssignedTo(String assignedTo) { this.assignedTo = assignedTo; return (this); }
 
    public String getNotes() { return (this.notes); }
+   public void setNotes(String notes) { this.notes = notes; }
    public WmsCycleCount withNotes(String notes) { this.notes = notes; return (this); }
 
    public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
    public WmsCycleCount withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
    public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
    public WmsCycleCount withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }

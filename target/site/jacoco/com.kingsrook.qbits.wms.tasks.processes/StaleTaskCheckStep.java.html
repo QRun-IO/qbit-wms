@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StaleTaskCheckStep.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.tasks.processes</a> &gt; <span class="el_source">StaleTaskCheckStep.java</span></div><h1>StaleTaskCheckStep.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Backend step for the StaleTaskCheck scheduled process.  Finds ASSIGNED tasks
+ ** whose assignedDate is older than the configured threshold and unassigns them
+ ** back to PENDING status.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.tasks.processes;
+
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepInput;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qbits.wms.core.enums.TaskStatus;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+
+
+<span class="fc" id="L31">public class StaleTaskCheckStep implements BackendStep</span>
+{
+<span class="fc" id="L33">   private static final QLogger LOG = QLogger.getLogger(StaleTaskCheckStep.class);</span>
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Default threshold in minutes for tasks in ASSIGNED status               //
+   /////////////////////////////////////////////////////////////////////////////
+<span class="fc" id="L38">   private static final Integer DEFAULT_STALE_ASSIGNED_MINUTES = 30;</span>
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public void run(RunBackendStepInput input, RunBackendStepOutput output) throws QException
+   {
+<span class="nc" id="L48">      Instant staleThreshold = Instant.now().minus(DEFAULT_STALE_ASSIGNED_MINUTES, ChronoUnit.MINUTES);</span>
+
+<span class="nc" id="L50">      LOG.info(&quot;Checking for stale ASSIGNED tasks&quot;, logPair(&quot;threshold&quot;, staleThreshold));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Find ASSIGNED tasks that have been assigned longer than threshold   //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L55">      QueryOutput queryOutput = new QueryAction().execute(new QueryInput(WmsTask.TABLE_NAME)</span>
+<span class="nc" id="L56">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L57">            .withCriteria(new QFilterCriteria(&quot;taskStatusId&quot;, QCriteriaOperator.EQUALS, TaskStatus.ASSIGNED.getPossibleValueId()))</span>
+<span class="nc" id="L58">            .withCriteria(new QFilterCriteria(&quot;assignedDate&quot;, QCriteriaOperator.LESS_THAN, staleThreshold))));</span>
+
+<span class="nc" id="L60">      List&lt;QRecord&gt; staleTasks = queryOutput.getRecords();</span>
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">      if(staleTasks.isEmpty())</span>
+      {
+<span class="nc" id="L64">         LOG.info(&quot;No stale tasks found&quot;);</span>
+<span class="nc" id="L65">         return;</span>
+      }
+
+<span class="nc" id="L68">      LOG.info(&quot;Found stale tasks to unassign&quot;, logPair(&quot;count&quot;, staleTasks.size()));</span>
+
+<span class="nc" id="L70">      Integer unassignedCount = 0;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">      for(QRecord staleTask : staleTasks)</span>
+      {
+<span class="nc" id="L73">         Integer taskId = staleTask.getValueInteger(&quot;id&quot;);</span>
+
+<span class="nc" id="L75">         String existingNotes = staleTask.getValueString(&quot;notes&quot;);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">         String updatedNotes = (existingNotes != null ? existingNotes + &quot;\n&quot; : &quot;&quot;)</span>
+            + &quot;AUTO-UNASSIGNED: Task was stale (assigned for &gt;&quot; + DEFAULT_STALE_ASSIGNED_MINUTES + &quot; minutes)&quot;;
+
+<span class="nc" id="L79">         new UpdateAction().execute(new UpdateInput(WmsTask.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L80">            .withValue(&quot;id&quot;, taskId)</span>
+<span class="nc" id="L81">            .withValue(&quot;taskStatusId&quot;, TaskStatus.PENDING.getPossibleValueId())</span>
+<span class="nc" id="L82">            .withValue(&quot;assignedTo&quot;, null)</span>
+<span class="nc" id="L83">            .withValue(&quot;assignedDate&quot;, null)</span>
+<span class="nc" id="L84">            .withValue(&quot;notes&quot;, updatedNotes)));</span>
+
+<span class="nc" id="L86">         LOG.info(&quot;Unassigned stale task&quot;, logPair(&quot;taskId&quot;, taskId));</span>
+<span class="nc" id="L87">         unassignedCount++;</span>
+<span class="nc" id="L88">      }</span>
+
+<span class="nc" id="L90">      LOG.info(&quot;Stale task check complete&quot;, logPair(&quot;unassignedCount&quot;, unassignedCount));</span>
+<span class="nc" id="L91">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

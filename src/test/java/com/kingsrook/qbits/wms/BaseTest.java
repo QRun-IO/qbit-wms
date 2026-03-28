@@ -10,8 +10,11 @@ import com.kingsrook.qqq.backend.core.context.QContext;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.instances.QInstanceValidator;
 import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerMultiOutput;
+import com.kingsrook.qqq.backend.core.model.metadata.QAuthenticationType;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.QBackendMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.authentication.QAuthenticationMetaData;
 import com.kingsrook.qqq.backend.core.model.session.QSession;
 import com.kingsrook.qqq.backend.core.modules.backend.implementations.memory.MemoryBackendModule;
 import com.kingsrook.qqq.backend.core.modules.backend.implementations.memory.MemoryRecordStore;
@@ -77,6 +80,8 @@ public class BaseTest
    {
       QInstance qInstance = new QInstance();
 
+      qInstance.setAuthentication(new QAuthenticationMetaData().withType(QAuthenticationType.FULLY_ANONYMOUS));
+
       qInstance.addBackend(new QBackendMetaData()
          .withName(BACKEND_NAME)
          .withBackendType(MemoryBackendModule.class));
@@ -84,9 +89,11 @@ public class BaseTest
       WmsQBitConfig config = new WmsQBitConfig()
          .withBackendName(BACKEND_NAME);
 
-      new WmsQBitProducer()
+      MetaDataProducerMultiOutput multiOutput = new WmsQBitProducer()
          .withQBitConfig(config)
          .produce(qInstance);
+
+      multiOutput.addSelfToInstance(qInstance);
 
       return (qInstance);
    }

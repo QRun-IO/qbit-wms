@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CycleCountStep.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">CycleCountStep.java</span></div><h1>CycleCountStep.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Backend step for CreateCycleCount.  Queries wms_inventory for target items
+ ** and locations, creates a wms_cycle_count record and wms_cycle_count_line
+ ** records, and generates one COUNT wms_task per line.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
+import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.exceptions.QUserFacingException;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepInput;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qbits.wms.core.enums.CycleCountStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskType;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCountLine;
+import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+
+
+<span class="fc" id="L39">public class CycleCountStep implements BackendStep</span>
+{
+<span class="fc" id="L41">   private static final QLogger LOG = QLogger.getLogger(CycleCountStep.class);</span>
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public void run(RunBackendStepInput input, RunBackendStepOutput output) throws QException
+   {
+<span class="nc" id="L51">      Integer warehouseId = input.getValueInteger(&quot;warehouseId&quot;);</span>
+<span class="nc" id="L52">      Integer countTypeId = input.getValueInteger(&quot;countTypeId&quot;);</span>
+<span class="nc" id="L53">      Integer zoneId = input.getValueInteger(&quot;zoneId&quot;);</span>
+<span class="nc" id="L54">      String assignedTo = input.getValueString(&quot;assignedTo&quot;);</span>
+
+<span class="nc bnc" id="L56" title="All 2 branches missed.">      if(warehouseId == null)</span>
+      {
+<span class="nc" id="L58">         throw new QUserFacingException(&quot;Warehouse is required.&quot;);</span>
+      }
+<span class="nc bnc" id="L60" title="All 2 branches missed.">      if(countTypeId == null)</span>
+      {
+<span class="nc" id="L62">         throw new QUserFacingException(&quot;Count type is required.&quot;);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Create the cycle count header                                       //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L68">      QRecord cycleCountRecord = new InsertAction().execute(new InsertInput(WmsCycleCount.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L69">         .withValue(&quot;warehouseId&quot;, warehouseId)</span>
+<span class="nc" id="L70">         .withValue(&quot;countTypeId&quot;, countTypeId)</span>
+<span class="nc" id="L71">         .withValue(&quot;cycleCountStatusId&quot;, CycleCountStatus.IN_PROGRESS.getPossibleValueId())</span>
+<span class="nc" id="L72">         .withValue(&quot;startedDate&quot;, Instant.now())</span>
+<span class="nc" id="L73">         .withValue(&quot;assignedTo&quot;, assignedTo)))</span>
+<span class="nc" id="L74">      .getRecords().get(0);</span>
+
+<span class="nc" id="L76">      Integer cycleCountId = cycleCountRecord.getValueInteger(&quot;id&quot;);</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Query inventory to build count lines                                //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L81">      QQueryFilter invFilter = new QQueryFilter()</span>
+<span class="nc" id="L82">         .withCriteria(new QFilterCriteria(&quot;warehouseId&quot;, QCriteriaOperator.EQUALS, warehouseId));</span>
+
+<span class="nc bnc" id="L84" title="All 2 branches missed.">      if(zoneId != null)</span>
+      {
+         //////////////////////////////////////////////////////////////////
+         // Filter by zone -- need to join through location              //
+         // For now, we query all inventory in the warehouse and the     //
+         // zone filter is advisory.  A real implementation would use    //
+         // a join or sub-query.                                         //
+         //////////////////////////////////////////////////////////////////
+      }
+
+<span class="nc" id="L94">      QueryOutput invOutput = new QueryAction().execute(new QueryInput(WmsInventory.TABLE_NAME).withFilter(invFilter));</span>
+<span class="nc" id="L95">      List&lt;QRecord&gt; inventoryRecords = invOutput.getRecords();</span>
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">      if(inventoryRecords.isEmpty())</span>
+      {
+<span class="nc" id="L99">         throw new QUserFacingException(&quot;No inventory found at the specified warehouse/zone to count.&quot;);</span>
+      }
+
+<span class="nc" id="L102">      LOG.info(&quot;Generating cycle count&quot;,</span>
+<span class="nc" id="L103">         logPair(&quot;cycleCountId&quot;, cycleCountId),</span>
+<span class="nc" id="L104">         logPair(&quot;inventoryRecords&quot;, inventoryRecords.size()));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Create a cycle count line and COUNT task for each inventory record  //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L109">      Integer lineCount = 0;</span>
+<span class="nc" id="L110">      Integer taskCount = 0;</span>
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">      for(QRecord inv : inventoryRecords)</span>
+      {
+<span class="nc" id="L114">         BigDecimal expectedQty = inv.getValueBigDecimal(&quot;quantityOnHand&quot;);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">         if(expectedQty == null)</span>
+         {
+<span class="nc" id="L117">            expectedQty = BigDecimal.ZERO;</span>
+         }
+
+         //////////////////////////////////////////////////////////////////
+         // Create cycle count line                                      //
+         //////////////////////////////////////////////////////////////////
+<span class="nc" id="L123">         QRecord lineRecord = new InsertAction().execute(new InsertInput(WmsCycleCountLine.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L124">            .withValue(&quot;cycleCountId&quot;, cycleCountId)</span>
+<span class="nc" id="L125">            .withValue(&quot;locationId&quot;, inv.getValueInteger(&quot;locationId&quot;))</span>
+<span class="nc" id="L126">            .withValue(&quot;itemId&quot;, inv.getValueInteger(&quot;itemId&quot;))</span>
+<span class="nc" id="L127">            .withValue(&quot;lotNumber&quot;, inv.getValueString(&quot;lotNumber&quot;))</span>
+<span class="nc" id="L128">            .withValue(&quot;expectedQuantity&quot;, expectedQty)</span>
+<span class="nc" id="L129">            .withValue(&quot;status&quot;, &quot;PENDING&quot;)))</span>
+<span class="nc" id="L130">         .getRecords().get(0);</span>
+
+<span class="nc" id="L132">         Integer lineId = lineRecord.getValueInteger(&quot;id&quot;);</span>
+<span class="nc" id="L133">         lineCount++;</span>
+
+         //////////////////////////////////////////////////////////////////
+         // Create COUNT task                                            //
+         //////////////////////////////////////////////////////////////////
+<span class="nc" id="L138">         QRecord taskRecord = new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L139">            .withValue(&quot;warehouseId&quot;, warehouseId)</span>
+<span class="nc" id="L140">            .withValue(&quot;clientId&quot;, inv.getValueInteger(&quot;clientId&quot;))</span>
+<span class="nc" id="L141">            .withValue(&quot;taskTypeId&quot;, TaskType.COUNT.getPossibleValueId())</span>
+<span class="nc" id="L142">            .withValue(&quot;taskStatusId&quot;, TaskStatus.PENDING.getPossibleValueId())</span>
+<span class="nc" id="L143">            .withValue(&quot;priority&quot;, 5)</span>
+<span class="nc" id="L144">            .withValue(&quot;itemId&quot;, inv.getValueInteger(&quot;itemId&quot;))</span>
+<span class="nc" id="L145">            .withValue(&quot;sourceLocationId&quot;, inv.getValueInteger(&quot;locationId&quot;))</span>
+<span class="nc" id="L146">            .withValue(&quot;zoneId&quot;, zoneId)</span>
+<span class="nc" id="L147">            .withValue(&quot;cycleCountId&quot;, cycleCountId)</span>
+<span class="nc" id="L148">            .withValue(&quot;expectedQuantity&quot;, expectedQty)</span>
+<span class="nc" id="L149">            .withValue(&quot;isBlindCount&quot;, false)</span>
+<span class="nc" id="L150">            .withValue(&quot;recountRequired&quot;, false)</span>
+<span class="nc" id="L151">            .withValue(&quot;notes&quot;, &quot;Count task for cycle count &quot; + cycleCountId)))</span>
+<span class="nc" id="L152">         .getRecords().get(0);</span>
+
+<span class="nc" id="L154">         Integer taskId = taskRecord.getValueInteger(&quot;id&quot;);</span>
+<span class="nc" id="L155">         taskCount++;</span>
+
+         //////////////////////////////////////////////////////////////////
+         // Link the task back to the cycle count line                   //
+         //////////////////////////////////////////////////////////////////
+<span class="nc" id="L160">         new UpdateAction().execute(new UpdateInput(WmsCycleCountLine.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L161">            .withValue(&quot;id&quot;, lineId)</span>
+<span class="nc" id="L162">            .withValue(&quot;taskId&quot;, taskId)));</span>
+<span class="nc" id="L163">      }</span>
+
+<span class="nc" id="L165">      LOG.info(&quot;Cycle count created&quot;,</span>
+<span class="nc" id="L166">         logPair(&quot;cycleCountId&quot;, cycleCountId),</span>
+<span class="nc" id="L167">         logPair(&quot;lineCount&quot;, lineCount),</span>
+<span class="nc" id="L168">         logPair(&quot;taskCount&quot;, taskCount));</span>
+
+<span class="nc" id="L170">      output.addValue(&quot;resultMessage&quot;, &quot;Cycle count created successfully.&quot;);</span>
+<span class="nc" id="L171">      output.addValue(&quot;cycleCountId&quot;, cycleCountId);</span>
+<span class="nc" id="L172">      output.addValue(&quot;lineCount&quot;, lineCount);</span>
+<span class="nc" id="L173">      output.addValue(&quot;taskCount&quot;, taskCount);</span>
+<span class="nc" id="L174">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

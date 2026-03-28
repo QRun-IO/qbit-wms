@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BillingActivityType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.core.enums</a> &gt; <span class="el_source">BillingActivityType.java</span></div><h1>BillingActivityType.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Enum of billing activity types for 3PL billing.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.core.enums;
+
+
+import java.util.Objects;
+import com.kingsrook.qqq.backend.core.model.metadata.possiblevalues.PossibleValueEnum;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingPossibleValueEnum;
+
+
+<span class="fc" id="L12">@QMetaDataProducingPossibleValueEnum()</span>
+public enum BillingActivityType implements PossibleValueEnum&lt;Integer&gt;
+{
+<span class="fc" id="L15">   RECEIVING_PER_UNIT(1, &quot;Receiving Per Unit&quot;),</span>
+<span class="fc" id="L16">   RECEIVING_PER_PALLET(2, &quot;Receiving Per Pallet&quot;),</span>
+<span class="fc" id="L17">   STORAGE_PER_PALLET_DAY(3, &quot;Storage Per Pallet Day&quot;),</span>
+<span class="fc" id="L18">   STORAGE_PER_BIN_DAY(4, &quot;Storage Per Bin Day&quot;),</span>
+<span class="fc" id="L19">   PICK_PER_ORDER(5, &quot;Pick Per Order&quot;),</span>
+<span class="fc" id="L20">   PICK_PER_LINE(6, &quot;Pick Per Line&quot;),</span>
+<span class="fc" id="L21">   PICK_PER_UNIT(7, &quot;Pick Per Unit&quot;),</span>
+<span class="fc" id="L22">   PACK_PER_ORDER(8, &quot;Pack Per Order&quot;),</span>
+<span class="fc" id="L23">   SHIP_PER_ORDER(9, &quot;Ship Per Order&quot;),</span>
+<span class="fc" id="L24">   KITTING_PER_UNIT(10, &quot;Kitting Per Unit&quot;),</span>
+<span class="fc" id="L25">   RETURN_PER_UNIT(11, &quot;Return Per Unit&quot;),</span>
+<span class="fc" id="L26">   SPECIAL_HANDLING(12, &quot;Special Handling&quot;),</span>
+<span class="fc" id="L27">   MINIMUM_MONTHLY(13, &quot;Minimum Monthly&quot;);</span>
+
+   private final Integer id;
+   private final String  label;
+
+   public static final String NAME = &quot;BillingActivityType&quot;;
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   BillingActivityType(Integer id, String label)
+<span class="fc" id="L40">   {</span>
+<span class="fc" id="L41">      this.id = id;</span>
+<span class="fc" id="L42">      this.label = label;</span>
+<span class="fc" id="L43">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Get instance by id
+    *******************************************************************************/
+   public static BillingActivityType getById(Integer id)
+   {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">      if(id == null)</span>
+      {
+<span class="fc" id="L54">         return (null);</span>
+      }
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">      for(BillingActivityType value : BillingActivityType.values())</span>
+      {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">         if(Objects.equals(value.id, id))</span>
+         {
+<span class="fc" id="L61">            return (value);</span>
+         }
+      }
+
+<span class="fc" id="L65">      return (null);</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for id
+    *******************************************************************************/
+   public Integer getId()
+   {
+<span class="fc" id="L75">      return id;</span>
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for label
+    *******************************************************************************/
+   public String getLabel()
+   {
+<span class="fc" id="L85">      return label;</span>
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public Integer getPossibleValueId()
+   {
+<span class="fc" id="L96">      return (getId());</span>
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public String getPossibleValueLabel()
+   {
+<span class="fc" id="L107">      return (getLabel());</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

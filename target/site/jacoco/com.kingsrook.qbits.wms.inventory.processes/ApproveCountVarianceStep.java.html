@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApproveCountVarianceStep.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QBit WMS</a> &gt; <a href="index.source.html" class="el_package">com.kingsrook.qbits.wms.inventory.processes</a> &gt; <span class="el_source">ApproveCountVarianceStep.java</span></div><h1>ApproveCountVarianceStep.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ ** Backend step for ApproveCountVariance.  For approved lines, creates a COUNT
+ ** inventory transaction and adjusts inventory.  For rejected lines, creates a
+ ** new COUNT task for recount.  When all lines reach terminal status, marks the
+ ** cycle count as COMPLETED.
+ *******************************************************************************/
+package com.kingsrook.qbits.wms.inventory.processes;
+
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
+import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
+import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.context.QContext;
+import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.exceptions.QUserFacingException;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepInput;
+import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qbits.wms.core.enums.CycleCountStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskStatus;
+import com.kingsrook.qbits.wms.core.enums.TaskType;
+import com.kingsrook.qbits.wms.core.enums.TransactionType;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCountLine;
+import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qbits.wms.core.model.WmsInventoryTransaction;
+import com.kingsrook.qbits.wms.core.model.WmsTask;
+import com.kingsrook.qbits.wms.tasks.completion.AbstractTaskCompletionHandler;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+
+
+<span class="fc" id="L47">public class ApproveCountVarianceStep implements BackendStep</span>
+{
+<span class="fc" id="L49">   private static final QLogger LOG = QLogger.getLogger(ApproveCountVarianceStep.class);</span>
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Override
+   public void run(RunBackendStepInput input, RunBackendStepOutput output) throws QException
+   {
+<span class="nc" id="L59">      Integer cycleCountId = input.getValueInteger(&quot;cycleCountId&quot;);</span>
+<span class="nc" id="L60">      Boolean approveAll = input.getValueBoolean(&quot;approveAll&quot;);</span>
+<span class="nc" id="L61">      String rejectLineIdsStr = input.getValueString(&quot;rejectLineIds&quot;);</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">      if(cycleCountId == null)</span>
+      {
+<span class="nc" id="L65">         throw new QUserFacingException(&quot;Cycle Count ID is required.&quot;);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Parse rejected line IDs                                             //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L71">      Set&lt;Integer&gt; rejectLineIds = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">      if(rejectLineIdsStr != null &amp;&amp; !rejectLineIdsStr.isBlank())</span>
+      {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">         for(String idStr : rejectLineIdsStr.split(&quot;,&quot;))</span>
+         {
+            try
+            {
+<span class="nc" id="L78">               rejectLineIds.add(Integer.parseInt(idStr.trim()));</span>
+            }
+<span class="nc" id="L80">            catch(NumberFormatException e)</span>
+            {
+               // skip invalid entries
+<span class="nc" id="L83">            }</span>
+         }
+      }
+
+<span class="nc" id="L87">      String approvedBy = null;</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">      if(QContext.getQSession() != null &amp;&amp; QContext.getQSession().getUser() != null)</span>
+      {
+<span class="nc" id="L90">         approvedBy = QContext.getQSession().getUser().getFullName();</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Get all cycle count lines with COUNTED status (have variance)       //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L96">      QueryOutput lineQuery = new QueryAction().execute(new QueryInput(WmsCycleCountLine.TABLE_NAME)</span>
+<span class="nc" id="L97">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L98">            .withCriteria(new QFilterCriteria(&quot;cycleCountId&quot;, QCriteriaOperator.EQUALS, cycleCountId))</span>
+<span class="nc" id="L99">            .withCriteria(new QFilterCriteria(&quot;status&quot;, QCriteriaOperator.IN, List.of(&quot;COUNTED&quot;, &quot;RECOUNTED&quot;)))));</span>
+
+<span class="nc" id="L101">      List&lt;QRecord&gt; lines = lineQuery.getRecords();</span>
+<span class="nc" id="L102">      Integer approvedCount = 0;</span>
+<span class="nc" id="L103">      Integer rejectedCount = 0;</span>
+
+<span class="nc bnc" id="L105" title="All 2 branches missed.">      for(QRecord line : lines)</span>
+      {
+<span class="nc" id="L107">         Integer lineId = line.getValueInteger(&quot;id&quot;);</span>
+<span class="nc" id="L108">         BigDecimal variance = line.getValueBigDecimal(&quot;variance&quot;);</span>
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">         if(rejectLineIds.contains(lineId))</span>
+         {
+            //////////////////////////////////////////////////////////////////
+            // Reject: create recount task                                  //
+            //////////////////////////////////////////////////////////////////
+<span class="nc" id="L115">            createRecountTask(line, cycleCountId);</span>
+
+<span class="nc" id="L117">            new UpdateAction().execute(new UpdateInput(WmsCycleCountLine.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L118">               .withValue(&quot;id&quot;, lineId)</span>
+<span class="nc" id="L119">               .withValue(&quot;status&quot;, &quot;PENDING&quot;)));</span>
+
+<span class="nc" id="L121">            rejectedCount++;</span>
+         }
+<span class="nc bnc" id="L123" title="All 4 branches missed.">         else if(Boolean.TRUE.equals(approveAll) || !rejectLineIds.contains(lineId))</span>
+         {
+            //////////////////////////////////////////////////////////////////
+            // Approve: adjust inventory                                    //
+            //////////////////////////////////////////////////////////////////
+<span class="nc bnc" id="L128" title="All 4 branches missed.">            if(variance != null &amp;&amp; variance.compareTo(BigDecimal.ZERO) != 0)</span>
+            {
+<span class="nc" id="L130">               adjustInventoryForVariance(line, variance, approvedBy);</span>
+            }
+
+<span class="nc" id="L133">            new UpdateAction().execute(new UpdateInput(WmsCycleCountLine.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L134">               .withValue(&quot;id&quot;, lineId)</span>
+<span class="nc" id="L135">               .withValue(&quot;status&quot;, &quot;APPROVED&quot;)</span>
+<span class="nc" id="L136">               .withValue(&quot;varianceApproved&quot;, true)</span>
+<span class="nc" id="L137">               .withValue(&quot;approvedBy&quot;, approvedBy)));</span>
+
+<span class="nc" id="L139">            approvedCount++;</span>
+         }
+<span class="nc" id="L141">      }</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Check if the cycle count is now complete                            //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L146">      checkCycleCountCompletion(cycleCountId);</span>
+
+<span class="nc" id="L148">      LOG.info(&quot;Count variance review complete&quot;,</span>
+<span class="nc" id="L149">         logPair(&quot;cycleCountId&quot;, cycleCountId),</span>
+<span class="nc" id="L150">         logPair(&quot;approved&quot;, approvedCount),</span>
+<span class="nc" id="L151">         logPair(&quot;rejected&quot;, rejectedCount));</span>
+
+<span class="nc" id="L153">      output.addValue(&quot;resultMessage&quot;, &quot;Variance review complete.&quot;);</span>
+<span class="nc" id="L154">      output.addValue(&quot;approvedCount&quot;, approvedCount);</span>
+<span class="nc" id="L155">      output.addValue(&quot;rejectedCount&quot;, rejectedCount);</span>
+<span class="nc" id="L156">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Create a new COUNT task for a rejected line that needs recounting.
+    *******************************************************************************/
+   private void createRecountTask(QRecord line, Integer cycleCountId) throws QException
+   {
+<span class="nc" id="L165">      new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L166">         .withValue(&quot;taskTypeId&quot;, TaskType.COUNT.getPossibleValueId())</span>
+<span class="nc" id="L167">         .withValue(&quot;taskStatusId&quot;, TaskStatus.PENDING.getPossibleValueId())</span>
+<span class="nc" id="L168">         .withValue(&quot;priority&quot;, 3)</span>
+<span class="nc" id="L169">         .withValue(&quot;itemId&quot;, line.getValueInteger(&quot;itemId&quot;))</span>
+<span class="nc" id="L170">         .withValue(&quot;sourceLocationId&quot;, line.getValueInteger(&quot;locationId&quot;))</span>
+<span class="nc" id="L171">         .withValue(&quot;cycleCountId&quot;, cycleCountId)</span>
+<span class="nc" id="L172">         .withValue(&quot;expectedQuantity&quot;, line.getValueBigDecimal(&quot;expectedQuantity&quot;))</span>
+<span class="nc" id="L173">         .withValue(&quot;isBlindCount&quot;, false)</span>
+<span class="nc" id="L174">         .withValue(&quot;recountRequired&quot;, true)</span>
+<span class="nc" id="L175">         .withValue(&quot;notes&quot;, &quot;Recount requested by supervisor for line &quot; + line.getValueInteger(&quot;id&quot;))));</span>
+<span class="nc" id="L176">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Apply the variance as an inventory adjustment.  Creates a COUNT transaction
+    ** then updates inventory quantity.
+    *******************************************************************************/
+   private void adjustInventoryForVariance(QRecord line, BigDecimal variance, String approvedBy) throws QException
+   {
+<span class="nc" id="L186">      Integer itemId = line.getValueInteger(&quot;itemId&quot;);</span>
+<span class="nc" id="L187">      Integer locationId = line.getValueInteger(&quot;locationId&quot;);</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Look up the inventory record to get warehouse/client                //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L192">      QueryOutput invQuery = new QueryAction().execute(new QueryInput(WmsInventory.TABLE_NAME)</span>
+<span class="nc" id="L193">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L194">            .withCriteria(new QFilterCriteria(&quot;itemId&quot;, QCriteriaOperator.EQUALS, itemId))</span>
+<span class="nc" id="L195">            .withCriteria(new QFilterCriteria(&quot;locationId&quot;, QCriteriaOperator.EQUALS, locationId))));</span>
+
+<span class="nc" id="L197">      List&lt;QRecord&gt; invRecords = invQuery.getRecords();</span>
+<span class="nc" id="L198">      Integer warehouseId = null;</span>
+<span class="nc" id="L199">      Integer clientId = null;</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">      if(!invRecords.isEmpty())</span>
+      {
+<span class="nc" id="L202">         warehouseId = invRecords.get(0).getValueInteger(&quot;warehouseId&quot;);</span>
+<span class="nc" id="L203">         clientId = invRecords.get(0).getValueInteger(&quot;clientId&quot;);</span>
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // Step 1: Create COUNT transaction (perpetual inventory)              //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc" id="L209">      new InsertAction().execute(new InsertInput(WmsInventoryTransaction.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L210">         .withValue(&quot;warehouseId&quot;, warehouseId)</span>
+<span class="nc" id="L211">         .withValue(&quot;clientId&quot;, clientId)</span>
+<span class="nc" id="L212">         .withValue(&quot;itemId&quot;, itemId)</span>
+<span class="nc" id="L213">         .withValue(&quot;transactionTypeId&quot;, TransactionType.COUNT.getPossibleValueId())</span>
+<span class="nc" id="L214">         .withValue(&quot;fromLocationId&quot;, locationId)</span>
+<span class="nc" id="L215">         .withValue(&quot;toLocationId&quot;, locationId)</span>
+<span class="nc" id="L216">         .withValue(&quot;quantity&quot;, variance)</span>
+<span class="nc" id="L217">         .withValue(&quot;lotNumber&quot;, line.getValueString(&quot;lotNumber&quot;))</span>
+<span class="nc" id="L218">         .withValue(&quot;reasonCode&quot;, &quot;Count variance approved&quot;)</span>
+<span class="nc" id="L219">         .withValue(&quot;performedBy&quot;, approvedBy)</span>
+<span class="nc" id="L220">         .withValue(&quot;performedDate&quot;, Instant.now())</span>
+<span class="nc" id="L221">         .withValue(&quot;notes&quot;, &quot;Cycle count variance adjustment&quot;)));</span>
+
+      /////////////////////////////////////////////////////////////////////////
+      // Step 2: Update inventory quantity                                   //
+      /////////////////////////////////////////////////////////////////////////
+<span class="nc bnc" id="L226" title="All 2 branches missed.">      if(!invRecords.isEmpty())</span>
+      {
+<span class="nc" id="L228">         QRecord inv = invRecords.get(0);</span>
+<span class="nc" id="L229">         BigDecimal currentQoh = inv.getValueBigDecimal(&quot;quantityOnHand&quot;);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">         if(currentQoh == null) currentQoh = BigDecimal.ZERO;</span>
+
+<span class="nc" id="L232">         BigDecimal newQoh = currentQoh.add(variance);</span>
+<span class="nc" id="L233">         BigDecimal allocated = inv.getValueBigDecimal(&quot;quantityAllocated&quot;);</span>
+<span class="nc" id="L234">         BigDecimal onHold = inv.getValueBigDecimal(&quot;quantityOnHold&quot;);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">         if(allocated == null) allocated = BigDecimal.ZERO;</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">         if(onHold == null) onHold = BigDecimal.ZERO;</span>
+
+<span class="nc" id="L238">         BigDecimal newAvailable = newQoh.subtract(allocated).subtract(onHold);</span>
+
+<span class="nc" id="L240">         new UpdateAction().execute(new UpdateInput(WmsInventory.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L241">            .withValue(&quot;id&quot;, inv.getValueInteger(&quot;id&quot;))</span>
+<span class="nc" id="L242">            .withValue(&quot;quantityOnHand&quot;, newQoh)</span>
+<span class="nc" id="L243">            .withValue(&quot;quantityAvailable&quot;, newAvailable)</span>
+<span class="nc" id="L244">            .withValue(&quot;lastCountDate&quot;, Instant.now())));</span>
+      }
+<span class="nc" id="L246">   }</span>
+
+
+
+   /*******************************************************************************
+    ** Check if all cycle count lines have reached terminal status.
+    *******************************************************************************/
+   private void checkCycleCountCompletion(Integer cycleCountId) throws QException
+   {
+<span class="nc" id="L255">      QueryOutput allLinesQuery = new QueryAction().execute(new QueryInput(WmsCycleCountLine.TABLE_NAME)</span>
+<span class="nc" id="L256">         .withFilter(new QQueryFilter()</span>
+<span class="nc" id="L257">            .withCriteria(new QFilterCriteria(&quot;cycleCountId&quot;, QCriteriaOperator.EQUALS, cycleCountId))));</span>
+
+<span class="nc" id="L259">      boolean allTerminal = true;</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">      for(QRecord line : allLinesQuery.getRecords())</span>
+      {
+<span class="nc" id="L262">         String status = line.getValueString(&quot;status&quot;);</span>
+<span class="nc bnc" id="L263" title="All 4 branches missed.">         if(!&quot;APPROVED&quot;.equals(status) &amp;&amp; !&quot;ADJUSTED&quot;.equals(status))</span>
+         {
+<span class="nc" id="L265">            allTerminal = false;</span>
+<span class="nc" id="L266">            break;</span>
+         }
+<span class="nc" id="L268">      }</span>
+
+<span class="nc bnc" id="L270" title="All 2 branches missed.">      if(allTerminal)</span>
+      {
+<span class="nc" id="L272">         new UpdateAction().execute(new UpdateInput(WmsCycleCount.TABLE_NAME).withRecord(new QRecord()</span>
+<span class="nc" id="L273">            .withValue(&quot;id&quot;, cycleCountId)</span>
+<span class="nc" id="L274">            .withValue(&quot;cycleCountStatusId&quot;, CycleCountStatus.COMPLETED.getPossibleValueId())</span>
+<span class="nc" id="L275">            .withValue(&quot;completedDate&quot;, Instant.now())));</span>
+      }
+<span class="nc" id="L277">   }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

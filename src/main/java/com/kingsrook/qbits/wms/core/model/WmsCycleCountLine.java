@@ -12,7 +12,7 @@ import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 
 
-@QMetaDataProducingEntity(producePossibleValueSource = true)
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
 public class WmsCycleCountLine extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsCycleCountLine";
@@ -81,44 +81,58 @@ public class WmsCycleCountLine extends QRecordEntity
 
 
    public Integer getId() { return (this.id); }
+   public void setId(Integer id) { this.id = id; }
    public WmsCycleCountLine withId(Integer id) { this.id = id; return (this); }
 
    public Integer getCycleCountId() { return (this.cycleCountId); }
+   public void setCycleCountId(Integer cycleCountId) { this.cycleCountId = cycleCountId; }
    public WmsCycleCountLine withCycleCountId(Integer cycleCountId) { this.cycleCountId = cycleCountId; return (this); }
 
    public Integer getLocationId() { return (this.locationId); }
+   public void setLocationId(Integer locationId) { this.locationId = locationId; }
    public WmsCycleCountLine withLocationId(Integer locationId) { this.locationId = locationId; return (this); }
 
    public Integer getItemId() { return (this.itemId); }
+   public void setItemId(Integer itemId) { this.itemId = itemId; }
    public WmsCycleCountLine withItemId(Integer itemId) { this.itemId = itemId; return (this); }
 
    public String getLotNumber() { return (this.lotNumber); }
+   public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }
    public WmsCycleCountLine withLotNumber(String lotNumber) { this.lotNumber = lotNumber; return (this); }
 
    public BigDecimal getExpectedQuantity() { return (this.expectedQuantity); }
+   public void setExpectedQuantity(BigDecimal expectedQuantity) { this.expectedQuantity = expectedQuantity; }
    public WmsCycleCountLine withExpectedQuantity(BigDecimal expectedQuantity) { this.expectedQuantity = expectedQuantity; return (this); }
 
    public BigDecimal getCountedQuantity() { return (this.countedQuantity); }
+   public void setCountedQuantity(BigDecimal countedQuantity) { this.countedQuantity = countedQuantity; }
    public WmsCycleCountLine withCountedQuantity(BigDecimal countedQuantity) { this.countedQuantity = countedQuantity; return (this); }
 
    public BigDecimal getVariance() { return (this.variance); }
+   public void setVariance(BigDecimal variance) { this.variance = variance; }
    public WmsCycleCountLine withVariance(BigDecimal variance) { this.variance = variance; return (this); }
 
    public Boolean getVarianceApproved() { return (this.varianceApproved); }
+   public void setVarianceApproved(Boolean varianceApproved) { this.varianceApproved = varianceApproved; }
    public WmsCycleCountLine withVarianceApproved(Boolean varianceApproved) { this.varianceApproved = varianceApproved; return (this); }
 
    public String getApprovedBy() { return (this.approvedBy); }
+   public void setApprovedBy(String approvedBy) { this.approvedBy = approvedBy; }
    public WmsCycleCountLine withApprovedBy(String approvedBy) { this.approvedBy = approvedBy; return (this); }
 
    public String getStatus() { return (this.status); }
+   public void setStatus(String status) { this.status = status; }
    public WmsCycleCountLine withStatus(String status) { this.status = status; return (this); }
 
    public Integer getTaskId() { return (this.taskId); }
+   public void setTaskId(Integer taskId) { this.taskId = taskId; }
    public WmsCycleCountLine withTaskId(Integer taskId) { this.taskId = taskId; return (this); }
 
    public Instant getCreateDate() { return (this.createDate); }
+   public void setCreateDate(Instant createDate) { this.createDate = createDate; }
    public WmsCycleCountLine withCreateDate(Instant createDate) { this.createDate = createDate; return (this); }
 
    public Instant getModifyDate() { return (this.modifyDate); }
+   public void setModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; }
    public WmsCycleCountLine withModifyDate(Instant modifyDate) { this.modifyDate = modifyDate; return (this); }
 }
