@@ -1,0 +1,112 @@
+-------------------------------------------------------------------------------
+Test set: com.kingsrook.qbits.wms.WmsQBitConfigTest
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 0, Errors: 9, Skipped: 0, Time elapsed: 0.013 s <<< FAILURE! -- in com.kingsrook.qbits.wms.WmsQBitConfigTest
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testDefaults_freshInstance_hasExpectedDefaults -- Time elapsed: 0.003 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testApplyPrefix_withPrefix_prependsUnderscore -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testValidate_missingBackendName_addsError -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testFluentSetters_chaining_returnsSameInstance -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testApplyPrefix_nullPrefix_returnsOriginal -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testApplyPrefix_emptyPrefix_returnsOriginal -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testValidate_emptyBackendName_addsError -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testValidate_validConfig_noErrors -- Time elapsed: 0.001 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kingsrook.qbits.wms.WmsQBitConfigTest.testGetters_afterFluentSetters_returnCorrectValues -- Time elapsed: 0.002 s <<< ERROR!
+com.kingsrook.qqq.backend.core.exceptions.QException: Could not find tableMetaData: null
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.getTable(ChildJoinFromRecordEntityGenericMetaDataProducer.java:157)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:101)
+	at com.kingsrook.qqq.backend.core.model.metadata.producers.ChildJoinFromRecordEntityGenericMetaDataProducer.produce(ChildJoinFromRecordEntityGenericMetaDataProducer.java:63)
+	at com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitMetaDataProducer.produce(QBitMetaDataProducer.java:152)
+	at com.kingsrook.qbits.wms.BaseTest.defineQInstance(BaseTest.java:89)
+	at com.kingsrook.qbits.wms.BaseTest.baseBeforeEach(BaseTest.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
