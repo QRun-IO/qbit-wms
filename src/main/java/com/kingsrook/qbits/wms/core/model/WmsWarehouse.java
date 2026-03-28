@@ -17,6 +17,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.Child
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.ChildTable;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 
@@ -57,7 +58,7 @@ public class WmsWarehouse extends QRecordEntity
             .withRecordLabelFormat("%s")
             .withRecordLabelFields("name")
             .withSection(SectionFactory.defaultT1("id", "name", "code", "isActive"))
-            .withSection(new QFieldSection("address", "Address", new QIcon("location_on"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("address", "Address", new QIcon("location_on"), Tier.T2,
                java.util.List.of("addressLine1", "addressLine2", "city", "stateProvince", "postalCode", "country", "timezone")))
             .withSection(SectionFactory.customT2("zones", new QIcon("grid_view")).withWidgetName(zoneChildJoinName))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));

@@ -15,6 +15,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qbits.wms.core.enums.StorageRequirements;
@@ -48,15 +49,15 @@ public class WmsItem extends QRecordEntity
             .withRecordLabelFormat("%s - %s")
             .withRecordLabelFields("sku", "name")
             .withSection(SectionFactory.defaultT1("id", "clientId", "sku", "name", "description", "barcodeUpc", "barcodeSecondary", "itemCategoryId", "isActive"))
-            .withSection(new QFieldSection("dimensions", "Dimensions", new QIcon("straighten"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("dimensions", "Dimensions", new QIcon("straighten"), Tier.T2,
                java.util.List.of("weightLbs", "lengthIn", "widthIn", "heightIn")))
-            .withSection(new QFieldSection("packaging", "Packaging", new QIcon("all_inbox"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("packaging", "Packaging", new QIcon("all_inbox"), Tier.T2,
                java.util.List.of("baseUom", "unitsPerCase", "casesPerPallet")))
-            .withSection(new QFieldSection("tracking", "Tracking", new QIcon("track_changes"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("tracking", "Tracking", new QIcon("track_changes"), Tier.T2,
                java.util.List.of("isLotTracked", "isSerialTracked", "isExpirationTracked", "shelfLifeDays", "minRemainingShelfLifeDays")))
-            .withSection(new QFieldSection("slotting", "Slotting", new QIcon("speed"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("slotting", "Slotting", new QIcon("speed"), Tier.T2,
                java.util.List.of("velocityClassId", "storageRequirementsId", "reorderPoint", "reorderQuantity")))
-            .withSection(new QFieldSection("media", "Media", new QIcon("image"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("media", "Media", new QIcon("image"), Tier.T2,
                java.util.List.of("imageUrl")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
 

@@ -15,6 +15,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qbits.wms.core.enums.LocationType;
@@ -47,9 +48,9 @@ public class WmsLocation extends QRecordEntity
             .withRecordLabelFormat("%s")
             .withRecordLabelFields("barcode")
             .withSection(SectionFactory.defaultT1("id", "warehouseId", "zoneId", "barcode", "label", "locationTypeId", "isActive"))
-            .withSection(new QFieldSection("position", "Position", new QIcon("pin_drop"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("position", "Position", new QIcon("pin_drop"), Tier.T2,
                java.util.List.of("aisle", "rack", "shelf", "position", "pickSequence")))
-            .withSection(new QFieldSection("capacity", "Capacity", new QIcon("straighten"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("capacity", "Capacity", new QIcon("straighten"), Tier.T2,
                java.util.List.of("maxWeightLbs", "maxVolumeCubicFt", "currentWeightLbs", "currentVolumeCubicFt", "isMixedSkuAllowed")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
 

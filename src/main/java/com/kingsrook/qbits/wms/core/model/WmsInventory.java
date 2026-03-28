@@ -16,6 +16,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qbits.wms.core.enums.InventoryStatus;
@@ -48,13 +49,13 @@ public class WmsInventory extends QRecordEntity
             .withRecordLabelFormat("%s")
             .withRecordLabelFields("id")
             .withSection(SectionFactory.defaultT1("id", "warehouseId", "clientId", "itemId", "locationId", "inventoryStatusId"))
-            .withSection(new QFieldSection("quantities", "Quantities", new QIcon("calculate"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("quantities", "Quantities", new QIcon("calculate"), Tier.T2,
                java.util.List.of("quantityOnHand", "quantityAllocated", "quantityAvailable", "quantityOnHold")))
-            .withSection(new QFieldSection("tracking", "Tracking", new QIcon("track_changes"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("tracking", "Tracking", new QIcon("track_changes"), Tier.T2,
                java.util.List.of("lotNumber", "serialNumber", "expirationDate", "manufactureDate", "lpnId")))
-            .withSection(new QFieldSection("receiving", "Receiving", new QIcon("local_shipping"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("receiving", "Receiving", new QIcon("local_shipping"), Tier.T2,
                java.util.List.of("receiptId", "receivedDate", "costPerUnit")))
-            .withSection(new QFieldSection("audit", "Audit", new QIcon("fact_check"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("audit", "Audit", new QIcon("fact_check"), Tier.T2,
                java.util.List.of("holdReason", "lastCountDate")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
 

@@ -15,6 +15,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qbits.wms.core.enums.EquipmentType;
@@ -48,21 +49,21 @@ public class WmsTask extends QRecordEntity
             .withIcon(new QIcon().withName("assignment"))
             .withRecordLabelFormat("%s")
             .withRecordLabelFields("id")
-            .withSection(new QFieldSection("taskInfo", "Task Info", new QIcon("info"), QFieldSection.Tier.T1,
+            .withSection(new QFieldSection("taskInfo", "Task Info", new QIcon("info"), Tier.T1,
                java.util.List.of("id", "warehouseId", "clientId", "taskTypeId", "taskStatusId", "priority", "equipmentTypeId")))
-            .withSection(new QFieldSection("what", "What", new QIcon("inventory_2"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("what", "What", new QIcon("inventory_2"), Tier.T2,
                java.util.List.of("itemId", "quantityRequested", "quantityCompleted", "lotNumber", "serialNumber", "lpnId")))
-            .withSection(new QFieldSection("where", "Where", new QIcon("place"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("where", "Where", new QIcon("place"), Tier.T2,
                java.util.List.of("sourceLocationId", "destinationLocationId", "zoneId")))
-            .withSection(new QFieldSection("who", "Who", new QIcon("person"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("who", "Who", new QIcon("person"), Tier.T2,
                java.util.List.of("assignedTo", "assignedDate", "startedDate", "completedDate", "completedBy")))
-            .withSection(new QFieldSection("grouping", "Grouping", new QIcon("workspaces"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("grouping", "Grouping", new QIcon("workspaces"), Tier.T2,
                java.util.List.of("waveId", "taskGroupId", "sequence")))
-            .withSection(new QFieldSection("references", "References", new QIcon("link"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("references", "References", new QIcon("link"), Tier.T2,
                java.util.List.of("referenceType", "referenceId", "orderId", "orderLineId", "receiptId", "receiptLineId", "cycleCountId", "returnAuthorizationId")))
-            .withSection(new QFieldSection("countSpecific", "Count Specific", new QIcon("exposure"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("countSpecific", "Count Specific", new QIcon("exposure"), Tier.T2,
                java.util.List.of("expectedQuantity", "countedQuantity", "variance", "isBlindCount", "recountRequired")))
-            .withSection(new QFieldSection("notes", "Notes", new QIcon("notes"), QFieldSection.Tier.T2,
+            .withSection(new QFieldSection("notes", "Notes", new QIcon("notes"), Tier.T2,
                java.util.List.of("notes", "shortReason")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
 

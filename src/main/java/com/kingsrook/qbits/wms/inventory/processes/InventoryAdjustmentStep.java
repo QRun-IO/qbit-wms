@@ -7,31 +7,57 @@ package com.kingsrook.qbits.wms.inventory.processes;
 
 
 import java.math.BigDecimal;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import java.time.Instant;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import java.util.List;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.actions.tables.QueryAction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.actions.tables.UpdateAction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.context.QContext;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.exceptions.QUserFacingException;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.logging.QLogger;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.query.QueryOutput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qbits.wms.core.enums.AdjustmentReasonCode;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qbits.wms.core.enums.TransactionType;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qbits.wms.core.model.WmsInventory;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import com.kingsrook.qbits.wms.core.model.WmsInventoryTransaction;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
 
 
 public class InventoryAdjustmentStep implements BackendStep
@@ -48,7 +74,7 @@ public class InventoryAdjustmentStep implements BackendStep
    {
       Integer locationId = input.getValueInteger("locationId");
       Integer itemId = input.getValueInteger("itemId");
-      BigDecimal newQuantity = input.getValueBigDecimal("newQuantity");
+      BigDecimal newQuantity = ValueUtils.getValueAsBigDecimal(input.getValue("newQuantity"));
       Integer reasonCodeId = input.getValueInteger("reasonCodeId");
       String notes = input.getValueString("adjustmentNotes");
 
