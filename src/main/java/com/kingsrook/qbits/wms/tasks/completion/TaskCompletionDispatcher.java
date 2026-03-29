@@ -29,6 +29,12 @@ public class TaskCompletionDispatcher
       ///////////////////////////////////
       HANDLERS.put(TaskType.COUNT.getPossibleValueId(), new CountTaskCompletionHandler());
       HANDLERS.put(TaskType.MOVE.getPossibleValueId(), new MoveTaskCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 2 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.PUTAWAY.getPossibleValueId(), new PutawayTaskCompletionHandler());
+      HANDLERS.put(TaskType.QC_INSPECT.getPossibleValueId(), new QcInspectTaskCompletionHandler());
    }
 
 

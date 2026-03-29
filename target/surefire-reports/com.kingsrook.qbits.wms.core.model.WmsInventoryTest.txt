@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.kingsrook.qbits.wms.core.model.WmsInventoryTest
--------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.085 s -- in com.kingsrook.qbits.wms.core.model.WmsInventoryTest
