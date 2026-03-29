@@ -52,6 +52,11 @@ public class TaskCompletionDispatcher
       // Phase 5 handlers              //
       ///////////////////////////////////
       HANDLERS.put(TaskType.RETURN_PUTAWAY.getPossibleValueId(), new ReturnPutawayCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 7 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.REPLENISH.getPossibleValueId(), new ReplenishCompletionHandler());
    }
 
 

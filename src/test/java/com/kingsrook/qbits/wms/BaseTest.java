@@ -75,6 +75,17 @@ import com.kingsrook.qbits.wms.returns.model.WmsReturnAuthorizationLine;
 import com.kingsrook.qbits.wms.shipping.model.WmsDockAppointment;
 import com.kingsrook.qbits.wms.shipping.model.WmsManifest;
 import com.kingsrook.qbits.wms.shipping.model.WmsShipment;
+import com.kingsrook.qbits.wms.billing.model.WmsBillingActivity;
+import com.kingsrook.qbits.wms.billing.model.WmsBillingRate;
+import com.kingsrook.qbits.wms.billing.model.WmsBillingRateCard;
+import com.kingsrook.qbits.wms.billing.model.WmsInvoice;
+import com.kingsrook.qbits.wms.billing.model.WmsInvoiceLine;
+import com.kingsrook.qbits.wms.advanced.model.WmsReplenishmentRule;
+import com.kingsrook.qbits.wms.core.enums.BillingActivityType;
+import com.kingsrook.qbits.wms.core.enums.BillingRateCardStatus;
+import com.kingsrook.qbits.wms.core.enums.InvoiceStatus;
+import java.time.Instant;
+import java.time.LocalDate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -855,6 +866,115 @@ public class BaseTest
                .withStatusId(KitWorkOrderStatus.DRAFT.getPossibleValueId())))
          .getRecords().get(0).getValueInteger("id");
       assertNotNull(id, "Failed to insert kit work order");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a billing rate card and return its id.
+    *******************************************************************************/
+   public static Integer insertBillingRateCard(Integer clientId) throws QException
+   {
+      return insertBillingRateCard(clientId, "Default Rate Card");
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a billing rate card with the given name and return its id.
+    *******************************************************************************/
+   public static Integer insertBillingRateCard(Integer clientId, String name) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsBillingRateCard.TABLE_NAME)
+            .withRecordEntity(new WmsBillingRateCard()
+               .withClientId(clientId)
+               .withName(name)
+               .withEffectiveDate(LocalDate.now().minusDays(30))
+               .withExpirationDate(LocalDate.now().plusDays(365))
+               .withStatusId(BillingRateCardStatus.ACTIVE.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert billing rate card");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a billing rate and return its id.
+    *******************************************************************************/
+   public static Integer insertBillingRate(Integer rateCardId, Integer activityTypeId, BigDecimal rate) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsBillingRate.TABLE_NAME)
+            .withRecordEntity(new WmsBillingRate()
+               .withRateCardId(rateCardId)
+               .withActivityTypeId(activityTypeId)
+               .withRate(rate)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert billing rate");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a billing activity and return its id.
+    *******************************************************************************/
+   public static Integer insertBillingActivity(Integer warehouseId, Integer clientId, Integer activityTypeId, BigDecimal quantity) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsBillingActivity.TABLE_NAME)
+            .withRecordEntity(new WmsBillingActivity()
+               .withWarehouseId(warehouseId)
+               .withClientId(clientId)
+               .withActivityTypeId(activityTypeId)
+               .withActivityDate(Instant.now())
+               .withQuantity(quantity)
+               .withIsBilled(false)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert billing activity");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert an invoice and return its id.
+    *******************************************************************************/
+   public static Integer insertInvoice(Integer clientId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsInvoice.TABLE_NAME)
+            .withRecordEntity(new WmsInvoice()
+               .withClientId(clientId)
+               .withInvoiceNumber("INV-" + System.nanoTime())
+               .withBillingPeriodStart(LocalDate.now().minusDays(30))
+               .withBillingPeriodEnd(LocalDate.now())
+               .withStatusId(InvoiceStatus.DRAFT.getPossibleValueId())
+               .withSubtotal(BigDecimal.ZERO)
+               .withTax(BigDecimal.ZERO)
+               .withTotal(BigDecimal.ZERO)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert invoice");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a replenishment rule and return its id.
+    *******************************************************************************/
+   public static Integer insertReplenishmentRule(Integer warehouseId, Integer itemId, Integer pickLocationId, Integer minQty, Integer maxQty) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsReplenishmentRule.TABLE_NAME)
+            .withRecordEntity(new WmsReplenishmentRule()
+               .withWarehouseId(warehouseId)
+               .withItemId(itemId)
+               .withPickLocationId(pickLocationId)
+               .withMinQuantity(minQty)
+               .withMaxQuantity(maxQty)
+               .withPriority(5)
+               .withIsActive(true)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert replenishment rule");
       return (id);
    }
 }
