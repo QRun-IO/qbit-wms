@@ -414,4 +414,354 @@ class WidgetRendererTest extends BaseTest
       assertThat(output).isNotNull();
       assertThat(output.getWidgetData()).isInstanceOf(StatisticsData.class);
    }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // FulfillmentPipelineRenderer                                           //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test FulfillmentPipelineRenderer with orders in various statuses.
+    *******************************************************************************/
+   @Test
+   void testFulfillmentPipelineRenderer_withOrders_returnsMultiStatistics() throws QException
+   {
+      Integer warehouseId = insertWarehouse();
+      insertOrder(warehouseId);
+      insertOrder(warehouseId);
+
+      RenderWidgetOutput output = new FulfillmentPipelineRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test FulfillmentPipelineRenderer with no orders.
+    *******************************************************************************/
+   @Test
+   void testFulfillmentPipelineRenderer_noData_returnsEmptyPipeline() throws QException
+   {
+      RenderWidgetOutput output = new FulfillmentPipelineRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test FulfillmentPipelineRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testFulfillmentPipelineRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("FPL-WH1", "FPL1");
+      Integer wh2 = insertWarehouse("FPL-WH2", "FPL2");
+
+      insertOrder(wh1);
+      insertOrder(wh2);
+
+      RenderWidgetOutput output = new FulfillmentPipelineRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // OrdersTodayRenderer                                                   //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test OrdersTodayRenderer with orders created today.
+    *******************************************************************************/
+   @Test
+   void testOrdersTodayRenderer_withTodayOrders_returnsMultiStatistics() throws QException
+   {
+      Integer warehouseId = insertWarehouse();
+      insertOrder(warehouseId);
+
+      RenderWidgetOutput output = new OrdersTodayRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test OrdersTodayRenderer with no orders.
+    *******************************************************************************/
+   @Test
+   void testOrdersTodayRenderer_noData_returnsZeroCounts() throws QException
+   {
+      RenderWidgetOutput output = new OrdersTodayRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test OrdersTodayRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testOrdersTodayRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("OTR-WH1", "OTR1");
+      insertOrder(wh1);
+
+      RenderWidgetOutput output = new OrdersTodayRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // SlaRiskRenderer                                                       //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test SlaRiskRenderer with no at-risk orders.
+    *******************************************************************************/
+   @Test
+   void testSlaRiskRenderer_noData_returnsNoAtRisk() throws QException
+   {
+      RenderWidgetOutput output = new SlaRiskRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test SlaRiskRenderer with at-risk orders (ship-by date within 24h).
+    *******************************************************************************/
+   @Test
+   void testSlaRiskRenderer_withOrders_returnsMultiStatistics() throws QException
+   {
+      Integer warehouseId = insertWarehouse();
+      insertOrder(warehouseId);
+
+      RenderWidgetOutput output = new SlaRiskRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test SlaRiskRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testSlaRiskRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("SLA-WH1", "SLA1");
+      insertOrder(wh1);
+
+      RenderWidgetOutput output = new SlaRiskRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // BillingDashboardRenderer                                              //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test BillingDashboardRenderer with data.
+    *******************************************************************************/
+   @Test
+   void testBillingDashboardRenderer_withData_returnsMultiStatistics() throws QException
+   {
+      Integer clientId = insertClient();
+      insertInvoice(clientId);
+
+      Integer warehouseId = insertWarehouse();
+      insertBillingActivity(warehouseId, clientId,
+         com.kingsrook.qbits.wms.core.enums.BillingActivityType.PICK_PER_UNIT.getPossibleValueId(),
+         new BigDecimal("25"));
+
+      RenderWidgetOutput output = new BillingDashboardRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test BillingDashboardRenderer with no data.
+    *******************************************************************************/
+   @Test
+   void testBillingDashboardRenderer_noData_returnsValidWidget() throws QException
+   {
+      RenderWidgetOutput output = new BillingDashboardRenderer().render(createInput(null));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(MultiStatisticsData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // InventorySummaryRenderer with warehouse filter                        //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test InventorySummaryRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testInventorySummaryRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("INV-WH1", "INV1");
+      Integer itemId = insertItem();
+      Integer locId = insertLocation(wh1, null, "INV-LOC-01");
+
+      insertInventory(wh1, itemId, locId, new BigDecimal("100"));
+
+      RenderWidgetOutput output = new InventorySummaryRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(StatisticsData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // WorkerProductivityRenderer with warehouse filter                      //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test WorkerProductivityRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testWorkerProductivityRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("WPR-WH1", "WPR1");
+
+      new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecordEntity(new WmsTask()
+         .withWarehouseId(wh1)
+         .withTaskTypeId(TaskType.PICK.getId())
+         .withTaskStatusId(TaskStatus.COMPLETED.getId())
+         .withPriority(5)
+         .withQuantityCompleted(new BigDecimal("15"))
+         .withCompletedBy("worker1")
+         .withCompletedDate(Instant.now())));
+
+      RenderWidgetOutput output = new WorkerProductivityRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(TableData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // ActiveWorkersRenderer with warehouse filter                           //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test ActiveWorkersRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testActiveWorkersRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("AWR-WH1", "AWR1");
+
+      new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecordEntity(new WmsTask()
+         .withWarehouseId(wh1)
+         .withTaskTypeId(TaskType.PICK.getId())
+         .withTaskStatusId(TaskStatus.IN_PROGRESS.getId())
+         .withPriority(5)
+         .withAssignedTo("worker-test")
+         .withStartedDate(Instant.now())));
+
+      RenderWidgetOutput output = new ActiveWorkersRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(TableData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // LowStockAlertsRenderer with warehouse filter                          //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test LowStockAlertsRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testLowStockAlertsRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("LSA-WH1", "LSA1");
+      Integer locId = insertLocation(wh1, null, "LSA-LOC-01");
+
+      QRecord itemRecord = new InsertAction().execute(new InsertInput(WmsItem.TABLE_NAME).withRecordEntity(new WmsItem()
+         .withSku("LSA-SKU")
+         .withName("Low Stock Filter Item")
+         .withReorderPoint(100)
+         .withIsActive(true)))
+      .getRecords().get(0);
+
+      Integer itemId = itemRecord.getValueInteger("id");
+      insertInventory(wh1, itemId, locId, new BigDecimal("5"));
+
+      RenderWidgetOutput output = new LowStockAlertsRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(TableData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // TaskAgingRenderer with warehouse filter                               //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test TaskAgingRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testTaskAgingRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("TAR-WH1", "TAR1");
+
+      new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecordEntity(new WmsTask()
+         .withWarehouseId(wh1)
+         .withTaskTypeId(TaskType.PICK.getId())
+         .withTaskStatusId(TaskStatus.PENDING.getId())
+         .withPriority(5)
+         .withCreateDate(Instant.now())));
+
+      RenderWidgetOutput output = new TaskAgingRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(ChartData.class);
+   }
+
+
+
+   ///////////////////////////////////////////////////////////////////////////
+   // TaskQueueSummaryRenderer with data and warehouse filter               //
+   ///////////////////////////////////////////////////////////////////////////
+
+   /*******************************************************************************
+    ** Test InventoryAccuracyRenderer with warehouse filter.
+    *******************************************************************************/
+   @Test
+   void testInventoryAccuracyRenderer_withWarehouseFilter_filtersResults() throws QException
+   {
+      Integer wh1 = insertWarehouse("IAR-WH1", "IAR1");
+
+      new InsertAction().execute(new InsertInput(WmsTask.TABLE_NAME).withRecordEntity(new WmsTask()
+         .withWarehouseId(wh1)
+         .withTaskTypeId(TaskType.COUNT.getId())
+         .withTaskStatusId(TaskStatus.COMPLETED.getId())
+         .withPriority(5)
+         .withExpectedQuantity(new BigDecimal("100"))
+         .withCountedQuantity(new BigDecimal("100"))));
+
+      RenderWidgetOutput output = new InventoryAccuracyRenderer().render(createInput(wh1));
+      assertThat(output).isNotNull();
+      assertThat(output.getWidgetData()).isInstanceOf(StatisticsData.class);
+   }
 }

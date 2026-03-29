@@ -87,4 +87,93 @@ class ReplenishCheckStepTest extends BaseTest
 
       assertThat(output.getValueInteger("tasksCreated")).isEqualTo(0);
    }
+
+
+
+   /*******************************************************************************
+    ** Test that a rule with null min/max quantities is skipped.
+    *******************************************************************************/
+   @Test
+   void testRun_ruleWithNullMinMax_skipped() throws Exception
+   {
+      Integer warehouseId = insertWarehouse();
+      Integer itemId = insertItem();
+      Integer pickLocationId = insertLocation(warehouseId, null, "PICK-NULL-01");
+
+      insertInventory(warehouseId, itemId, pickLocationId, new BigDecimal("3"));
+
+      /////////////////////////////////////////////////////////////////////////
+      // Insert rule with null min/max (should be skipped)                  //
+      /////////////////////////////////////////////////////////////////////////
+      new com.kingsrook.qqq.backend.core.actions.tables.InsertAction()
+         .execute(new com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput(
+            com.kingsrook.qbits.wms.advanced.model.WmsReplenishmentRule.TABLE_NAME)
+         .withRecordEntity(new com.kingsrook.qbits.wms.advanced.model.WmsReplenishmentRule()
+            .withWarehouseId(warehouseId)
+            .withItemId(itemId)
+            .withPickLocationId(pickLocationId)
+            .withPriority(5)
+            .withIsActive(true)));
+
+      RunBackendStepInput input = new RunBackendStepInput();
+      RunBackendStepOutput output = new RunBackendStepOutput();
+      new ReplenishCheckStep().run(input, output);
+
+      assertThat(output.getValueInteger("tasksCreated")).isEqualTo(0);
+   }
+
+
+
+   /*******************************************************************************
+    ** Test that no rules results in zero tasks created.
+    *******************************************************************************/
+   @Test
+   void testRun_noRules_zeroTasksCreated() throws Exception
+   {
+      RunBackendStepInput input = new RunBackendStepInput();
+      RunBackendStepOutput output = new RunBackendStepOutput();
+      new ReplenishCheckStep().run(input, output);
+
+      assertThat(output.getValueInteger("tasksCreated")).isEqualTo(0);
+      assertThat(output.getValueString("resultMessage")).contains("0 tasks created");
+   }
+
+
+
+   /*******************************************************************************
+    ** Test that an existing pending replenish task prevents duplicate creation.
+    *******************************************************************************/
+   @Test
+   void testRun_existingPendingTask_noDuplicateCreated() throws Exception
+   {
+      Integer warehouseId = insertWarehouse();
+      Integer itemId = insertItem();
+      Integer pickLocationId = insertLocation(warehouseId, null, "PICK-DUP-01");
+
+      insertInventory(warehouseId, itemId, pickLocationId, new BigDecimal("3"));
+      insertReplenishmentRule(warehouseId, itemId, pickLocationId, 5, 20);
+
+      /////////////////////////////////////////////////////////////////////////
+      // Create an existing PENDING replenish task for same item/location   //
+      /////////////////////////////////////////////////////////////////////////
+      new com.kingsrook.qqq.backend.core.actions.tables.InsertAction()
+         .execute(new com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput(
+            com.kingsrook.qbits.wms.core.model.WmsTask.TABLE_NAME)
+         .withRecord(new QRecord()
+            .withValue("warehouseId", warehouseId)
+            .withValue("taskTypeId", com.kingsrook.qbits.wms.core.enums.TaskType.REPLENISH.getPossibleValueId())
+            .withValue("taskStatusId", com.kingsrook.qbits.wms.core.enums.TaskStatus.PENDING.getPossibleValueId())
+            .withValue("priority", 5)
+            .withValue("itemId", itemId)
+            .withValue("destinationLocationId", pickLocationId)));
+
+      RunBackendStepInput input = new RunBackendStepInput();
+      RunBackendStepOutput output = new RunBackendStepOutput();
+      new ReplenishCheckStep().run(input, output);
+
+      /////////////////////////////////////////////////////////////////////////
+      // Should be 0 new tasks since one already exists                     //
+      /////////////////////////////////////////////////////////////////////////
+      assertThat(output.getValueInteger("tasksCreated")).isEqualTo(0);
+   }
 }
