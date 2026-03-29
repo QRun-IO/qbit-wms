@@ -47,6 +47,20 @@ import com.kingsrook.qbits.wms.receiving.model.WmsPurchaseOrderLine;
 import com.kingsrook.qbits.wms.receiving.model.WmsPutawayRule;
 import com.kingsrook.qbits.wms.receiving.model.WmsReceipt;
 import com.kingsrook.qbits.wms.receiving.model.WmsReceiptLine;
+import com.kingsrook.qbits.wms.core.enums.OrderStatus;
+import com.kingsrook.qbits.wms.core.enums.CartonStatus;
+import com.kingsrook.qbits.wms.core.enums.WaveStatus;
+import com.kingsrook.qbits.wms.core.enums.WaveType;
+import com.kingsrook.qbits.wms.core.enums.AllocationStrategy;
+import com.kingsrook.qbits.wms.core.model.WmsClient;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsAllocationRule;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsCarton;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsCartonLine;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsCartonType;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsKitBom;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsOrder;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsOrderLine;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsWave;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -495,6 +509,198 @@ public class BaseTest
                .withIsActive(true)))
          .getRecords().get(0).getValueInteger("id");
       assertNotNull(id, "Failed to insert item with barcode");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert an order and return its id.
+    *******************************************************************************/
+   public static Integer insertOrder(Integer warehouseId) throws QException
+   {
+      return insertOrder(warehouseId, null);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert an order with the given client and return its id.
+    *******************************************************************************/
+   public static Integer insertOrder(Integer warehouseId, Integer clientId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsOrder.TABLE_NAME)
+            .withRecordEntity(new WmsOrder()
+               .withWarehouseId(warehouseId)
+               .withClientId(clientId)
+               .withOrderNumber("ORD-" + System.nanoTime())
+               .withStatusId(OrderStatus.PENDING.getPossibleValueId())
+               .withPriority(5)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert order");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert an order line and return its id.
+    *******************************************************************************/
+   public static Integer insertOrderLine(Integer orderId, Integer itemId) throws QException
+   {
+      return insertOrderLine(orderId, itemId, 10);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert an order line with the given quantity and return its id.
+    *******************************************************************************/
+   public static Integer insertOrderLine(Integer orderId, Integer itemId, Integer quantityOrdered) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsOrderLine.TABLE_NAME)
+            .withRecordEntity(new WmsOrderLine()
+               .withOrderId(orderId)
+               .withItemId(itemId)
+               .withQuantityOrdered(quantityOrdered)
+               .withQuantityAllocated(0)
+               .withQuantityPicked(0)
+               .withQuantityPacked(0)
+               .withQuantityShipped(0)
+               .withQuantityBackordered(0)
+               .withLineNumber(1)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert order line");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a wave and return its id.
+    *******************************************************************************/
+   public static Integer insertWave(Integer warehouseId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsWave.TABLE_NAME)
+            .withRecordEntity(new WmsWave()
+               .withWarehouseId(warehouseId)
+               .withWaveNumber("WAVE-" + System.nanoTime())
+               .withStatusId(WaveStatus.PLANNED.getPossibleValueId())
+               .withWaveTypeId(WaveType.MANUAL.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert wave");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a carton and return its id.
+    *******************************************************************************/
+   public static Integer insertCarton(Integer orderId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsCarton.TABLE_NAME)
+            .withRecordEntity(new WmsCarton()
+               .withOrderId(orderId)
+               .withCartonNumber("CTN-" + System.nanoTime())
+               .withStatusId(CartonStatus.OPEN.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert carton");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a carton type and return its id.
+    *******************************************************************************/
+   public static Integer insertCartonType() throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsCartonType.TABLE_NAME)
+            .withRecordEntity(new WmsCartonType()
+               .withName("Small Box")
+               .withIsActive(true)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert carton type");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert an allocation rule and return its id.
+    *******************************************************************************/
+   public static Integer insertAllocationRule(Integer warehouseId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsAllocationRule.TABLE_NAME)
+            .withRecordEntity(new WmsAllocationRule()
+               .withWarehouseId(warehouseId)
+               .withStrategyId(AllocationStrategy.FEFO.getPossibleValueId())
+               .withPriority(1)
+               .withIsActive(true)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert allocation rule");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a kit BOM entry and return its id.
+    *******************************************************************************/
+   public static Integer insertKitBom(Integer kitItemId, Integer componentItemId) throws QException
+   {
+      return insertKitBom(kitItemId, componentItemId, 1);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a kit BOM entry with the given component quantity and return its id.
+    *******************************************************************************/
+   public static Integer insertKitBom(Integer kitItemId, Integer componentItemId, Integer componentQuantity) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsKitBom.TABLE_NAME)
+            .withRecordEntity(new WmsKitBom()
+               .withKitItemId(kitItemId)
+               .withComponentItemId(componentItemId)
+               .withComponentQuantity(componentQuantity)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert kit BOM");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a carton line and return its id.
+    *******************************************************************************/
+   public static Integer insertCartonLine(Integer cartonId, Integer itemId, Integer quantity) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsCartonLine.TABLE_NAME)
+            .withRecordEntity(new WmsCartonLine()
+               .withCartonId(cartonId)
+               .withItemId(itemId)
+               .withQuantity(quantity)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert carton line");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a client and return its id.
+    *******************************************************************************/
+   public static Integer insertClient() throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsClient.TABLE_NAME)
+            .withRecordEntity(new WmsClient()
+               .withName("Test Client")
+               .withCode("CLIENT01")
+               .withIsActive(true)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert client");
       return (id);
    }
 }

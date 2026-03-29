@@ -26,6 +26,7 @@ import com.kingsrook.qbits.wms.core.enums.CartonStatus;
 
 
 @QMetaDataProducingEntity(
+   producePossibleValueSource = true,
    produceTableMetaData = true,
    tableMetaDataCustomizer = WmsCarton.TableMetaDataCustomizer.class,
    childTables = {

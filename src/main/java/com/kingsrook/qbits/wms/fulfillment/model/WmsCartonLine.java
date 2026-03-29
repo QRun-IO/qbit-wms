@@ -64,7 +64,7 @@ public class WmsCartonLine extends QRecordEntity
    @QField(isRequired = true, possibleValueSourceName = WmsCarton.TABLE_NAME)
    private Integer cartonId;
 
-   @QField(possibleValueSourceName = WmsOrderLine.TABLE_NAME)
+   @QField()
    private Integer orderLineId;
 
    @QField(isRequired = true, possibleValueSourceName = WmsItem.TABLE_NAME)
