@@ -6,6 +6,7 @@
 package com.kingsrook.qbits.wms.billing.processes;
 
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import com.kingsrook.qqq.backend.core.actions.processes.BackendStep;
 import com.kingsrook.qqq.backend.core.actions.tables.GetAction;
@@ -18,6 +19,9 @@ import com.kingsrook.qqq.backend.core.model.actions.processes.RunBackendStepOutp
 import com.kingsrook.qqq.backend.core.model.actions.tables.get.GetInput;
 import com.kingsrook.qqq.backend.core.model.actions.tables.update.UpdateInput;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.utils.ValueUtils;
+import com.kingsrook.qbits.wms.billing.AccountingAdapter;
+import com.kingsrook.qbits.wms.billing.DefaultAccountingAdapter;
 import com.kingsrook.qbits.wms.billing.model.WmsInvoice;
 import com.kingsrook.qbits.wms.core.enums.InvoiceStatus;
 import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
@@ -26,6 +30,28 @@ import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
 public class SyncInvoiceToAccountingStep implements BackendStep
 {
    private static final QLogger LOG = QLogger.getLogger(SyncInvoiceToAccountingStep.class);
+
+   private AccountingAdapter accountingAdapter;
+
+
+
+   /*******************************************************************************
+    ** Constructor that uses the default accounting adapter.
+    *******************************************************************************/
+   public SyncInvoiceToAccountingStep()
+   {
+      this.accountingAdapter = new DefaultAccountingAdapter();
+   }
+
+
+
+   /*******************************************************************************
+    ** Constructor that accepts a custom accounting adapter.
+    *******************************************************************************/
+   public SyncInvoiceToAccountingStep(AccountingAdapter accountingAdapter)
+   {
+      this.accountingAdapter = accountingAdapter != null ? accountingAdapter : new DefaultAccountingAdapter();
+   }
 
 
 
@@ -59,6 +85,13 @@ public class SyncInvoiceToAccountingStep implements BackendStep
       }
 
       /////////////////////////////////////////////////////////////////////////
+      // Sync to external accounting system via adapter                     //
+      /////////////////////////////////////////////////////////////////////////
+      String invoiceNumber = invoice.getValueString("invoiceNumber");
+      BigDecimal total = ValueUtils.getValueAsBigDecimal(invoice.getValue("total"));
+      String externalId = accountingAdapter.syncInvoice(invoiceId, invoiceNumber, total);
+
+      /////////////////////////////////////////////////////////////////////////
       // Update status to SENT and set sentDate                              //
       /////////////////////////////////////////////////////////////////////////
       new UpdateAction().execute(new UpdateInput(WmsInvoice.TABLE_NAME).withRecord(new QRecord()
@@ -66,8 +99,9 @@ public class SyncInvoiceToAccountingStep implements BackendStep
          .withValue("statusId", InvoiceStatus.SENT.getPossibleValueId())
          .withValue("sentDate", Instant.now())));
 
-      LOG.info("Invoice synced to accounting", logPair("invoiceId", invoiceId));
+      LOG.info("Invoice synced to accounting", logPair("invoiceId", invoiceId), logPair("externalId", externalId));
 
       output.addValue("resultMessage", "Invoice " + invoiceId + " has been marked as SENT and synced to accounting.");
+      output.addValue("externalId", externalId);
    }
 }

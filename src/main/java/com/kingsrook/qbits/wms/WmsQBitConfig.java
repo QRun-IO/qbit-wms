@@ -10,6 +10,8 @@ import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitConfig;
 import com.kingsrook.qqq.backend.core.model.metadata.security.RecordSecurityLock;
 import com.kingsrook.qqq.backend.core.utils.StringUtils;
+import com.kingsrook.qbits.wms.billing.AccountingAdapter;
+import com.kingsrook.qbits.wms.shipping.CarrierAdapter;
 
 
 public class WmsQBitConfig implements QBitConfig
@@ -27,6 +29,9 @@ public class WmsQBitConfig implements QBitConfig
    private String     opensearchIndexName;
 
    private List<RecordSecurityLock> recordSecurityLocks;
+
+   private CarrierAdapter    carrierAdapter;
+   private AccountingAdapter accountingAdapter;
 
 
 
@@ -330,6 +335,68 @@ public class WmsQBitConfig implements QBitConfig
    public WmsQBitConfig withRecordSecurityLocks(List<RecordSecurityLock> recordSecurityLocks)
    {
       this.recordSecurityLocks = recordSecurityLocks;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for carrierAdapter
+    *******************************************************************************/
+   public CarrierAdapter getCarrierAdapter()
+   {
+      return (this.carrierAdapter);
+   }
+
+
+
+   /*******************************************************************************
+    ** Setter for carrierAdapter
+    *******************************************************************************/
+   public void setCarrierAdapter(CarrierAdapter carrierAdapter)
+   {
+      this.carrierAdapter = carrierAdapter;
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for carrierAdapter
+    *******************************************************************************/
+   public WmsQBitConfig withCarrierAdapter(CarrierAdapter carrierAdapter)
+   {
+      this.carrierAdapter = carrierAdapter;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for accountingAdapter
+    *******************************************************************************/
+   public AccountingAdapter getAccountingAdapter()
+   {
+      return (this.accountingAdapter);
+   }
+
+
+
+   /*******************************************************************************
+    ** Setter for accountingAdapter
+    *******************************************************************************/
+   public void setAccountingAdapter(AccountingAdapter accountingAdapter)
+   {
+      this.accountingAdapter = accountingAdapter;
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for accountingAdapter
+    *******************************************************************************/
+   public WmsQBitConfig withAccountingAdapter(AccountingAdapter accountingAdapter)
+   {
+      this.accountingAdapter = accountingAdapter;
       return (this);
    }
 }

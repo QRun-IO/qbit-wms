@@ -150,8 +150,8 @@ public class ReturnPutawayCompletionHandler extends AbstractTaskCompletionHandle
       }
       catch(Exception e)
       {
-         LOG.warn("Could not create billing activity (billing tables may not be available yet)",
-            logPair("taskId", taskId), logPair("error", e.getMessage()));
+         LOG.error("Failed to create billing activity for RETURN_PUTAWAY task", e,
+            logPair("taskId", taskId));
       }
    }
 }

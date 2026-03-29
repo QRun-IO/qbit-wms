@@ -24,6 +24,8 @@ import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qbits.wms.core.enums.CartonStatus;
 import com.kingsrook.qbits.wms.core.enums.ShipmentStatus;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsCarton;
+import com.kingsrook.qbits.wms.shipping.CarrierAdapter;
+import com.kingsrook.qbits.wms.shipping.DefaultCarrierAdapter;
 import com.kingsrook.qbits.wms.shipping.model.WmsShipment;
 import com.kingsrook.qbits.wms.shipping.model.WmsShipmentOrder;
 import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
@@ -32,6 +34,28 @@ import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
 public class GenerateShippingLabelStep implements BackendStep
 {
    private static final QLogger LOG = QLogger.getLogger(GenerateShippingLabelStep.class);
+
+   private CarrierAdapter carrierAdapter;
+
+
+
+   /*******************************************************************************
+    ** Constructor that uses the default carrier adapter.
+    *******************************************************************************/
+   public GenerateShippingLabelStep()
+   {
+      this.carrierAdapter = new DefaultCarrierAdapter();
+   }
+
+
+
+   /*******************************************************************************
+    ** Constructor that accepts a custom carrier adapter.
+    *******************************************************************************/
+   public GenerateShippingLabelStep(CarrierAdapter carrierAdapter)
+   {
+      this.carrierAdapter = carrierAdapter != null ? carrierAdapter : new DefaultCarrierAdapter();
+   }
 
 
 
@@ -74,9 +98,9 @@ public class GenerateShippingLabelStep implements BackendStep
       Integer orderId = carton.getValueInteger("orderId");
 
       /////////////////////////////////////////////////////////////////////////
-      // Generate tracking number (placeholder -- real integration goes here)//
+      // Generate tracking number via carrier adapter                       //
       /////////////////////////////////////////////////////////////////////////
-      String trackingNumber = "TRK-" + System.nanoTime();
+      String trackingNumber = carrierAdapter.generateLabel(carrier, serviceLevel, null, null, null);
       String shipmentNumber = "SHIP-" + System.nanoTime();
 
       LOG.info("Generating shipping label", logPair("cartonId", cartonId), logPair("carrier", carrier));
