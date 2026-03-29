@@ -35,6 +35,28 @@ public class TaskCompletionDispatcher
       ///////////////////////////////////
       HANDLERS.put(TaskType.PUTAWAY.getPossibleValueId(), new PutawayTaskCompletionHandler());
       HANDLERS.put(TaskType.QC_INSPECT.getPossibleValueId(), new QcInspectTaskCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 3 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.PICK.getPossibleValueId(), new PickCompletionHandler());
+      HANDLERS.put(TaskType.PACK.getPossibleValueId(), new PackCompletionHandler());
+      HANDLERS.put(TaskType.KIT_ASSEMBLE.getPossibleValueId(), new KitAssembleCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 4 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.LOAD.getPossibleValueId(), new LoadCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 5 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.RETURN_PUTAWAY.getPossibleValueId(), new ReturnPutawayCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 7 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.REPLENISH.getPossibleValueId(), new ReplenishCompletionHandler());
    }
 
 

@@ -28,7 +28,7 @@ class WmsEnumTest
          Arguments.of(TaskType.class, 10),
          Arguments.of(TaskStatus.class, 8),
          Arguments.of(EquipmentType.class, 5),
-         Arguments.of(TransactionType.class, 15),
+         Arguments.of(TransactionType.class, 17),
          Arguments.of(InventoryStatus.class, 7),
          Arguments.of(ZoneType.class, 10),
          Arguments.of(LocationType.class, 6),
