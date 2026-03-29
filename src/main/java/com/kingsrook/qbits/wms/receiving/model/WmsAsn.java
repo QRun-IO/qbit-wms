@@ -23,6 +23,7 @@ import com.kingsrook.qbits.wms.core.enums.AsnStatus;
 
 
 @QMetaDataProducingEntity(
+   producePossibleValueSource = true,
    produceTableMetaData = true,
    tableMetaDataCustomizer = WmsAsn.TableMetaDataCustomizer.class,
    childTables = {

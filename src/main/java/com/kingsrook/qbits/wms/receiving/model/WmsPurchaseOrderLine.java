@@ -16,7 +16,7 @@ import com.kingsrook.qbits.wms.core.model.WmsItem;
 import com.kingsrook.qbits.wms.core.model.WmsUnitOfMeasure;
 
 
-@QMetaDataProducingEntity(produceTableMetaData = true)
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
 public class WmsPurchaseOrderLine extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsPurchaseOrderLine";

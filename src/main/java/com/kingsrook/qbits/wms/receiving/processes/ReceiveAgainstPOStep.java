@@ -191,10 +191,13 @@ public class ReceiveAgainstPOStep implements BackendStep
       /////////////////////////////////////////////////////////////////////////
       // Create wmsReceipt record                                            //
       /////////////////////////////////////////////////////////////////////////
+      String receiptNumber = "RCV-" + purchaseOrderId + "-" + System.currentTimeMillis();
+
       InsertOutput receiptInsert = new InsertAction().execute(new InsertInput(RECEIPT_TABLE_NAME).withRecord(new QRecord()
          .withValue("warehouseId", warehouseId)
          .withValue("clientId", clientId)
          .withValue("purchaseOrderId", purchaseOrderId)
+         .withValue("receiptNumber", receiptNumber)
          .withValue("receiptTypeId", ReceiptType.PO_BASED.getPossibleValueId())
          .withValue("statusId", ReceiptStatus.IN_PROGRESS.getPossibleValueId())
          .withValue("receivedBy", performedBy)

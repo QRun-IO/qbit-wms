@@ -101,9 +101,12 @@ public class BlindReceiveStep implements BackendStep
       /////////////////////////////////////////////////////////////////////////
       // Create wmsReceipt (blind, no PO)                                    //
       /////////////////////////////////////////////////////////////////////////
+      String receiptNumber = "BLIND-" + System.currentTimeMillis();
+
       InsertOutput receiptInsert = new InsertAction().execute(new InsertInput(RECEIPT_TABLE_NAME).withRecord(new QRecord()
          .withValue("warehouseId", warehouseId)
          .withValue("clientId", clientId)
+         .withValue("receiptNumber", receiptNumber)
          .withValue("receiptTypeId", ReceiptType.BLIND.getPossibleValueId())
          .withValue("statusId", ReceiptStatus.IN_PROGRESS.getPossibleValueId())
          .withValue("receivedBy", performedBy)
