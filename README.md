@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/QRun-IO/qbit-wms)
 [![License](https://img.shields.io/badge/license-GNU%20Affero%20GPL%20v3-green.svg)](https://www.gnu.org/licenses/agpl-3.0.en.html)
-[![Java](https://img.shields.io/badge/java-21+-blue.svg)](https://adoptium.net/)
+[![Java](https://img.shields.io/badge/java-17+-blue.svg)](https://adoptium.net/)
 
 > **Warehouse Management System for QQQ Applications - Task-Centric, Perpetual Inventory**
 
@@ -40,7 +40,7 @@ QBit WMS is 100% open source under AGPL v3. All data stays in your systems. No e
 
 ### Technology Stack
 
-- **Java 21+** with QQQ backend modules
+- **Java 17+** with QQQ backend modules
 - **QQQ Framework**: Entities, processes, widgets, permissions, API layer
 - **Database**: RDBMS through QQQ's backend abstraction
 - **MemoryRecordStore**: Full test suite runs in-memory (no database required)
@@ -63,11 +63,84 @@ qbit-wms/
     widgets/                        -- 11 dashboard widgets (producers + renderers)
 ```
 
+## Quick Start: Complete Application
+
+Below is a full working example showing how to bootstrap a QQQ application with the WMS QBit. This assumes you have an RDBMS backend already configured.
+
+```java
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerMultiOutput;
+import com.kingsrook.qbits.wms.WmsQBitConfig;
+import com.kingsrook.qbits.wms.WmsQBitProducer;
+
+public class MyWarehouseApp
+{
+   public static void main(String[] args) throws Exception
+   {
+      ///////////////////////////
+      // 1. Create QInstance   //
+      ///////////////////////////
+      QInstance qInstance = new QInstance();
+
+      //////////////////////////////////
+      // 2. Add your database backend //
+      //////////////////////////////////
+      // Register your RDBMS backend with QQQ (PostgreSQL, MySQL, H2, etc.)
+      // The backend name you choose here is what you pass to WmsQBitConfig.
+      // See QQQ documentation for backend configuration details.
+
+      ////////////////////////////////////
+      // 3. Configure the WMS QBit      //
+      ////////////////////////////////////
+      WmsQBitConfig config = new WmsQBitConfig()
+         .withBackendName("rdbms")
+         .withDefaultAllocationStrategy("FEFO")
+         .withDefaultPickStrategy("BATCH")
+         .withDefaultPutawayStrategy("DIRECTED")
+         .withBlindCountDefault(true)
+         .withAdjustmentApprovalThreshold(100)
+         .withCycleCountVarianceThreshold(new java.math.BigDecimal("5.0"));
+
+      ////////////////////////////////////
+      // 4. Produce and register        //
+      ////////////////////////////////////
+      WmsQBitProducer producer = new WmsQBitProducer()
+         .withQBitConfig(config);
+
+      MetaDataProducerMultiOutput output = producer.produce(qInstance);
+      output.addSelfToInstance(qInstance);
+
+      // At this point, qInstance contains all 46 WMS tables, 47 processes,
+      // 11 widgets, security locks, and permission rules.
+
+      ////////////////////////////////////
+      // 5. Start your QQQ application  //
+      ////////////////////////////////////
+      // Use standard QQQ application startup (e.g., Javalin middleware).
+   }
+}
+```
+
+### With a custom carrier and accounting integration
+
+```java
+WmsQBitConfig config = new WmsQBitConfig()
+   .withBackendName("rdbms")
+   .withCarrierAdapter(new UpsCarrierAdapter())        // your CarrierAdapter implementation
+   .withAccountingAdapter(new QuickBooksAdapter());     // your AccountingAdapter implementation
+
+WmsQBitProducer producer = new WmsQBitProducer()
+   .withQBitConfig(config);
+
+MetaDataProducerMultiOutput output = producer.produce(qInstance);
+output.addSelfToInstance(qInstance);
+```
+
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 21+**
+- **Java 17+**
 - **Maven 3.8+**
 - **QQQ Application** (this is a QBit, not a standalone application)
 
@@ -81,6 +154,21 @@ qbit-wms/
     <artifactId>qbit-wms</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
+```
+
+If you are using the QQQ BOM POM, the version is managed for you:
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.kingsrook.qqq</groupId>
+            <artifactId>qqq-bom-pom</artifactId>
+            <version>${qqq.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 ```
 
 #### Minimal setup
@@ -114,6 +202,199 @@ WmsQBitConfig config = new WmsQBitConfig()
          .withNullValueBehavior(RecordSecurityLock.NullValueBehavior.ALLOW)
    ));
 ```
+
+## Configuration Reference
+
+All configuration is provided through `WmsQBitConfig`. The only required field is `backendName`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `backendName` | `String` | *(required)* | Name of the QQQ backend where all WMS tables are stored. Must match a backend already registered on your `QInstance`. |
+| `tableNamePrefix` | `String` | `null` | Optional prefix prepended to all WMS table names (e.g., `"acme"` produces `acme_wmsWarehouse`). Useful for running multiple WMS instances in the same database. |
+| `defaultAllocationStrategy` | `String` | `"FIFO"` | Default inventory allocation strategy. Options: `FEFO` (first expired, first out), `FIFO` (first in, first out), `LIFO` (last in, first out). |
+| `defaultPickStrategy` | `String` | `"BATCH"` | Default pick strategy for wave release. Options: `DISCRETE`, `BATCH`, `ZONE`, `CLUSTER`, `WAVE`. |
+| `defaultPutawayStrategy` | `String` | `"DIRECTED"` | Default putaway strategy for received goods. Options: `DIRECTED` (system-recommended locations), `MANUAL` (operator chooses). |
+| `adjustmentApprovalThreshold` | `Integer` | `100` | Inventory adjustments with a quantity above this value require supervisor approval. |
+| `cycleCountVarianceThreshold` | `BigDecimal` | `5.0` | Variance percentage that triggers a recount during cycle counting. |
+| `blindCountDefault` | `Boolean` | `true` | When `true`, expected quantities are hidden from counters during cycle counts. Reduces confirmation bias. |
+| `recordSecurityLocks` | `List<RecordSecurityLock>` | auto | Custom record security locks applied to all WMS tables. When `null`, defaults to `warehouseId` (DENY on null) and `clientId` (ALLOW on null). |
+| `carrierAdapter` | `CarrierAdapter` | `DefaultCarrierAdapter` | Pluggable carrier integration for label generation and rate lookup. The default adapter returns synthetic tracking numbers. |
+| `accountingAdapter` | `AccountingAdapter` | `DefaultAccountingAdapter` | Pluggable accounting system integration for invoice sync. The default adapter returns synthetic external IDs. |
+| `opensearchHost` | `String` | `null` | OpenSearch/ElasticSearch host for quick-search integration (used with the qbit-quick-search companion). |
+| `opensearchPort` | `Integer` | `null` | OpenSearch/ElasticSearch port. |
+| `opensearchIndexName` | `String` | `null` | OpenSearch/ElasticSearch index name. |
+
+### Configuration examples
+
+**3PL operation with FEFO allocation and strict counting:**
+
+```java
+WmsQBitConfig config = new WmsQBitConfig()
+   .withBackendName("rdbms")
+   .withDefaultAllocationStrategy("FEFO")
+   .withCycleCountVarianceThreshold(new BigDecimal("2.0"))
+   .withAdjustmentApprovalThreshold(50)
+   .withBlindCountDefault(true);
+```
+
+**Brand-direct with manual putaway and OpenSearch:**
+
+```java
+WmsQBitConfig config = new WmsQBitConfig()
+   .withBackendName("rdbms")
+   .withDefaultPutawayStrategy("MANUAL")
+   .withDefaultPickStrategy("DISCRETE")
+   .withOpensearchHost("search.example.com")
+   .withOpensearchPort(9200)
+   .withOpensearchIndexName("wms-items");
+```
+
+**Multi-instance with table prefix:**
+
+```java
+WmsQBitConfig config = new WmsQBitConfig()
+   .withBackendName("rdbms")
+   .withTableNamePrefix("east");
+// Tables become: east_wmsWarehouse, east_wmsTask, etc.
+```
+
+## How the Task Engine Works
+
+The task engine is the central nervous system of the WMS. Every physical warehouse operation -- receiving, putaway, picking, packing, counting, moving, replenishing, loading, QC inspection, kit assembly -- is modeled as a task in the `wms_task` table. Here is a complete walkthrough of a real-world receiving-to-shipping flow.
+
+### End-to-end walkthrough: receiving through shipping
+
+```
+RECEIVING CLERK (desktop)
+  1. Opens "Receive Against PO" process
+  2. Scans PO barcode -> system loads PO lines
+  3. Scans each item, enters quantity received
+  4. Clicks "Complete Receipt"
+     -> System creates PUTAWAY tasks for each received line
+     -> If item requires QC, creates QC_INSPECT task (PUTAWAY stays ON_HOLD)
+
+FORKLIFT DRIVER (RF gun / mobile)
+  1. Opens "Get Next Task" -> system assigns highest-priority PUTAWAY task
+  2. Sees: "Go to Receiving Dock, pick up SKU-12345, qty 48"
+  3. Scans source location (receiving staging area)
+  4. Scans item barcode (system validates correct item)
+  5. Drives to directed putaway location (e.g., A-03-02-B)
+  6. Scans destination location (system validates)
+  7. Confirms quantity -> task status set to COMPLETED
+     -> Inventory record created at location A-03-02-B
+     -> Inventory transaction logged to wms_inventory_transaction
+     -> Receipt line updated to PUTAWAY_COMPLETE
+     -> PO status cascades to RECEIVED when all lines done
+     -> Billing activity captured for 3PL clients
+
+ORDER FULFILLMENT (system / desktop)
+  1. Orders arrive via API -> status PENDING
+  2. "Allocate Orders" process reserves inventory -> status ALLOCATED
+  3. "Create Wave" groups orders by carrier cutoff -> wave created
+  4. "Release Wave" generates PICK tasks -> status PICK_RELEASED
+
+PICKER (RF gun / mobile)
+  1. "Get Next Task" -> system assigns next PICK task
+  2. Walks to pick location, scans location barcode
+  3. Scans item barcode (system validates correct SKU)
+  4. Confirms quantity picked
+  5. Task COMPLETED
+     -> Inventory deducted via transaction
+     -> Order line pick quantity updated
+     -> When all picks done for an order -> PACK task auto-created
+
+PACKER (pack station / desktop)
+  1. Scans order at pack station
+  2. Scans each item into carton (system verifies against order lines)
+  3. System confirms all items present and accounted for
+  4. "Generate Shipping Label" -> carrier label printed
+     -> Carton status set to LABELED
+
+SHIPPING (dock door)
+  1. "Ship Confirm" at dock door -> LOAD task completed
+  2. Order status -> SHIPPED
+  3. Tracking number pushed to source system
+  4. Manifest created for end-of-day carrier pickup
+```
+
+### Task lifecycle
+
+Every task moves through a standard set of statuses:
+
+```
+PENDING -> ASSIGNED -> IN_PROGRESS -> COMPLETED
+                  \-> PAUSED -> IN_PROGRESS
+                  \-> ON_HOLD -> PENDING
+                  \-> CANCELLED
+```
+
+The `TaskCompletionDispatcher` is the key mechanism. When any task reaches COMPLETED status, the dispatcher routes to the appropriate type-specific handler:
+
+| Task Type | Completion Handler | Side Effects |
+|-----------|-------------------|-------------|
+| PUTAWAY | `PutawayTaskCompletionHandler` | Create inventory, log transaction, update receipt line, capture billing |
+| PICK | `PickCompletionHandler` | Deduct inventory, update order line, create PACK task when all picks done |
+| PACK | `PackCompletionHandler` | Update carton status, verify all items packed |
+| COUNT | `CountTaskCompletionHandler` | Record count, calculate variance, trigger recount or approval |
+| MOVE | `MoveTaskCompletionHandler` | Transfer inventory between locations, log transaction |
+| REPLENISH | `ReplenishCompletionHandler` | Move inventory from bulk to pick face, log transaction |
+| LOAD | `LoadCompletionHandler` | Confirm shipment, update order to SHIPPED |
+| QC_INSPECT | `QcInspectTaskCompletionHandler` | Release or reject inventory, unblock downstream PUTAWAY tasks |
+| KIT_ASSEMBLE | `KitAssembleCompletionHandler` | Deduct components, create finished kit inventory |
+| RETURN_PUTAWAY | `ReturnPutawayCompletionHandler` | Restock returned items, log transaction |
+
+## Mobile Scanning Workflows
+
+Mobile workers (forklift drivers, pickers, packers) interact with the WMS through a repeating scan-verify-confirm loop built on two core processes: `getNextTask` and `completeTask`.
+
+### The universal pattern
+
+```
+1. Worker calls GET NEXT TASK
+   -> System finds the highest-priority pending task
+      matching the worker's zone and equipment qualifications
+   -> Task status moves from PENDING to ASSIGNED
+
+2. Worker navigates to the source location
+   -> Scans the LOCATION barcode (system validates it matches the task)
+
+3. Worker identifies the item
+   -> Scans the ITEM barcode (system validates correct SKU, lot, serial)
+
+4. Worker confirms the quantity
+   -> Enters or confirms the quantity to move/pick/count
+
+5. Worker navigates to the destination (if applicable)
+   -> Scans the DESTINATION location barcode (system validates)
+
+6. Worker calls COMPLETE TASK
+   -> TaskCompletionDispatcher fires the type-specific handler
+   -> All side effects execute (inventory updates, downstream tasks, billing)
+   -> Worker returns to step 1
+```
+
+### Scan verification
+
+Each task type has configurable scan requirements set in `wms_task_type_config` per warehouse. Common configurations:
+
+| Setting | Purpose |
+|---------|---------|
+| Source location scan | Confirms the worker is at the correct pick/source location |
+| Item barcode scan | Validates the correct SKU is being handled |
+| Destination location scan | Confirms putaway/move to the correct target location |
+| Quantity confirmation | Worker enters or confirms the quantity moved |
+
+Scan requirements can be adjusted per warehouse and task type. For example, a high-value warehouse might require all four scans, while a small operation might only require item and quantity confirmation.
+
+### Supervisor overrides
+
+Supervisors have access to additional task management processes that operate outside the mobile scan loop:
+
+- **reassignTask**: Move a task from one worker to another
+- **reprioritizeTask**: Change task priority to reorder the queue
+- **holdTask / releaseTask**: Temporarily freeze and unfreeze tasks
+- **cancelTask**: Cancel a task with type-specific reversal logic (e.g., deallocate inventory for cancelled picks)
+- **staleTaskCheck**: Scheduled process that detects and unassigns abandoned tasks
 
 ## Data Model
 
@@ -357,6 +638,94 @@ Supported event types:
 ### qbit-easypost-tracking (Carrier Integration)
 
 Carrier label generation, rate shopping, and tracking number retrieval for parcel shipments. The WMS defines a `CarrierAdapter` interface so multiple carrier QBits can be plugged in.
+
+## Extending the WMS
+
+The WMS is designed to be extended through two adapter interfaces and the QQQ metadata system.
+
+### Implementing a custom CarrierAdapter
+
+The `CarrierAdapter` interface (`com.kingsrook.qbits.wms.shipping.CarrierAdapter`) defines two methods for carrier integration. The default `DefaultCarrierAdapter` returns synthetic tracking numbers -- replace it for production use.
+
+```java
+import com.kingsrook.qbits.wms.shipping.CarrierAdapter;
+import java.math.BigDecimal;
+
+public class UpsCarrierAdapter implements CarrierAdapter
+{
+   @Override
+   public String generateLabel(String carrier, String serviceLevel,
+      String shipFromAddress, String shipToAddress, BigDecimal weightLbs)
+   {
+      // Call UPS Shipping API to create a shipment and generate a label.
+      // Return the tracking number assigned by UPS.
+      UpsClient client = new UpsClient(apiKey);
+      UpsShipment shipment = client.createShipment(
+         serviceLevel, shipFromAddress, shipToAddress, weightLbs);
+      return shipment.getTrackingNumber();
+   }
+
+   @Override
+   public BigDecimal getRate(String carrier, String serviceLevel, BigDecimal weightLbs)
+   {
+      // Call UPS Rating API to get a shipping rate quote.
+      UpsClient client = new UpsClient(apiKey);
+      return client.getRate(serviceLevel, weightLbs);
+   }
+}
+```
+
+Register it on the config:
+
+```java
+WmsQBitConfig config = new WmsQBitConfig()
+   .withBackendName("rdbms")
+   .withCarrierAdapter(new UpsCarrierAdapter());
+```
+
+### Implementing a custom AccountingAdapter
+
+The `AccountingAdapter` interface (`com.kingsrook.qbits.wms.billing.AccountingAdapter`) defines one method for syncing invoices to an external accounting system. The default `DefaultAccountingAdapter` returns synthetic external IDs.
+
+```java
+import com.kingsrook.qbits.wms.billing.AccountingAdapter;
+import java.math.BigDecimal;
+
+public class QuickBooksAdapter implements AccountingAdapter
+{
+   @Override
+   public String syncInvoice(Integer invoiceId, String invoiceNumber, BigDecimal total)
+   {
+      // Call QuickBooks API to create an invoice in the accounting system.
+      // Return the QuickBooks invoice ID for cross-reference.
+      QBooksClient qb = new QBooksClient(oauthToken);
+      QBooksInvoice invoice = qb.createInvoice(invoiceNumber, total);
+      return invoice.getId();
+   }
+}
+```
+
+Register it on the config:
+
+```java
+WmsQBitConfig config = new WmsQBitConfig()
+   .withBackendName("rdbms")
+   .withAccountingAdapter(new QuickBooksAdapter());
+```
+
+### Adding new task types
+
+The task engine is designed around a dispatcher pattern. Adding a new task type conceptually involves:
+
+1. **Define the task type**: Add a new value to the task type enumeration (e.g., `QUALITY_AUDIT`).
+
+2. **Create a completion handler**: Implement a handler class that defines what happens when a task of this type is completed. Follow the pattern of existing handlers like `PutawayTaskCompletionHandler` or `PickCompletionHandler`. Each handler receives the completed task record and executes the appropriate side effects (inventory changes, status updates, downstream task creation, billing capture).
+
+3. **Register with the dispatcher**: Add the new task type to `TaskCompletionDispatcher` so it routes completed tasks to your handler.
+
+4. **Configure per warehouse**: Add a `wmsTaskTypeConfig` record for each warehouse to control priority, equipment requirements, auto-assignment behavior, and scan requirements for the new task type.
+
+The dispatcher pattern ensures that each task type's completion logic is isolated and independently testable.
 
 ## Testing
 
