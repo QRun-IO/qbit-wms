@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.qbits.QBitConfig;
+import com.kingsrook.qqq.backend.core.model.metadata.security.RecordSecurityLock;
 import com.kingsrook.qqq.backend.core.utils.StringUtils;
 
 
@@ -24,6 +25,8 @@ public class WmsQBitConfig implements QBitConfig
    private String     opensearchHost;
    private Integer    opensearchPort;
    private String     opensearchIndexName;
+
+   private List<RecordSecurityLock> recordSecurityLocks;
 
 
 
@@ -296,6 +299,37 @@ public class WmsQBitConfig implements QBitConfig
    public WmsQBitConfig withOpensearchIndexName(String opensearchIndexName)
    {
       this.opensearchIndexName = opensearchIndexName;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for recordSecurityLocks
+    *******************************************************************************/
+   public List<RecordSecurityLock> getRecordSecurityLocks()
+   {
+      return (this.recordSecurityLocks);
+   }
+
+
+
+   /*******************************************************************************
+    ** Setter for recordSecurityLocks
+    *******************************************************************************/
+   public void setRecordSecurityLocks(List<RecordSecurityLock> recordSecurityLocks)
+   {
+      this.recordSecurityLocks = recordSecurityLocks;
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for recordSecurityLocks
+    *******************************************************************************/
+   public WmsQBitConfig withRecordSecurityLocks(List<RecordSecurityLock> recordSecurityLocks)
+   {
+      this.recordSecurityLocks = recordSecurityLocks;
       return (this);
    }
 }

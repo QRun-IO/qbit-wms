@@ -169,13 +169,13 @@ public class AllocateOrdersStep implements BackendStep
                BigDecimal allocateQty = available.min(remainingToAllocate);
 
                ///////////////////////////////////////////////////////////////
-               // Create PICK allocation transaction (perpetual inventory)  //
+               // Create ALLOCATE transaction (perpetual inventory)        //
                ///////////////////////////////////////////////////////////////
                new InsertAction().execute(new InsertInput(WmsInventoryTransaction.TABLE_NAME).withRecord(new QRecord()
                   .withValue("warehouseId", orderWarehouseId)
                   .withValue("clientId", orderClientId)
                   .withValue("itemId", itemId)
-                  .withValue("transactionTypeId", TransactionType.PICK.getPossibleValueId())
+                  .withValue("transactionTypeId", TransactionType.ALLOCATE.getPossibleValueId())
                   .withValue("fromLocationId", inv.getValueInteger("locationId"))
                   .withValue("quantity", allocateQty)
                   .withValue("lotNumber", inv.getValueString("lotNumber"))

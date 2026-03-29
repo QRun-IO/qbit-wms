@@ -22,7 +22,7 @@ This QBit provides a complete WMS for QQQ applications, covering receiving, puta
 - **3PL Billing**: Activity-based billing automatically captured from task completion hooks. Rate cards, invoicing, and storage snapshots.
 - **Multi-Warehouse**: Warehouse-scoped data isolation from day one via `warehouse_id` FK and RecordSecurityLock.
 - **License Plate Tracking**: First-class LPN entity for pallet-level operations and container lifecycle tracking.
-- **24 Dashboard Widgets**: Task queue summary, worker productivity, fulfillment pipeline, SLA risk, inventory accuracy, billing revenue, and more.
+- **11 Dashboard Widgets**: Task queue summary, worker productivity, fulfillment pipeline, SLA risk, inventory accuracy, billing dashboard, and more.
 
 ## Open Source & Full Control
 
@@ -60,7 +60,7 @@ qbit-wms/
     shipping/                       -- Shipments, Manifests, Dock Appointments, Labels
     returns/                        -- RMA, Inspection, Disposition
     billing/                        -- 3PL activity capture, Rate Cards, Invoicing
-    widgets/                        -- 24 dashboard widgets (producers + renderers)
+    widgets/                        -- 11 dashboard widgets (producers + renderers)
 ```
 
 ## Getting Started
@@ -87,7 +87,7 @@ qbit-wms/
 
 ```java
 WmsQBitConfig config = new WmsQBitConfig()
-   .withDefaultBackendNameForTables("yourBackendName");
+   .withBackendName("yourBackendName");
 
 WmsQBitProducer producer = new WmsQBitProducer()
    .withQBitConfig(config);
@@ -96,58 +96,28 @@ MetaDataProducerMultiOutput output = producer.produce(qInstance);
 output.addSelfToInstance(qInstance);
 ```
 
-#### With multi-warehouse security
+Default security locks (warehouseId DENY + clientId ALLOW) and permission rules are applied automatically in `postProduceActions`.
+
+#### With custom security locks
 
 ```java
 WmsQBitConfig config = new WmsQBitConfig()
-   .withDefaultBackendNameForTables("yourBackendName")
+   .withBackendName("yourBackendName")
    .withRecordSecurityLocks(List.of(
       new RecordSecurityLock()
          .withFieldName("warehouseId")
          .withSecurityKeyType("warehouseAccess")
-         .withNullValueBehavior(NullValueBehavior.DENY)
-   ));
-```
-
-#### With 3PL client isolation
-
-```java
-WmsQBitConfig config = new WmsQBitConfig()
-   .withDefaultBackendNameForTables("yourBackendName")
-   .withRecordSecurityLocks(List.of(
-      new RecordSecurityLock()
-         .withFieldName("warehouseId")
-         .withSecurityKeyType("warehouseAccess"),
+         .withNullValueBehavior(RecordSecurityLock.NullValueBehavior.DENY),
       new RecordSecurityLock()
          .withFieldName("clientId")
          .withSecurityKeyType("clientAccess")
-         .withNullValueBehavior(NullValueBehavior.ALLOW)  // Required for brand-direct mode
-   ));
-```
-
-#### With companion QBits
-
-```java
-WmsQBitConfig config = new WmsQBitConfig()
-   .withDefaultBackendNameForTables("yourBackendName")
-   .withCarrierIntegrationQBit("qbit-easypost")
-   .withQuickSearchQBitNamespace("quickSearch")
-   .withWebhooksQBitNamespace("webhooks");
-```
-
-#### Add WMS navigation section to your app
-
-```java
-QAppMetaData app = new QAppMetaData()
-   .withName("myApp")
-   .withSections(List.of(
-      WmsQBitProducer.produceAppSection()
+         .withNullValueBehavior(RecordSecurityLock.NullValueBehavior.ALLOW)
    ));
 ```
 
 ## Data Model
 
-### Tables (45 total)
+### Tables (46 total)
 
 #### Core
 
@@ -239,7 +209,7 @@ QAppMetaData app = new QAppMetaData()
 | `wmsPutawayRule` | Configurable directed putaway rules (zone type, velocity, category, storage) |
 | `wmsReplenishmentRule` | Min/max thresholds for pick-face replenishment by item and location |
 
-## Processes (38)
+## Processes (47)
 
 ### Receiving
 
@@ -248,26 +218,26 @@ QAppMetaData app = new QAppMetaData()
 | `receiveAgainstPO` | Receive goods against a PO with tolerance validation, QC check, and PUTAWAY task creation |
 | `blindReceive` | Receive unexpected goods without a PO |
 | `receiveASN` | Receive against an advance ship notice with per-line variance detection |
-| `crossDockReceive` | Receive and immediately route to outbound staging via MOVE task |
+| `directedPutaway` | Evaluate configurable rules to recommend directed putaway locations |
+| `qualityInspection` | QC inspection gate for received goods |
 
 ### Inventory
 
 | Process | Description |
 |---------|-------------|
-| `createCycleCount` | Generate count plans (ABC, random, location-based) and create COUNT tasks |
+| `wmsCycleCount` | Generate count plans (ABC, random, location-based) and create COUNT tasks |
 | `approveCountVariance` | Supervisor reviews count variances, approves adjustments or triggers recounts |
 | `inventoryAdjustment` | Manual adjustment with reason codes and optional supervisor approval |
-| `requestMove` | Request an inventory relocation, creates MOVE task |
+| `inventoryMove` | Request an inventory relocation, creates MOVE task |
 | `inventoryHold` | Place inventory on hold (QC, damage, recall, regulatory) |
 | `inventoryRelease` | Release held inventory back to available status |
-| `abcAnalysis` | Reclassify SKU velocity (A/B/C) from order history |
-| `expirationCheck` | Flag and handle expiring inventory with holds and alerts |
 
 ### Fulfillment
 
 | Process | Description |
 |---------|-------------|
 | `allocateOrders` | Reserve inventory using FEFO/FIFO/LIFO allocation rules |
+| `createWave` | Create a wave grouping for coordinated pick release |
 | `releaseWave` | Release a wave and create optimized PICK tasks |
 | `packOrder` | Pack picked items into cartons with scan verification |
 | `kitAssembly` | Assemble kits from BOM components via KIT_ASSEMBLE tasks |
@@ -305,83 +275,61 @@ QAppMetaData app = new QAppMetaData()
 | `holdTask` | Supervisor: place a task on hold |
 | `releaseTask` | Supervisor: release a held task back to the queue |
 | `cancelTask` | Supervisor: cancel a task with type-specific reversal logic |
-| `unassignTask` | Release a task back to the unassigned queue |
-| `autoAssignTasks` | Scheduled: auto-assign pending tasks to available workers by zone and equipment |
-| `escalateTaskPriority` | Scheduled: escalate priority of aging tasks |
+| `pauseTask` | Pause a task in progress |
+| `resumeTask` | Resume a paused task |
 | `staleTaskCheck` | Scheduled: find and unassign stuck or abandoned tasks |
 
 ### Billing
 
 | Process | Description |
 |---------|-------------|
-| `captureBillingActivities` | Auto-capture billable events from task completion hooks |
 | `generateInvoice` | Create invoice for a billing period with rate card application |
 | `storageSnapshot` | Scheduled nightly: calculate daily storage billing per client |
 | `syncInvoiceToAccounting` | Push invoices to accounting systems (QuickBooks, Xero) |
 
-### Replenishment
+### Advanced / Scheduled
 
 | Process | Description |
 |---------|-------------|
-| `replenishCheck` | Scheduled: detect low pick-face inventory and create REPLENISH tasks |
-| `putawayRuleEngine` | Evaluate configurable rules to recommend directed putaway locations |
-
-### Operational / Housekeeping
-
-| Process | Description |
-|---------|-------------|
-| `importOrders` | Pull orders from ecommerce/ERP sources via API or file upload |
-| `importProducts` | Sync product catalog from external source |
-| `importPurchaseOrders` | Import POs from ERP/procurement system |
+| `abcAnalysis` | Reclassify SKU velocity (A/B/C) from order history |
 | `autoAllocateAndRelease` | Scheduled: allocate new orders and release picks automatically |
+| `autoAssignTasks` | Scheduled: auto-assign pending tasks to available workers by zone and equipment |
 | `expirationAlertCheck` | Scheduled: flag inventory approaching expiration |
 | `lowStockAlertCheck` | Scheduled: flag items below reorder point |
+| `replenishCheck` | Scheduled: detect low pick-face inventory and create REPLENISH tasks |
 
-## Dashboard Widgets (24)
+## Dashboard Widgets (11)
 
 ### Task Dashboard
 
 | Widget | Type | Description |
 |--------|------|-------------|
-| `wmsTaskQueueSummary` | Aggregate 2D Table | Task counts by type (rows) and status (columns) |
-| `wmsTasksByZone` | Stacked Bar | Pending/in-progress tasks per zone |
-| `wmsTaskAging` | Alert List | Tasks exceeding configurable age threshold |
-| `wmsActiveWorkers` | Table | Active workers with current task, time on task, and tasks completed today |
-| `wmsWorkerProductivity` | Bar Chart | Tasks completed per hour by worker and task type |
-| `wmsTaskThroughput` | Line Chart | Tasks completed per hour over current shift |
-| `wmsLeaderboard` | Table | Top performers by tasks completed with average completion time |
+| `wmsTaskQueueSummary` | Multi-Statistics | Task counts by type and status |
+| `wmsTaskAging` | Bar Chart | Pending/assigned tasks by age bucket |
+| `wmsActiveWorkers` | Table | Active workers with current task and time on task |
+| `wmsWorkerProductivity` | Table | Per-worker task completion metrics |
 
 ### Operations Dashboard
 
 | Widget | Type | Description |
 |--------|------|-------------|
-| `wmsOrdersToday` | Statistics | Orders received / allocated / picked / packed / shipped today |
+| `wmsOrdersToday` | Multi-Statistics | Orders received / picked / packed / shipped today |
 | `wmsFulfillmentPipeline` | Stacked Bar | Orders by status from pending to shipped |
-| `wmsSlaRisk` | Alert List | Orders at risk of missing ship-by date |
-| `wmsThroughput` | Line Chart | Units per hour (receiving, picking, packing, shipping) |
-| `wmsReceivingQueue` | Table | Open POs expected today with status |
-| `wmsOpenExceptions` | Alert List | Short picks, damaged goods, address issues |
+| `wmsSlaRisk` | Table | Orders at risk of missing ship-by date |
 
 ### Inventory Dashboard
 
 | Widget | Type | Description |
 |--------|------|-------------|
-| `wmsInventorySummary` | Statistics | Total SKUs, units, value, and utilization percentage |
-| `wmsExpiringSoon` | Alert List | Items expiring within configurable threshold |
-| `wmsLowStockAlerts` | Alert List | Items below reorder point |
+| `wmsInventorySummary` | Statistics | Total SKUs, units, locations, and utilization percentage |
+| `wmsLowStockAlerts` | Table | Items below reorder point |
 | `wmsInventoryAccuracy` | Statistics | Accuracy percentage from recent cycle counts |
-| `wmsTopSkusByVolume` | Bar Chart | Highest-volume items |
-| `wmsAgingInventory` | Table | Items with longest dwell time |
 
 ### Billing Dashboard
 
 | Widget | Type | Description |
 |--------|------|-------------|
-| `wmsRevenueThisPeriod` | Statistics | Total billed across all clients |
-| `wmsRevenueByClient` | Pie Chart | Revenue breakdown by client |
-| `wmsUnbilledActivities` | Alert | Activities captured but not yet invoiced |
-| `wmsInvoiceStatus` | Stacked Bar | Invoice status distribution (draft, sent, paid, overdue) |
-| `wmsStorageByClient` | Bar Chart | Storage utilization per client |
+| `wmsBillingDashboard` | Multi-Statistics | Revenue, unbilled activities, and invoice status |
 
 ## Companion QBit Integration
 
@@ -439,7 +387,7 @@ mvn org.jacoco:jacoco-maven-plugin:0.8.11:prepare-agent test \
 | 5 | 4 | 4 | 0 | Returns + Kitting |
 | 6 | 5 | 4 | 5 | 3PL Billing |
 | 7 | 4 | 6+ | 6 | Replenishment, Analytics, Optimization |
-| **Total** | **45** | **45+** | **24** | |
+| **Total** | **46** | **47** | **11** | |
 
 ## Documentation
 

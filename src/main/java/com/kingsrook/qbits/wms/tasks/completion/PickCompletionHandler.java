@@ -93,15 +93,12 @@ public class PickCompletionHandler extends AbstractTaskCompletionHandler
       );
 
       /////////////////////////////////////////////////////////////////////////
-      // Step 2: Deduct from inventory.quantity_on_hand at source            //
+      // Step 2+3: Combined read-modify-write for on_hand, allocated, and  //
+      // available.  Reading once avoids a stale-data race between the old  //
+      // updateInventoryQuantity and decrementAllocated calls.              //
       /////////////////////////////////////////////////////////////////////////
-      updateInventoryQuantity(warehouseId, clientId, itemId, sourceLocationId,
-         quantityCompleted.negate(), lotNumber, serialNumber);
-
-      /////////////////////////////////////////////////////////////////////////
-      // Step 3: Decrement inventory.quantity_allocated                      //
-      /////////////////////////////////////////////////////////////////////////
-      decrementAllocated(warehouseId, itemId, sourceLocationId, quantityCompleted, lotNumber);
+      deductAndDeallocateInventory(warehouseId, clientId, itemId, sourceLocationId,
+         quantityCompleted, lotNumber, serialNumber);
 
       /////////////////////////////////////////////////////////////////////////
       // Step 4: Update order_line.quantity_picked                           //
@@ -142,10 +139,13 @@ public class PickCompletionHandler extends AbstractTaskCompletionHandler
 
 
    /*******************************************************************************
-    ** Decrement quantity_allocated on the inventory record at the source location.
+    ** Combined deduct-and-deallocate: reads the inventory record once, computes
+    ** new on_hand, allocated, and available together, then writes once.  This
+    ** eliminates the race condition between separate updateInventoryQuantity and
+    ** decrementAllocated calls that could read stale data from each other.
     *******************************************************************************/
-   private void decrementAllocated(Integer warehouseId, Integer itemId, Integer locationId,
-      BigDecimal quantity, String lotNumber) throws QException
+   private void deductAndDeallocateInventory(Integer warehouseId, Integer clientId, Integer itemId,
+      Integer locationId, BigDecimal quantity, String lotNumber, String serialNumber) throws QException
    {
       QQueryFilter filter = new QQueryFilter()
          .withCriteria(new QFilterCriteria("itemId", QCriteriaOperator.EQUALS, itemId))
@@ -156,6 +156,10 @@ public class PickCompletionHandler extends AbstractTaskCompletionHandler
       {
          filter.withCriteria(new QFilterCriteria("lotNumber", QCriteriaOperator.EQUALS, lotNumber));
       }
+      if(serialNumber != null)
+      {
+         filter.withCriteria(new QFilterCriteria("serialNumber", QCriteriaOperator.EQUALS, serialNumber));
+      }
 
       QueryOutput queryOutput = new QueryAction().execute(new QueryInput(WmsInventory.TABLE_NAME).withFilter(filter));
       List<QRecord> records = queryOutput.getRecords();
@@ -163,21 +167,27 @@ public class PickCompletionHandler extends AbstractTaskCompletionHandler
       if(!records.isEmpty())
       {
          QRecord inv = records.get(0);
-         BigDecimal currentAllocated = ValueUtils.getValueAsBigDecimal(inv.getValue("quantityAllocated"));
-         if(currentAllocated == null)
-         {
-            currentAllocated = BigDecimal.ZERO;
-         }
 
+         BigDecimal currentQoh = ValueUtils.getValueAsBigDecimal(inv.getValue("quantityOnHand"));
+         BigDecimal currentAllocated = ValueUtils.getValueAsBigDecimal(inv.getValue("quantityAllocated"));
+         BigDecimal currentOnHold = ValueUtils.getValueAsBigDecimal(inv.getValue("quantityOnHold"));
+         if(currentQoh == null) { currentQoh = BigDecimal.ZERO; }
+         if(currentAllocated == null) { currentAllocated = BigDecimal.ZERO; }
+         if(currentOnHold == null) { currentOnHold = BigDecimal.ZERO; }
+
+         BigDecimal newQoh = currentQoh.subtract(quantity);
          BigDecimal newAllocated = currentAllocated.subtract(quantity);
          if(newAllocated.compareTo(BigDecimal.ZERO) < 0)
          {
             newAllocated = BigDecimal.ZERO;
          }
+         BigDecimal newAvailable = newQoh.subtract(newAllocated).subtract(currentOnHold);
 
          new UpdateAction().execute(new UpdateInput(WmsInventory.TABLE_NAME).withRecord(new QRecord()
             .withValue("id", inv.getValueInteger("id"))
-            .withValue("quantityAllocated", newAllocated)));
+            .withValue("quantityOnHand", newQoh)
+            .withValue("quantityAllocated", newAllocated)
+            .withValue("quantityAvailable", newAvailable)));
       }
    }
 

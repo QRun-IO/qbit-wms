@@ -26,7 +26,9 @@ public enum TransactionType implements PossibleValueEnum<Integer>
    SCRAP(12, "Scrap"),
    REPLENISH(13, "Replenish"),
    KIT_BUILD(14, "Kit Build"),
-   KIT_DISASSEMBLE(15, "Kit Disassemble");
+   KIT_DISASSEMBLE(15, "Kit Disassemble"),
+   ALLOCATE(16, "Allocate"),
+   DEALLOCATE(17, "Deallocate");
 
    private final Integer id;
    private final String  label;

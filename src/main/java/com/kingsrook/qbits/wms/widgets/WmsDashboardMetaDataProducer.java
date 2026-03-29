@@ -38,7 +38,11 @@ public class WmsDashboardMetaDataProducer extends MetaDataProducer<QAppMetaData>
             ActiveWorkersWidgetProducer.NAME,
             TaskAgingWidgetProducer.NAME,
             LowStockAlertsWidgetProducer.NAME,
-            InventoryAccuracyWidgetProducer.NAME
+            InventoryAccuracyWidgetProducer.NAME,
+            BillingDashboardWidgetProducer.NAME,
+            FulfillmentPipelineWidgetProducer.NAME,
+            OrdersTodayWidgetProducer.NAME,
+            SlaRiskWidgetProducer.NAME
          )));
    }
 }
