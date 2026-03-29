@@ -42,6 +42,16 @@ public class TaskCompletionDispatcher
       HANDLERS.put(TaskType.PICK.getPossibleValueId(), new PickCompletionHandler());
       HANDLERS.put(TaskType.PACK.getPossibleValueId(), new PackCompletionHandler());
       HANDLERS.put(TaskType.KIT_ASSEMBLE.getPossibleValueId(), new KitAssembleCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 4 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.LOAD.getPossibleValueId(), new LoadCompletionHandler());
+
+      ///////////////////////////////////
+      // Phase 5 handlers              //
+      ///////////////////////////////////
+      HANDLERS.put(TaskType.RETURN_PUTAWAY.getPossibleValueId(), new ReturnPutawayCompletionHandler());
    }
 
 

@@ -52,15 +52,29 @@ import com.kingsrook.qbits.wms.core.enums.CartonStatus;
 import com.kingsrook.qbits.wms.core.enums.WaveStatus;
 import com.kingsrook.qbits.wms.core.enums.WaveType;
 import com.kingsrook.qbits.wms.core.enums.AllocationStrategy;
+import com.kingsrook.qbits.wms.core.enums.DockAppointmentStatus;
+import com.kingsrook.qbits.wms.core.enums.DockAppointmentType;
+import com.kingsrook.qbits.wms.core.enums.KitWorkOrderStatus;
+import com.kingsrook.qbits.wms.core.enums.KitWorkOrderType;
+import com.kingsrook.qbits.wms.core.enums.ManifestStatus;
+import com.kingsrook.qbits.wms.core.enums.ReturnAuthorizationStatus;
+import com.kingsrook.qbits.wms.core.enums.ReturnReasonCode;
+import com.kingsrook.qbits.wms.core.enums.ShipmentStatus;
 import com.kingsrook.qbits.wms.core.model.WmsClient;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsAllocationRule;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsCarton;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsCartonLine;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsCartonType;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsKitBom;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsKitWorkOrder;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsOrder;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsOrderLine;
 import com.kingsrook.qbits.wms.fulfillment.model.WmsWave;
+import com.kingsrook.qbits.wms.returns.model.WmsReturnAuthorization;
+import com.kingsrook.qbits.wms.returns.model.WmsReturnAuthorizationLine;
+import com.kingsrook.qbits.wms.shipping.model.WmsDockAppointment;
+import com.kingsrook.qbits.wms.shipping.model.WmsManifest;
+import com.kingsrook.qbits.wms.shipping.model.WmsShipment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -701,6 +715,146 @@ public class BaseTest
                .withIsActive(true)))
          .getRecords().get(0).getValueInteger("id");
       assertNotNull(id, "Failed to insert client");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a shipment and return its id.
+    *******************************************************************************/
+   public static Integer insertShipment(Integer warehouseId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsShipment.TABLE_NAME)
+            .withRecordEntity(new WmsShipment()
+               .withWarehouseId(warehouseId)
+               .withShipmentNumber("SHIP-" + System.nanoTime())
+               .withStatusId(ShipmentStatus.PENDING.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert shipment");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a manifest and return its id.
+    *******************************************************************************/
+   public static Integer insertManifest(Integer warehouseId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsManifest.TABLE_NAME)
+            .withRecordEntity(new WmsManifest()
+               .withWarehouseId(warehouseId)
+               .withManifestNumber("MAN-" + System.nanoTime())
+               .withCarrier("TEST-CARRIER")
+               .withStatusId(ManifestStatus.OPEN.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert manifest");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a dock appointment and return its id.
+    *******************************************************************************/
+   public static Integer insertDockAppointment(Integer warehouseId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsDockAppointment.TABLE_NAME)
+            .withRecordEntity(new WmsDockAppointment()
+               .withWarehouseId(warehouseId)
+               .withAppointmentTypeId(DockAppointmentType.OUTBOUND.getPossibleValueId())
+               .withCarrierName("Test Carrier")
+               .withStatusId(DockAppointmentStatus.SCHEDULED.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert dock appointment");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a return authorization and return its id.
+    *******************************************************************************/
+   public static Integer insertReturnAuthorization(Integer warehouseId) throws QException
+   {
+      return insertReturnAuthorization(warehouseId, null, null);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a return authorization with the given order and return its id.
+    *******************************************************************************/
+   public static Integer insertReturnAuthorization(Integer warehouseId, Integer orderId, Integer clientId) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsReturnAuthorization.TABLE_NAME)
+            .withRecordEntity(new WmsReturnAuthorization()
+               .withWarehouseId(warehouseId)
+               .withClientId(clientId)
+               .withRmaNumber("RMA-" + System.nanoTime())
+               .withOriginalOrderId(orderId)
+               .withStatusId(ReturnAuthorizationStatus.AWAITING_RECEIPT.getPossibleValueId())
+               .withReasonCodeId(ReturnReasonCode.DEFECTIVE.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert return authorization");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a return authorization line and return its id.
+    *******************************************************************************/
+   public static Integer insertReturnAuthorizationLine(Integer returnAuthorizationId, Integer itemId) throws QException
+   {
+      return insertReturnAuthorizationLine(returnAuthorizationId, itemId, 5);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a return authorization line with the given quantity and return its id.
+    *******************************************************************************/
+   public static Integer insertReturnAuthorizationLine(Integer returnAuthorizationId, Integer itemId, Integer quantityAuthorized) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsReturnAuthorizationLine.TABLE_NAME)
+            .withRecordEntity(new WmsReturnAuthorizationLine()
+               .withReturnAuthorizationId(returnAuthorizationId)
+               .withItemId(itemId)
+               .withQuantityAuthorized(quantityAuthorized)
+               .withQuantityReceived(0)))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert return authorization line");
+      return (id);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a kit work order and return its id.
+    *******************************************************************************/
+   public static Integer insertKitWorkOrder(Integer warehouseId, Integer kitItemId) throws QException
+   {
+      return insertKitWorkOrder(warehouseId, kitItemId, 10);
+   }
+
+
+
+   /*******************************************************************************
+    ** Insert a kit work order with the given quantity and return its id.
+    *******************************************************************************/
+   public static Integer insertKitWorkOrder(Integer warehouseId, Integer kitItemId, Integer quantity) throws QException
+   {
+      Integer id = new InsertAction().execute(new InsertInput(WmsKitWorkOrder.TABLE_NAME)
+            .withRecordEntity(new WmsKitWorkOrder()
+               .withWarehouseId(warehouseId)
+               .withKitItemId(kitItemId)
+               .withQuantity(quantity)
+               .withWorkOrderTypeId(KitWorkOrderType.ASSEMBLE.getPossibleValueId())
+               .withStatusId(KitWorkOrderStatus.DRAFT.getPossibleValueId())))
+         .getRecords().get(0).getValueInteger("id");
+      assertNotNull(id, "Failed to insert kit work order");
       return (id);
    }
 }

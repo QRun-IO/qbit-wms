@@ -63,7 +63,7 @@ public class WmsBillingRateCard extends QRecordEntity
             .withRecordLabelFields("name")
             .withSection(new QFieldSection("identity", "Identity", new QIcon("badge"), Tier.T1,
                java.util.List.of("id", "clientId", "name", "statusId")))
-            .withSection(new QFieldSection("dates", "Date Range", new QIcon("date_range"), Tier.T2,
+            .withSection(new QFieldSection("dateRange", "Date Range", new QIcon("date_range"), Tier.T2,
                java.util.List.of("effectiveDate", "expirationDate")))
             .withSection(SectionFactory.customT2("billingRates", new QIcon("list")).withWidgetName(rateChildJoinName))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));

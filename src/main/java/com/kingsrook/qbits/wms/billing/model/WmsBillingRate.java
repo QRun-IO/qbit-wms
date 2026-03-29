@@ -14,7 +14,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMeta
 import com.kingsrook.qbits.wms.core.enums.BillingActivityType;
 
 
-@QMetaDataProducingEntity(produceTableMetaData = true)
+@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
 public class WmsBillingRate extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsBillingRate";
