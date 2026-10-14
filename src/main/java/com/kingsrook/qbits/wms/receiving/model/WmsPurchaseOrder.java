@@ -7,7 +7,15 @@ package com.kingsrook.qbits.wms.receiving.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import com.kingsrook.qbits.wms.core.enums.PurchaseOrderStatus;
+import com.kingsrook.qbits.wms.core.model.WmsClient;
+import com.kingsrook.qbits.wms.core.model.WmsLocation;
+import com.kingsrook.qbits.wms.core.model.WmsVendor;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -22,11 +30,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.enums.PurchaseOrderStatus;
-import com.kingsrook.qbits.wms.core.model.WmsClient;
-import com.kingsrook.qbits.wms.core.model.WmsLocation;
-import com.kingsrook.qbits.wms.core.model.WmsVendor;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 
 
 @QMetaDataProducingEntity(
@@ -72,6 +75,10 @@ public class WmsPurchaseOrder extends QRecordEntity
             .withSection(new QFieldSection("notes", "Notes", new QIcon("notes"), Tier.T2,
                java.util.List.of("notes")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope dockDoorId choices to the selected warehouseId.
+         table.getField("dockDoorId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
 
          return (table);
       }
