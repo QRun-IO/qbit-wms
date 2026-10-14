@@ -7,7 +7,11 @@ package com.kingsrook.qbits.wms.core.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import com.kingsrook.qbits.wms.core.enums.InventoryStatus;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -16,10 +20,9 @@ import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
-import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
-import com.kingsrook.qbits.wms.core.enums.InventoryStatus;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 
 
 @QMetaDataProducingEntity(
@@ -58,6 +61,18 @@ public class WmsInventory extends QRecordEntity
             .withSection(new QFieldSection("audit", "Audit", new QIcon("fact_check"), Tier.T2,
                java.util.List.of("holdReason", "lastCountDate")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope locationId choices to the selected warehouseId.
+         table.getField("locationId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
+
+         // Scope lpnId choices to the selected warehouseId.
+         table.getField("lpnId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
+
+         // Scope itemId choices to the selected clientId.
+         table.getField("itemId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("clientId", QCriteriaOperator.EQUALS, "${input.clientId}")));
 
          return (table);
       }

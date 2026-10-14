@@ -7,7 +7,13 @@ package com.kingsrook.qbits.wms.fulfillment.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.enums.OrderStatus;
+import com.kingsrook.qbits.wms.core.model.WmsClient;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -22,9 +28,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.enums.OrderStatus;
-import com.kingsrook.qbits.wms.core.model.WmsClient;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 
 
 @QMetaDataProducingEntity(
@@ -74,6 +77,10 @@ public class WmsOrder extends QRecordEntity
                java.util.List.of("carrier", "serviceLevel", "shipByDate", "cancelDate", "externalOrderId",
                   "totalLineCount", "totalUnitCount", "orderValue", "specialInstructions")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope waveId choices to the selected warehouseId.
+         table.getField("waveId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
 
          return (table);
       }

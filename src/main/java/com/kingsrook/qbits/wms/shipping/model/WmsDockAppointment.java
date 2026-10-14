@@ -7,7 +7,14 @@ package com.kingsrook.qbits.wms.shipping.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import com.kingsrook.qbits.wms.core.enums.DockAppointmentStatus;
+import com.kingsrook.qbits.wms.core.enums.DockAppointmentType;
+import com.kingsrook.qbits.wms.core.model.WmsLocation;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -19,10 +26,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.enums.DockAppointmentStatus;
-import com.kingsrook.qbits.wms.core.enums.DockAppointmentType;
-import com.kingsrook.qbits.wms.core.model.WmsLocation;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 
 
 @QMetaDataProducingEntity(
@@ -59,6 +62,10 @@ public class WmsDockAppointment extends QRecordEntity
             .withSection(new QFieldSection("reference", "Reference", new QIcon("link"), Tier.T2,
                java.util.List.of("referenceType", "referenceId", "notes")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope dockDoorId choices to the selected warehouseId.
+         table.getField("dockDoorId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
 
          return (table);
       }

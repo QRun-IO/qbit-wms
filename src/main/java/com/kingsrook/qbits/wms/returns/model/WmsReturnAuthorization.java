@@ -7,7 +7,15 @@ package com.kingsrook.qbits.wms.returns.model;
 
 
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.enums.ReturnAuthorizationStatus;
+import com.kingsrook.qbits.wms.core.enums.ReturnReasonCode;
+import com.kingsrook.qbits.wms.core.model.WmsClient;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
+import com.kingsrook.qbits.wms.fulfillment.model.WmsOrder;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -22,11 +30,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.enums.ReturnAuthorizationStatus;
-import com.kingsrook.qbits.wms.core.enums.ReturnReasonCode;
-import com.kingsrook.qbits.wms.core.model.WmsClient;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
-import com.kingsrook.qbits.wms.fulfillment.model.WmsOrder;
 
 
 @QMetaDataProducingEntity(
@@ -75,6 +78,11 @@ public class WmsReturnAuthorization extends QRecordEntity
             .withSection(new QFieldSection("details", "Details", new QIcon("info"), Tier.T2,
                java.util.List.of("notes")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope originalOrderId choices to the selected warehouseId and clientId.
+         table.getField("originalOrderId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}"),
+            new QFilterCriteria("clientId", QCriteriaOperator.EQUALS, "${input.clientId}")));
 
          return (table);
       }

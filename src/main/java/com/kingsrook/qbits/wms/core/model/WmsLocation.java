@@ -6,7 +6,11 @@ package com.kingsrook.qbits.wms.core.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.enums.LocationType;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -15,10 +19,9 @@ import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
-import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
-import com.kingsrook.qbits.wms.core.enums.LocationType;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 
 
 @QMetaDataProducingEntity(
@@ -53,6 +56,10 @@ public class WmsLocation extends QRecordEntity
             .withSection(new QFieldSection("capacity", "Capacity", new QIcon("straighten"), Tier.T2,
                java.util.List.of("maxWeightLbs", "maxVolumeCubicFt", "currentWeightLbs", "currentVolumeCubicFt", "isMixedSkuAllowed")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope zoneId choices to the selected warehouseId.
+         table.getField("zoneId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
 
          return (table);
       }

@@ -6,7 +6,14 @@
 package com.kingsrook.qbits.wms.inventory.processes;
 
 
+import com.kingsrook.qbits.wms.core.enums.CycleCountType;
+import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
+import com.kingsrook.qbits.wms.core.model.WmsZone;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
@@ -18,10 +25,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.processes.QComponentType;
 import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendComponentMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.processes.QFrontendStepMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.processes.QProcessMetaData;
-import com.kingsrook.qbits.wms.core.enums.CycleCountType;
-import com.kingsrook.qbits.wms.core.model.WmsCycleCount;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
-import com.kingsrook.qbits.wms.core.model.WmsZone;
 
 
 public class CycleCountProcessMetaDataProducer implements MetaDataProducerInterface<QProcessMetaData>
@@ -51,7 +54,9 @@ public class CycleCountProcessMetaDataProducer implements MetaDataProducerInterf
             .withComponent(new QFrontendComponentMetaData().withType(QComponentType.EDIT_FORM))
             .withFormField(new QFieldMetaData("warehouseId", QFieldType.INTEGER).withLabel("Warehouse").withPossibleValueSourceName(WmsWarehouse.TABLE_NAME).withIsRequired(true))
             .withFormField(new QFieldMetaData("countTypeId", QFieldType.INTEGER).withLabel("Count Type").withPossibleValueSourceName(CycleCountType.NAME).withIsRequired(true))
-            .withFormField(new QFieldMetaData("zoneId", QFieldType.INTEGER).withLabel("Target Zone").withPossibleValueSourceName(WmsZone.TABLE_NAME))
+            // Scope zone choices to the warehouse selected on this process form.
+            .withFormField(new QFieldMetaData("zoneId", QFieldType.INTEGER).withLabel("Target Zone").withPossibleValueSourceName(WmsZone.TABLE_NAME)
+               .withPossibleValueSourceFilter(new QQueryFilter(new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}"))))
             .withFormField(new QFieldMetaData("assignedTo", QFieldType.STRING).withLabel("Assign To")))
 
          //////////////////////////////////////////////////////////////////////////

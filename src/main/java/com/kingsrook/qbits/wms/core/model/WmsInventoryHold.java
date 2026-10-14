@@ -5,17 +5,50 @@ package com.kingsrook.qbits.wms.core.model;
 
 
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.enums.HoldType;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
 import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
-import com.kingsrook.qbits.wms.core.enums.HoldType;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 
 
-@QMetaDataProducingEntity(producePossibleValueSource = true, produceTableMetaData = true)
+@QMetaDataProducingEntity(tableMetaDataCustomizer = WmsInventoryHold.TableMetaDataCustomizer.class, producePossibleValueSource = true, produceTableMetaData = true)
 public class WmsInventoryHold extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsInventoryHold";
+
+
+
+   /*******************************************************************************
+    ** Customize dependent choices after entity fields have been produced.
+    *******************************************************************************/
+   public static class TableMetaDataCustomizer implements MetaDataCustomizerInterface<QTableMetaData>
+   {
+      /***************************************************************************
+       ** Restrict possible values to the current form scope.
+       ***************************************************************************/
+      @Override
+      public QTableMetaData customizeMetaData(QInstance qInstance, QTableMetaData table)
+      {
+         // Scope locationId choices to the selected warehouseId.
+         table.getField("locationId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
+
+         // Scope itemId choices to the selected clientId.
+         table.getField("itemId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("clientId", QCriteriaOperator.EQUALS, "${input.clientId}")));
+
+         return (table);
+      }
+   }
+
+
 
    @QField(isEditable = false, isPrimaryKey = true)
    private Integer id;

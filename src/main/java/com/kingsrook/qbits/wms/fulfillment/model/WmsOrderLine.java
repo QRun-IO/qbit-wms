@@ -6,7 +6,13 @@ package com.kingsrook.qbits.wms.fulfillment.model;
 
 
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.enums.OrderLineStatus;
+import com.kingsrook.qbits.wms.core.model.WmsItem;
+import com.kingsrook.qbits.wms.core.model.WmsUnitOfMeasure;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -18,9 +24,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.enums.OrderLineStatus;
-import com.kingsrook.qbits.wms.core.model.WmsItem;
-import com.kingsrook.qbits.wms.core.model.WmsUnitOfMeasure;
 
 
 @QMetaDataProducingEntity(
@@ -56,6 +59,10 @@ public class WmsOrderLine extends QRecordEntity
             .withSection(new QFieldSection("details", "Details", new QIcon("info"), Tier.T2,
                java.util.List.of("uomId", "lotPreference")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope uomId choices to the selected itemId.
+         table.getField("uomId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("itemId", QCriteriaOperator.EQUALS, "${input.itemId}")));
 
          return (table);
       }

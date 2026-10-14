@@ -7,20 +7,49 @@ package com.kingsrook.qbits.wms.billing.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import com.kingsrook.qqq.backend.core.model.data.QField;
-import com.kingsrook.qqq.backend.core.model.data.QRecord;
-import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
-import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
 import com.kingsrook.qbits.wms.core.enums.BillingActivityType;
 import com.kingsrook.qbits.wms.core.model.WmsClient;
 import com.kingsrook.qbits.wms.core.model.WmsTask;
 import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
+import com.kingsrook.qqq.backend.core.model.data.QField;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
+import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.MetaDataCustomizerInterface;
+import com.kingsrook.qqq.backend.core.model.metadata.producers.annotations.QMetaDataProducingEntity;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 
 
-@QMetaDataProducingEntity(produceTableMetaData = true)
+@QMetaDataProducingEntity(tableMetaDataCustomizer = WmsBillingActivity.TableMetaDataCustomizer.class, produceTableMetaData = true)
 public class WmsBillingActivity extends QRecordEntity
 {
    public static final String TABLE_NAME = "wmsBillingActivity";
+
+
+
+   /*******************************************************************************
+    ** Customize dependent choices after entity fields have been produced.
+    *******************************************************************************/
+   public static class TableMetaDataCustomizer implements MetaDataCustomizerInterface<QTableMetaData>
+   {
+      /***************************************************************************
+       ** Restrict possible values to the current form scope.
+       ***************************************************************************/
+      @Override
+      public QTableMetaData customizeMetaData(QInstance qInstance, QTableMetaData table)
+      {
+         // Scope rateId choices to the selected activityTypeId.
+         table.getField("rateId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("activityTypeId", QCriteriaOperator.EQUALS, "${input.activityTypeId}")));
+
+         return (table);
+      }
+   }
+
+
 
    @QField(isEditable = false, isPrimaryKey = true)
    private Integer id;

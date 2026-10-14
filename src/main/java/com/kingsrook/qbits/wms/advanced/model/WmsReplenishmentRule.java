@@ -7,7 +7,14 @@ package com.kingsrook.qbits.wms.advanced.model;
 
 
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.model.WmsItem;
+import com.kingsrook.qbits.wms.core.model.WmsLocation;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
+import com.kingsrook.qbits.wms.core.model.WmsZone;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -19,10 +26,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.model.WmsItem;
-import com.kingsrook.qbits.wms.core.model.WmsLocation;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
-import com.kingsrook.qbits.wms.core.model.WmsZone;
 
 
 @QMetaDataProducingEntity(
@@ -58,6 +61,14 @@ public class WmsReplenishmentRule extends QRecordEntity
             .withSection(new QFieldSection("source", "Source", new QIcon("source"), Tier.T2,
                java.util.List.of("sourceZoneId")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope pickLocationId choices to the selected warehouseId.
+         table.getField("pickLocationId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
+
+         // Scope sourceZoneId choices to the selected warehouseId.
+         table.getField("sourceZoneId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("warehouseId", QCriteriaOperator.EQUALS, "${input.warehouseId}")));
 
          return (table);
       }

@@ -7,7 +7,15 @@ package com.kingsrook.qbits.wms.fulfillment.model;
 
 
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.enums.KitWorkOrderStatus;
+import com.kingsrook.qbits.wms.core.enums.KitWorkOrderType;
+import com.kingsrook.qbits.wms.core.model.WmsClient;
+import com.kingsrook.qbits.wms.core.model.WmsItem;
+import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -19,11 +27,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.enums.KitWorkOrderStatus;
-import com.kingsrook.qbits.wms.core.enums.KitWorkOrderType;
-import com.kingsrook.qbits.wms.core.model.WmsClient;
-import com.kingsrook.qbits.wms.core.model.WmsItem;
-import com.kingsrook.qbits.wms.core.model.WmsWarehouse;
 
 
 @QMetaDataProducingEntity(
@@ -56,6 +59,10 @@ public class WmsKitWorkOrder extends QRecordEntity
             .withSection(new QFieldSection("details", "Details", new QIcon("info"), Tier.T2,
                java.util.List.of("warehouseId", "clientId", "assignedTo", "completedDate")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope kitItemId choices to the selected clientId.
+         table.getField("kitItemId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("clientId", QCriteriaOperator.EQUALS, "${input.clientId}")));
 
          return (table);
       }

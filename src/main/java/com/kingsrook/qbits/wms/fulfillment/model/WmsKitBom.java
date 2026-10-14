@@ -6,7 +6,13 @@ package com.kingsrook.qbits.wms.fulfillment.model;
 
 
 import java.time.Instant;
+import com.kingsrook.qbits.wms.core.model.WmsClient;
+import com.kingsrook.qbits.wms.core.model.WmsItem;
+import com.kingsrook.qbits.wms.core.model.WmsUnitOfMeasure;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QCriteriaOperator;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QFilterCriteria;
+import com.kingsrook.qqq.backend.core.model.actions.tables.query.QQueryFilter;
 import com.kingsrook.qqq.backend.core.model.data.QField;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.data.QRecordEntity;
@@ -18,9 +24,6 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qbits.wms.core.model.WmsClient;
-import com.kingsrook.qbits.wms.core.model.WmsItem;
-import com.kingsrook.qbits.wms.core.model.WmsUnitOfMeasure;
 
 
 @QMetaDataProducingEntity(
@@ -53,6 +56,18 @@ public class WmsKitBom extends QRecordEntity
             .withSection(new QFieldSection("details", "Details", new QIcon("info"), Tier.T2,
                java.util.List.of("componentUomId", "clientId")))
             .withSection(SectionFactory.defaultT3("createDate", "modifyDate"));
+
+         // Scope componentUomId choices to the selected componentItemId.
+         table.getField("componentUomId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("itemId", QCriteriaOperator.EQUALS, "${input.componentItemId}")));
+
+         // Scope kitItemId choices to the selected clientId.
+         table.getField("kitItemId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("clientId", QCriteriaOperator.EQUALS, "${input.clientId}")));
+
+         // Scope componentItemId choices to the selected clientId.
+         table.getField("componentItemId").withPossibleValueSourceFilter(new QQueryFilter(
+            new QFilterCriteria("clientId", QCriteriaOperator.EQUALS, "${input.clientId}")));
 
          return (table);
       }
