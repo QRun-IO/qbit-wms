@@ -35,6 +35,17 @@
 
    <dependencyManagement>
       <dependencies>
+         <!-- One JUnit line. The QQQ 4.1 BOM manages junit-jupiter-engine/params at 6.0.2 while the parent's JUnit BOM
+              manages junit-jupiter and the platform at 5.10.0; the mixed engine then fails with
+              NoClassDefFoundError org.junit.platform.engine.support.discovery.DiscoveryIssueReporter and no test is found.
+              Import the parent's own JUnit version first (first import wins) so every JUnit artifact converges. -->
+         <dependency>
+            <groupId>org.junit</groupId>
+            <artifactId>junit-bom</artifactId>
+            <version>5.10.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
          <!-- Published QQQ 4.1 core (minimum QQQ 4.1), imported ahead of the parent's BOM. -->
          <dependency>
             <groupId>com.kingsrook.qqq</groupId>
